@@ -2,6 +2,7 @@
 
 import type { Card as CardType, CardSecret, TeamColor } from "@/engine/types";
 import clsx from "clsx";
+import type { CSSProperties } from "react";
 
 type Props = {
   card: CardType;
@@ -11,39 +12,84 @@ type Props = {
   teamColorById?: Record<string, TeamColor>;
 };
 
-function secretBg(secret: CardSecret | null, teamColorById?: Record<string, TeamColor>) {
-  if (!secret) return "bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800";
-  if (secret.kind === "NEUTRAL") return "bg-amber-100 dark:bg-amber-950";
-  if (secret.kind === "ASSASSIN") return "bg-black text-white";
+function secretStyles(
+  secret: CardSecret | null,
+  teamColorById?: Record<string, TeamColor>,
+): { classes: string; style?: CSSProperties } {
+  // Unrevealed
+  if (!secret)
+    return {
+      classes:
+        "bg-white/[0.04] border-white/[0.08] hover:bg-white/[0.08] hover:border-white/[0.15] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-white/5",
+    };
+
+  // Neutral
+  if (secret.kind === "NEUTRAL")
+    return {
+      classes: "bg-amber-900/30 border-amber-700/30 text-amber-200/90",
+    };
+
+  // Assassin
+  if (secret.kind === "ASSASSIN")
+    return {
+      classes: "bg-red-950/60 border-red-800/50 text-red-100",
+      style: { animation: "assassin-pulse 2s ease-in-out infinite" },
+    };
+
+  // Agent by team color
   if (secret.kind === "AGENT") {
     const color = teamColorById?.[secret.teamId] ?? "red";
-    if (color === "red") return "bg-red-600 text-white";
-    if (color === "blue") return "bg-blue-600 text-white";
-    if (color === "green") return "bg-green-600 text-white";
-    if (color === "yellow") return "bg-yellow-400 text-black";
+    const map: Record<string, { classes: string; style: CSSProperties }> = {
+      red: {
+        classes: "bg-red-600/20 border-red-500/40 text-red-100",
+        style: { boxShadow: "var(--neon-red-glow)" },
+      },
+      blue: {
+        classes: "bg-blue-600/20 border-blue-500/40 text-blue-100",
+        style: { boxShadow: "var(--neon-blue-glow)" },
+      },
+      green: {
+        classes: "bg-green-600/20 border-green-500/40 text-green-100",
+        style: { boxShadow: "var(--neon-green-glow)" },
+      },
+      yellow: {
+        classes: "bg-yellow-500/20 border-yellow-500/40 text-yellow-100",
+        style: { boxShadow: "var(--neon-yellow-glow)" },
+      },
+    };
+    return map[color] ?? map.red;
   }
-  return "bg-zinc-200";
+
+  return { classes: "bg-white/5 border-white/10" };
 }
 
 export function CardTile({ card, secretForDisplay, onClick, disabled, teamColorById }: Props) {
   const revealed = card.revealedByTeamId !== null;
+  const { classes, style } = secretStyles(
+    revealed ? card.secret : secretForDisplay,
+    teamColorById,
+  );
+
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
       className={clsx(
-        "relative flex aspect-[4/3] w-full select-none items-center justify-center rounded-lg border px-2 text-center text-sm font-semibold tracking-wide transition",
-        revealed ? "border-transparent" : "border-zinc-200 dark:border-zinc-800",
-        secretBg(revealed ? card.secret : secretForDisplay, teamColorById),
-        disabled && "opacity-60 cursor-not-allowed",
+        "relative flex aspect-[4/3] w-full select-none items-center justify-center rounded-xl border px-2 text-center text-[11px] font-semibold tracking-wide uppercase transition-all duration-300 ease-out sm:text-sm",
+        classes,
+        disabled && "opacity-50 cursor-not-allowed",
       )}
+      style={{
+        ...style,
+        ...(revealed ? { animation: "card-reveal 0.4s ease-out" } : {}),
+      }}
     >
-      <span className={clsx("uppercase", revealed && card.secret.kind === "ASSASSIN" && "text-white")}>
-        {card.word}
-      </span>
+      <span className="relative z-10">{card.word}</span>
+
+      {/* Master view: secret badge (top-right) */}
       {secretForDisplay && !revealed ? (
-        <span className="absolute right-1 top-1 rounded bg-white/70 px-1 text-[10px] font-bold text-black">
+        <span className="absolute right-1 top-1 rounded bg-black/60 px-1 text-[9px] font-bold text-white/80 backdrop-blur-sm border border-white/10">
           {secretForDisplay.kind === "AGENT"
             ? secretForDisplay.teamId.toUpperCase()
             : secretForDisplay.kind}
@@ -52,4 +98,3 @@ export function CardTile({ card, secretForDisplay, onClick, disabled, teamColorB
     </button>
   );
 }
-

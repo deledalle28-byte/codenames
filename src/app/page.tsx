@@ -40,10 +40,10 @@ function timeAgo(ts: number): string {
 }
 
 const TEAM_DOT: Record<string, string> = {
-  red: "bg-red-500",
-  blue: "bg-blue-500",
-  green: "bg-green-500",
-  yellow: "bg-yellow-400",
+  red: "bg-red-500 shadow-lg shadow-red-500/50",
+  blue: "bg-blue-500 shadow-lg shadow-blue-500/50",
+  green: "bg-green-500 shadow-lg shadow-green-500/50",
+  yellow: "bg-yellow-400 shadow-lg shadow-yellow-400/50",
 };
 
 /* ─── Component ─────────────────────────────────────────────── */
@@ -106,38 +106,40 @@ export default function Home() {
       setCreateError("Reponse serveur invalide.");
       return;
     }
-    // Redirect straight to the lobby
     router.push(`/room/${json.roomId}/lobby`);
   }
 
   /* ─── Render ──────────────────────────────────────────────── */
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 text-white sm:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 bg-grid-pattern p-4 text-white sm:p-8">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
         {/* ── Header ──────────────────────────────────────── */}
         <header className="flex flex-col items-center gap-2 pt-6 text-center">
-          <h1 className="bg-gradient-to-r from-red-400 via-purple-400 to-blue-400 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl">
+          <h1
+            className="bg-gradient-to-r from-red-400 via-purple-400 to-blue-400 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl"
+            style={{ filter: "drop-shadow(0 0 20px rgba(168,85,247,0.3))" }}
+          >
             Codename
           </h1>
-          <p className="max-w-md text-sm text-slate-400">
-            Jeu d&apos;espions en&nbsp;equipe. Cree une partie, partage le lien et jouez sur le meme Wi-Fi.
+          <p className="max-w-md text-sm text-slate-500">
+            Jeu d&apos;espions en&nbsp;equipe. Cree une partie, partage le lien et jouez ensemble.
           </p>
         </header>
 
         {/* ── Player name ────────────────────────────────── */}
         <div className="mx-auto w-full max-w-sm">
-          <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur transition focus-within:border-purple-500/50">
-            <span className="text-lg">&#128373;&#65039;</span>
+          <label className="flex items-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 backdrop-blur-sm transition focus-within:border-purple-500/50 focus-within:shadow-lg focus-within:shadow-purple-500/10">
+            <span className="text-lg">🕵️</span>
             <input
-              className="flex-1 bg-transparent text-sm font-medium text-white placeholder-slate-500 outline-none"
+              className="flex-1 bg-transparent text-sm font-medium text-white placeholder-slate-600 outline-none"
               placeholder="Ton nom d'agent..."
               value={playerName}
               onChange={(e) => onNameChange(e.target.value)}
               maxLength={20}
             />
             {playerName && (
-              <span className="rounded-full bg-green-500/20 px-2 py-0.5 text-[11px] font-semibold text-green-400">
-                &#10003;
+              <span className="rounded-full border border-green-500/30 bg-green-500/15 px-2 py-0.5 text-[11px] font-semibold text-green-400">
+                ✓
               </span>
             )}
           </label>
@@ -146,8 +148,8 @@ export default function Home() {
         {/* ── Active rooms ────────────────────────────────── */}
         {rooms.length > 0 && (
           <section>
-            <h2 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400">
-              <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-green-400" />
+            <h2 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
+              <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-green-400 shadow-lg shadow-green-400/50" />
               Parties en cours
             </h2>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -156,19 +158,20 @@ export default function Home() {
                 return (
                   <div
                     key={room.id}
-                    className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur transition hover:border-white/20 hover:bg-white/10"
+                    className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-white/[0.15] hover:bg-white/[0.06] hover:shadow-lg hover:shadow-purple-500/5"
+                    style={{ animation: "fade-in 0.3s ease-out" }}
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-lg font-bold tracking-widest text-white">
                         {room.id}
                       </span>
-                      <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-[11px] font-semibold text-slate-300">
+                      <span className="rounded-full bg-white/[0.08] px-2.5 py-0.5 text-[11px] font-semibold text-slate-400">
                         {PHASE_LABEL[room.phase] ?? room.phase}
                       </span>
                     </div>
 
                     {isLobby ? (
-                      <div className="mt-2 text-sm text-slate-400">
+                      <div className="mt-2 text-sm text-slate-500">
                         {room.lobbyPlayerCount ?? 0} joueur
                         {(room.lobbyPlayerCount ?? 0) > 1 ? "s" : ""} en attente
                       </div>
@@ -179,14 +182,14 @@ export default function Home() {
                             <span
                               className={`inline-block h-2.5 w-2.5 rounded-full ${TEAM_DOT[t.color] ?? "bg-slate-500"}`}
                             />
-                            <span className="font-medium text-slate-200">{t.name}</span>
-                            <span className="text-xs text-slate-500">{t.roundsWon}W</span>
+                            <span className="font-medium text-slate-300">{t.name}</span>
+                            <span className="text-xs text-slate-600">{t.roundsWon}W</span>
                           </div>
                         ))}
                       </div>
                     )}
 
-                    <div className="mt-1 text-[11px] text-slate-500">
+                    <div className="mt-1 text-[11px] text-slate-600">
                       {isLobby ? "" : `Manche ${room.roundIndex + 1} \u00b7 `}
                       {timeAgo(room.createdAt)}
                     </div>
@@ -195,7 +198,7 @@ export default function Home() {
                       {isLobby ? (
                         <Link
                           href={`/room/${room.id}/lobby`}
-                          className="block rounded-lg bg-purple-600/80 py-1.5 text-center text-xs font-semibold text-white transition hover:bg-purple-500"
+                          className="block rounded-lg bg-purple-600/30 border border-purple-500/30 py-1.5 text-center text-xs font-semibold text-purple-300 transition hover:bg-purple-500/40 hover:text-white"
                         >
                           Rejoindre le lobby
                         </Link>
@@ -203,13 +206,13 @@ export default function Home() {
                         <div className="flex gap-2">
                           <Link
                             href={`/room/${room.id}/public`}
-                            className="flex-1 rounded-lg bg-blue-600/80 py-1.5 text-center text-xs font-semibold text-white transition hover:bg-blue-500"
+                            className="flex-1 rounded-lg bg-blue-600/30 border border-blue-500/30 py-1.5 text-center text-xs font-semibold text-blue-300 transition hover:bg-blue-500/40 hover:text-white"
                           >
                             Rejoindre
                           </Link>
                           <Link
                             href={`/room/${room.id}/master`}
-                            className="flex-1 rounded-lg bg-white/10 py-1.5 text-center text-xs font-semibold text-slate-300 transition hover:bg-white/20"
+                            className="flex-1 rounded-lg bg-white/[0.06] border border-white/[0.08] py-1.5 text-center text-xs font-semibold text-slate-400 transition hover:bg-white/[0.1] hover:text-white"
                           >
                             Master
                           </Link>
@@ -226,9 +229,9 @@ export default function Home() {
         {/* ── Main grid ───────────────────────────────────── */}
         <div className="grid gap-6 md:grid-cols-2">
           {/* ── Create ─────────────────────────────────── */}
-          <section className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+          <section className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-6 backdrop-blur-sm">
             <h2 className="flex items-center gap-2 text-lg font-bold">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-red-500 to-orange-500 text-xs font-black">
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-red-500 to-orange-500 text-xs font-black shadow-lg shadow-red-500/20">
                 +
               </span>
               Nouvelle partie
@@ -236,9 +239,9 @@ export default function Home() {
 
             <div className="mt-5 grid gap-4">
               <label className="grid gap-1 text-xs">
-                <span className="font-semibold text-slate-400">Manches pour gagner</span>
+                <span className="font-semibold text-slate-500">Manches pour gagner</span>
                 <input
-                  className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-purple-500/50 focus:outline-none"
+                  className="rounded-lg border border-white/[0.1] bg-white/[0.04] px-3 py-2 text-sm text-white transition focus:border-purple-500/50 focus:outline-none"
                   type="number"
                   min={1}
                   value={roundsToWin}
@@ -250,13 +253,13 @@ export default function Home() {
                 type="button"
                 onClick={createMatch}
                 disabled={creating}
-                className="mt-1 rounded-xl bg-gradient-to-r from-red-600 to-blue-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-purple-500/20 transition hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
+                className="mt-1 rounded-xl bg-gradient-to-r from-red-600 to-blue-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-purple-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/30 hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
               >
                 {creating ? "Chargement..." : "Creer la partie"}
               </button>
 
               {createError && (
-                <div className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">
+                <div className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-400">
                   {createError}
                 </div>
               )}
@@ -265,16 +268,16 @@ export default function Home() {
 
           {/* ── Join ───────────────────────────────────── */}
           <section className="flex flex-col gap-6">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+            <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-6 backdrop-blur-sm">
               <h2 className="flex items-center gap-2 text-lg font-bold">
-                <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 text-[13px] font-black">
+                <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 text-[13px] font-black shadow-lg shadow-blue-500/20">
                   &rarr;
                 </span>
                 Rejoindre
               </h2>
               <div className="mt-4 grid gap-3">
                 <input
-                  className="rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-center font-mono text-lg font-bold uppercase tracking-[0.3em] text-white placeholder-slate-600 transition focus:border-blue-500/50 focus:outline-none"
+                  className="rounded-lg border border-white/[0.1] bg-white/[0.04] px-4 py-3 text-center font-mono text-lg font-bold uppercase tracking-[0.3em] text-white placeholder-slate-600 transition focus:border-blue-500/50 focus:outline-none focus:shadow-lg focus:shadow-blue-500/10"
                   placeholder="CODE"
                   value={joinRoomId}
                   onChange={(e) => setJoinRoomId(e.target.value)}
@@ -285,8 +288,8 @@ export default function Home() {
                   aria-disabled={!joinId}
                   className={`rounded-xl py-2.5 text-center text-sm font-semibold transition ${
                     joinId
-                      ? "bg-purple-600/80 text-white hover:bg-purple-500"
-                      : "cursor-not-allowed bg-white/5 text-slate-600"
+                      ? "bg-purple-600/30 border border-purple-500/30 text-purple-300 hover:bg-purple-500/40 hover:text-white"
+                      : "cursor-not-allowed bg-white/[0.04] text-slate-600"
                   }`}
                 >
                   Rejoindre le lobby
@@ -295,23 +298,23 @@ export default function Home() {
             </div>
 
             {/* ── How-to ──────────────────────────────── */}
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-              <h2 className="text-sm font-bold text-slate-300">Comment jouer ?</h2>
-              <ol className="mt-3 grid gap-2 text-sm text-slate-400">
+            <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-6 backdrop-blur-sm">
+              <h2 className="text-sm font-bold text-slate-400">Comment jouer ?</h2>
+              <ol className="mt-3 grid gap-2 text-sm text-slate-500">
                 <li className="flex gap-2">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-[11px] font-bold text-red-400">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-red-500/30 bg-red-500/15 text-[11px] font-bold text-red-400">
                     1
                   </span>
                   Cree une partie et partage le <b className="text-slate-300">code</b> a tes amis.
                 </li>
                 <li className="flex gap-2">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-[11px] font-bold text-blue-400">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-blue-500/30 bg-blue-500/15 text-[11px] font-bold text-blue-400">
                     2
                   </span>
                   Dans le <b className="text-slate-300">lobby</b>, chacun choisit son equipe.
                 </li>
                 <li className="flex gap-2">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-purple-500/20 text-[11px] font-bold text-purple-400">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-purple-500/30 bg-purple-500/15 text-[11px] font-bold text-purple-400">
                     3
                   </span>
                   Le chef lance la partie, les roles sont attribues au hasard !
@@ -322,8 +325,8 @@ export default function Home() {
         </div>
 
         {/* ── Footer ──────────────────────────────────────── */}
-        <footer className="pb-6 text-center text-[11px] text-slate-600">
-          Codename &middot; MVP &middot; Multijoueur LAN
+        <footer className="pb-6 text-center text-[11px] text-slate-700">
+          Codename &middot; Multijoueur
         </footer>
       </div>
     </div>

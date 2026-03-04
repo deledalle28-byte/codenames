@@ -9,6 +9,14 @@ import { Scoreboard } from "@/components/Scoreboard";
 import type { Card, TeamColor } from "@/engine/types";
 import { getCardsForPublic } from "@/engine/selectors";
 import { useRoomOnlineGame } from "@/app/lib/useRoomOnlineGame";
+import { RulesBook } from "@/components/RulesBook";
+
+const NEON: Record<string, string> = {
+  red: "#ff3b5c",
+  blue: "#3b82f6",
+  green: "#22c55e",
+  yellow: "#eab308",
+};
 
 export default function PublicRoomPage() {
   const params = useParams<{ id: string }>();
@@ -33,16 +41,16 @@ function PublicRoomInner({ roomId }: { roomId: string }) {
 
   if (!state) {
     return (
-      <div className="min-h-screen bg-zinc-50 p-6 dark:bg-black">
-        <div className="mx-auto max-w-3xl rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 bg-grid-pattern p-6 text-white">
+        <div className="mx-auto max-w-3xl rounded-2xl border border-white/[0.08] bg-white/[0.03] p-6 backdrop-blur-sm">
           <h1 className="text-xl font-bold">Room introuvable</h1>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            Crée une partie depuis l’accueil, puis ouvre cette URL depuis un autre appareil (même Wi‑Fi).
+          <p className="mt-2 text-sm text-slate-500">
+            Cree une partie depuis l'accueil, puis ouvre cette URL depuis un autre appareil.
           </p>
           {error ? (
-            <p className="mt-2 text-sm text-red-600 dark:text-red-400">Erreur: {error}</p>
+            <p className="mt-2 text-sm text-red-400">Erreur: {error}</p>
           ) : null}
-          <Link className="mt-4 inline-block underline" href="/">
+          <Link className="mt-4 inline-block text-purple-400 underline transition hover:text-purple-300" href="/">
             Retour
           </Link>
         </div>
@@ -59,23 +67,30 @@ function PublicRoomInner({ roomId }: { roomId: string }) {
   }
 
   const activeTeam = state.teams[state.activeTeamId];
+  const winnerNeon = state.matchWinnerTeamId
+    ? NEON[state.teams[state.matchWinnerTeamId]?.color] ?? "#f1f5f9"
+    : null;
 
   return (
-    <div className="min-h-screen bg-zinc-50 p-6 text-zinc-900 dark:bg-black dark:text-zinc-50">
+    <>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 bg-grid-pattern p-4 text-white sm:p-6">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            <div className="text-xs font-bold uppercase tracking-widest text-slate-500">
               Public
             </div>
             <div className="text-xl font-bold">Room {roomId}</div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link className="rounded-xl border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-100 dark:border-zinc-800 dark:hover:bg-zinc-900" href="/">
+            <Link
+              className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-slate-400 transition hover:bg-white/[0.08] hover:text-white"
+              href="/"
+            >
               Accueil
             </Link>
             <button
-              className="rounded-xl border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-100 dark:border-zinc-800 dark:hover:bg-zinc-900"
+              className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-slate-400 transition hover:bg-white/[0.08] hover:text-white"
               onClick={() => dispatch({ type: "RESET_MATCH" })}
             >
               Reset match
@@ -84,16 +99,22 @@ function PublicRoomInner({ roomId }: { roomId: string }) {
         </header>
 
         {state.matchWinnerTeamId ? (
-          <div className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-            <div className="text-sm font-semibold">Match terminé</div>
-            <div className="mt-1 text-lg font-bold">
+          <div
+            className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 backdrop-blur-sm"
+            style={{ animation: "slide-up 0.3s ease-out" }}
+          >
+            <div className="text-sm font-semibold text-slate-400">Match terminé</div>
+            <div
+              className="mt-1 text-lg font-bold"
+              style={winnerNeon ? { color: winnerNeon, textShadow: `0 0 15px ${winnerNeon}50` } : undefined}
+            >
               Victoire: {state.teams[state.matchWinnerTeamId].name}
             </div>
           </div>
         ) : null}
 
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-          <div className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
+          <div>
             <Board
               cards={publicCards}
               gridSize={state.gridSize}
@@ -104,21 +125,21 @@ function PublicRoomInner({ roomId }: { roomId: string }) {
             />
             <div className="mt-4 flex flex-wrap gap-2">
               <button
-                className="rounded-xl bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 disabled:opacity-50"
+                className="rounded-xl border border-white/[0.1] bg-white/[0.08] px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/[0.12] disabled:opacity-40"
                 onClick={() => dispatch({ type: "STOP_GUESSING", payload: {} })}
                 disabled={state.phase !== "GUESS"}
               >
                 Stop
               </button>
               <button
-                className="rounded-xl border border-zinc-200 px-4 py-2 text-sm font-semibold hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900 disabled:opacity-50"
+                className="rounded-xl border border-white/[0.08] px-4 py-2 text-sm font-semibold text-slate-400 transition hover:bg-white/[0.06] hover:text-white disabled:opacity-40"
                 onClick={() => dispatch({ type: "END_TURN", payload: {} })}
                 disabled={state.phase === "ROUND_OVER" || state.phase === "MATCH_OVER"}
               >
                 Fin de tour
               </button>
               <button
-                className="rounded-xl border border-zinc-200 px-4 py-2 text-sm font-semibold hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900 disabled:opacity-50"
+                className="rounded-xl border border-white/[0.08] px-4 py-2 text-sm font-semibold text-slate-400 transition hover:bg-white/[0.06] hover:text-white disabled:opacity-40"
                 onClick={() => dispatch({ type: "NEXT_ROUND" })}
                 disabled={state.phase !== "ROUND_OVER"}
               >
@@ -133,8 +154,8 @@ function PublicRoomInner({ roomId }: { roomId: string }) {
 
             {/* ── Connected players ── */}
             {connectedPlayers.length > 0 && (
-              <div className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-                <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 backdrop-blur-sm">
+                <div className="text-xs font-bold uppercase tracking-widest text-slate-500">
                   Joueurs connectés ({connectedPlayers.length})
                 </div>
                 <ul className="mt-2 grid gap-1.5">
@@ -142,13 +163,15 @@ function PublicRoomInner({ roomId }: { roomId: string }) {
                     <li key={p.id} className="flex items-center gap-2 text-sm">
                       <span
                         className={`inline-block h-2 w-2 rounded-full ${
-                          p.role === "master" ? "bg-purple-500" : "bg-blue-500"
+                          p.role === "master"
+                            ? "bg-purple-500 shadow-lg shadow-purple-500/50"
+                            : "bg-blue-500 shadow-lg shadow-blue-500/50"
                         }`}
                       />
-                      <span className="font-medium text-zinc-800 dark:text-zinc-200">
+                      <span className="font-medium text-slate-200">
                         {p.name}
                       </span>
-                      <span className="text-[11px] text-zinc-400">
+                      <span className="text-[11px] text-slate-600">
                         {p.role === "master" ? "Master" : "Joueur"}
                       </span>
                     </li>
@@ -160,6 +183,7 @@ function PublicRoomInner({ roomId }: { roomId: string }) {
         </div>
       </div>
     </div>
+    <RulesBook />
+    </>
   );
 }
-

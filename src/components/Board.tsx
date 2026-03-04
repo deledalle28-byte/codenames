@@ -21,20 +21,22 @@ export function Board<TCard extends Card>({
   teamColorById,
 }: Props<TCard>) {
   return (
-    <div
-      className="grid gap-2"
-      style={{ gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))` }}
-    >
-      {cards.map((card) => (
-        <CardTile
-          key={card.id}
-          card={card}
-          secretForDisplay={secretForDisplay(card)}
-          onClick={onCardClick ? () => onCardClick(card) : undefined}
-          disabled={disabled}
-          teamColorById={teamColorById}
-        />
-      ))}
+    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3 backdrop-blur-sm sm:p-4">
+      <div
+        className="grid gap-2 sm:gap-3"
+        style={{ gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))` }}
+      >
+        {cards.map((card) => (
+          <CardTile
+            key={card.id}
+            card={card}
+            secretForDisplay={secretForDisplay(card)}
+            onClick={onCardClick ? () => onCardClick(card) : undefined}
+            disabled={disabled}
+            teamColorById={teamColorById}
+          />
+        ))}
+      </div>
     </div>
   );
 }

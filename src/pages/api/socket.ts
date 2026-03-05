@@ -34,7 +34,7 @@ function canCallAction(args: { isMaster: boolean; action: Action }) {
   if (args.isMaster) return true;
   if (args.action.type === "GIVE_CLUE") return false;
   if (args.action.type === "START_ROUND") return false;
-  if (args.action.type === "NEXT_ROUND") return false;
+  if (args.action.type === "NEXT_ROUND") return true; // any player can start next round
   if (args.action.type === "RESET_MATCH") return false;
   if (args.action.type === "END_ROUND") return false;
   return true;

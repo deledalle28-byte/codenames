@@ -239,7 +239,7 @@ export default function Home() {
 
             <div className="mt-5 grid gap-4">
               <label className="grid gap-1 text-xs">
-                <span className="font-semibold text-slate-500">Manches pour gagner</span>
+                <span className="font-semibold text-slate-500">Longueur de la partie (manches)</span>
                 <input
                   className="rounded-lg border border-white/[0.1] bg-white/[0.04] px-3 py-2 text-sm text-white transition focus:border-purple-500/50 focus:outline-none"
                   type="number"

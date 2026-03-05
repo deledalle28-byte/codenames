@@ -6,7 +6,7 @@ const sections = [
   {
     title: "🎯 But du jeu",
     content:
-      "Chaque équipe doit retrouver tous ses agents secrets sur le plateau ET compléter sa mission secrète pour gagner la manche. Le match se joue en plusieurs manches (best of).",
+      "Chaque équipe doit retrouver ses agents secrets sur le plateau pour marquer des points. Chaque agent trouvé = 1 point. Compléter sa mission secrète rapporte 3 points bonus. Révéler l'Assassin coûte 5 points. L'équipe avec le plus de points à la fin des manches gagne !",
   },
   {
     title: "🔄 Déroulement d'un tour",
@@ -21,22 +21,22 @@ const sections = [
   {
     title: "🔍 Devinettes",
     content:
-      "L'équipe peut révéler jusqu'à **nombre + 1** cartes.\n\n• **Agent allié** → bonne pioche, on continue.\n• **Carte neutre** → le tour s'arrête immédiatement.\n• **Agent ennemi** → le tour s'arrête.\n• **Assassin** → perte immédiate de la manche !\n\nAppuyer sur **Stop** pour passer son tour volontairement.",
+      "L'équipe peut révéler jusqu'à **nombre + 1** cartes.\n\n• **Agent allié** → +1 point, on continue.\n• **Carte neutre** → le tour s'arrête immédiatement.\n• **Agent ennemi** → le tour s'arrête.\n• **Assassin** → **-5 points** et le tour s'arrête !\n\nAppuyer sur **Stop** pour passer son tour volontairement.",
   },
   {
     title: "💀 L'Assassin",
     content:
-      "Il y a une carte Assassin sur le plateau. Si une équipe la révèle, elle **perd immédiatement la manche** (l'autre équipe gagne).\n\nAprès chaque cycle complet de tours (toutes les équipes ont joué), l'Assassin peut **changer de position** en échangeant avec une carte neutre non révélée.",
+      "Il y a une carte Assassin (violette) sur le plateau. Si une équipe la révèle, elle subit une **pénalité de -5 points** et son tour s'arrête.\n\nL'Assassin **change de position** à chaque fin de tour en échangeant avec une carte neutre non révélée. Attention, il bouge constamment !",
   },
   {
     title: "🎖️ Missions secrètes",
     content:
-      "Chaque équipe reçoit une **mission secrète** au début de chaque manche. La mission doit être complétée pour pouvoir gagner.\n\nExemples de missions :\n• Donner 3 indices dans la manche\n• Révéler 3 agents en un seul tour\n• Terminer un tour sans erreur\n• Révéler un agent avec le guess bonus (+1)\n• Révéler 2 cartes neutres dans la manche",
+      "Chaque équipe reçoit une **mission secrète** au début de chaque manche. Compléter la mission rapporte **3 points bonus**.\n\nExemples de missions :\n• Donner 3 indices dans la manche\n• Révéler 3 agents en un seul tour\n• Terminer un tour sans erreur\n• Révéler un agent avec le guess bonus (+1)\n• Révéler 2 cartes neutres dans la manche",
   },
   {
     title: "🏆 Victoire",
     content:
-      "Pour gagner une **manche**, une équipe doit :\n1. Avoir révélé **tous** ses agents secrets\n2. Avoir **complété** sa mission secrète\n\nLes deux conditions doivent être remplies simultanément.\n\nPour gagner le **match**, il faut remporter le nombre de manches requis (configurable).",
+      "Le match se joue sur un nombre de manches configurable. À la fin de toutes les manches, l'équipe avec le **plus de points** gagne !\n\n**Calcul des points :**\n• +1 point par agent allié trouvé\n• +3 points bonus si la mission secrète est complétée\n• -5 points si l'Assassin est révélé\n\nUne manche se termine quand une équipe a trouvé tous ses agents ET complété sa mission.",
   },
   {
     title: "🕵️ Spymaster",

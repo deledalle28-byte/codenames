@@ -26,7 +26,13 @@ export type MissionTrigger =
   | "REVEAL_ENEMY_AGENT"
   | "BONUS_GUESS_REVEAL"
   | "TURN_3_OWN_AGENTS"
-  | "TURN_NO_ERROR";
+  | "TURN_4_OWN_AGENTS"
+  | "TURN_2_OWN_AGENTS"
+  | "TURN_NO_ERROR"
+  | "TURN_WITH_OWN_AGENT"
+  | "CLUE_COUNT_3_PLUS"
+  | "CLUE_1_SUCCESS"
+  | "STOP_NO_ERROR";
 
 export type MissionDefinition =
   | {

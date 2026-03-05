@@ -31,7 +31,7 @@ const sections = [
   {
     title: "🎖️ Missions secrètes",
     content:
-      "Chaque équipe reçoit une **mission secrète** au début de chaque manche. Compléter la mission rapporte **3 points bonus**.\n\nExemples de missions :\n• Donner 3 indices dans la manche\n• Révéler 3 agents en un seul tour\n• Terminer un tour sans erreur\n• Révéler un agent avec le guess bonus (+1)\n• Révéler 2 cartes neutres dans la manche",
+      "Chaque équipe reçoit une **mission secrète** au début de chaque manche. Compléter la mission rapporte **3 points bonus**.\n\nExemples de missions :\n• Trouver au moins 1 agent pendant 3 tours\n• Trouver 3 ou 4 agents en un seul tour\n• Donner un indice de 3 ou plus\n• Donner un indice de 1 et trouver l'agent\n• Utiliser le guess bonus (+1) avec succès 2 fois",
   },
   {
     title: "🏆 Victoire",

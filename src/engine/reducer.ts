@@ -240,9 +240,10 @@ export function reduce(state: GameState | null, action: Action): GameState {
 
       const guessesAllowed = state.config.guessesRule === "COUNT_PLUS_ONE" ? count + 1 : count;
 
-      const activeTeam = state.teams[state.activeTeamId];
-      const mission = applyMissionTrigger(activeTeam.mission, "GIVE_CLUE");
-      const teams = mission === activeTeam.mission ? state.teams : { ...state.teams, [activeTeam.id]: { ...activeTeam, mission } };
+      let teams = applyMissionTriggerToTeam(state.teams, state.activeTeamId, "GIVE_CLUE");
+      if (count >= 3) {
+        teams = applyMissionTriggerToTeam(teams, state.activeTeamId, "CLUE_COUNT_3_PLUS");
+      }
 
       const nextState: GameState = {
         ...state,
@@ -328,9 +329,24 @@ export function reduce(state: GameState | null, action: Action): GameState {
           teams = applyMissionTriggerToTeam(teams, activeTeamId, "BONUS_GUESS_REVEAL");
         }
 
-        // "Triple découverte": 3 own agents revealed in one turn
+        // "Sniper": clue count was 1 and we found our agent
+        if (state.clue.count === 1 && ownAgentsThisTurn === 1) {
+          teams = applyMissionTriggerToTeam(teams, activeTeamId, "CLUE_1_SUCCESS");
+        }
+
+        // 2+ own agents in one turn
+        if (ownAgentsThisTurn >= 2) {
+          teams = applyMissionTriggerToTeam(teams, activeTeamId, "TURN_2_OWN_AGENTS");
+        }
+
+        // 3+ own agents in one turn
         if (ownAgentsThisTurn >= 3) {
           teams = applyMissionTriggerToTeam(teams, activeTeamId, "TURN_3_OWN_AGENTS");
+        }
+
+        // 4+ own agents in one turn
+        if (ownAgentsThisTurn >= 4) {
+          teams = applyMissionTriggerToTeam(teams, activeTeamId, "TURN_4_OWN_AGENTS");
         }
       } else if (card.secret.kind === "NEUTRAL") {
         // Neutral card
@@ -369,6 +385,11 @@ export function reduce(state: GameState | null, action: Action): GameState {
           teams = applyMissionTriggerToTeam(nextState.teams, activeTeamId, "TURN_NO_ERROR");
           nextState = { ...nextState, teams };
         }
+        // "Streak": at least 1 own agent found this turn
+        if (ownAgentsThisTurn >= 1) {
+          teams = applyMissionTriggerToTeam(nextState.teams, activeTeamId, "TURN_WITH_OWN_AGENT");
+          nextState = { ...nextState, teams };
+        }
         nextState = endTurn({ ...nextState, clue: null });
       }
 
@@ -382,6 +403,12 @@ export function reduce(state: GameState | null, action: Action): GameState {
       // "Prudence": stopping without any error this turn
       if (!state.hadErrorThisTurn) {
         teams = applyMissionTriggerToTeam(teams, state.activeTeamId, "TURN_NO_ERROR");
+        teams = applyMissionTriggerToTeam(teams, state.activeTeamId, "STOP_NO_ERROR");
+      }
+
+      // "Streak": at least 1 own agent found this turn
+      if (state.ownAgentsRevealedThisTurn >= 1) {
+        teams = applyMissionTriggerToTeam(teams, state.activeTeamId, "TURN_WITH_OWN_AGENT");
       }
 
       return endTurn({ ...state, teams, clue: null });

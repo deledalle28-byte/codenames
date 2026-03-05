@@ -61,6 +61,10 @@ export type Team = {
   spymasterIndex: number; // round-robin index into playerIds
   roundsWon: number;
   mission: MissionState | null;
+  /** Pre-computed in sanitized public state (cards secrets are hidden). */
+  agentsTotal?: number;
+  agentsRemaining?: number;
+  missionCompleted?: boolean;
 };
 
 export type Player = {

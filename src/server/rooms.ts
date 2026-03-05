@@ -109,13 +109,37 @@ export function listRoomSummaries() {
 }
 
 export function sanitizeStateForPublic(state: GameState): GameState {
+  // Pre-compute agent counts before hiding card secrets
+  const agentCounts: Record<string, { total: number; remaining: number }> = {};
+  for (const teamId of Object.keys(state.teams)) {
+    const total = state.cards.filter(
+      (c) => c.secret.kind === "AGENT" && c.secret.teamId === teamId,
+    ).length;
+    const remaining = state.cards.filter(
+      (c) =>
+        c.secret.kind === "AGENT" &&
+        c.secret.teamId === teamId &&
+        c.revealedByTeamId === null,
+    ).length;
+    agentCounts[teamId] = { total, remaining };
+  }
+
   return {
     ...state,
     cards: state.cards.map((c) =>
       c.revealedByTeamId ? c : { ...c, secret: { kind: "NEUTRAL" } },
     ),
     teams: Object.fromEntries(
-      Object.entries(state.teams).map(([id, t]) => [id, { ...t, mission: null }]),
+      Object.entries(state.teams).map(([id, t]) => [
+        id,
+        {
+          ...t,
+          mission: null,
+          agentsTotal: agentCounts[id]?.total ?? 0,
+          agentsRemaining: agentCounts[id]?.remaining ?? 0,
+          missionCompleted: t.mission?.completed ?? false,
+        },
+      ]),
     ),
   };
 }

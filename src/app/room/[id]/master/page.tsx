@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { Board } from "@/components/Board";
 import { CluePanel } from "@/components/CluePanel";
@@ -36,13 +36,18 @@ export default function MasterRoomPage() {
 
 function MasterRoomInner({ roomId }: { roomId: string }) {
 
-  const initialPin = useMemo(() => readPinFromHash(), []);
   const [playerName, setPlayerName] = useState("");
+  const [pin, setPin] = useState("");
+  const [pinOk, setPinOk] = useState(false);
+
   useEffect(() => {
     setPlayerName(readPlayerName());
+    const hashPin = readPinFromHash();
+    if (hashPin) {
+      setPin(hashPin);
+      setPinOk(true);
+    }
   }, []);
-  const [pin, setPin] = useState(initialPin);
-  const [pinOk, setPinOk] = useState(Boolean(initialPin));
 
   const { state, dispatch, error, serverIsMaster, connectedPlayers } = useRoomOnlineGame({
     roomId,

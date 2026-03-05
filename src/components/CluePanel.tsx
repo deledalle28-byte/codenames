@@ -72,7 +72,7 @@ export function CluePanel({
         </div>
         <div className="rounded-lg border border-white/[0.06] bg-white/[0.04] p-3">
           <div className="text-xs font-semibold uppercase tracking-widest text-slate-500">
-            Essais restants
+            Nombre de mots
           </div>
           <div
             className="mt-1 font-mono text-2xl font-bold"
@@ -82,7 +82,7 @@ export function CluePanel({
                 : { color: "#64748b" }
             }
           >
-            {clue ? clue.guessesRemaining : "—"}
+            {clue ? clue.count : "—"}
           </div>
         </div>
       </div>

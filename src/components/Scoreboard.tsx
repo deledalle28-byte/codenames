@@ -17,6 +17,22 @@ const BAR_COLOR: Record<TeamColor, string> = {
   yellow: "bg-yellow-500",
 };
 
+function getTeamStats(state: GameState, t: Team) {
+  // Use pre-computed counts from sanitized state when available,
+  // fall back to computing from card secrets (master view).
+  const total =
+    t.agentsTotal ??
+    state.cards.filter(
+      (c) => c.secret.kind === "AGENT" && c.secret.teamId === t.id,
+    ).length;
+  const remaining =
+    t.agentsRemaining ?? getTeamAgentsRemaining(state, t.id);
+  const found = total - remaining;
+  const missionDone = t.missionCompleted ?? t.mission?.completed ?? false;
+  const points = found + (missionDone ? 3 : 0);
+  return { total, remaining, found, points };
+}
+
 export function Scoreboard({ state }: { state: GameState }) {
   const teams = state.turnOrderTeamIds.map((id) => state.teams[id]).filter(Boolean);
 
@@ -25,10 +41,7 @@ export function Scoreboard({ state }: { state: GameState }) {
       <div className="text-xs font-bold uppercase tracking-widest text-slate-500">Score</div>
       <div className="mt-3 grid gap-3">
         {teams.map((t) => {
-          const remaining = getTeamAgentsRemaining(state, t.id);
-          const total = state.cards.filter(
-            (c) => c.secret.kind === "AGENT" && c.secret.teamId === t.id,
-          ).length;
+          const { total, remaining, points } = getTeamStats(state, t);
           const pct = total > 0 ? ((total - remaining) / total) * 100 : 0;
 
           return (
@@ -44,11 +57,11 @@ export function Scoreboard({ state }: { state: GameState }) {
                     {t.name}
                   </span>
                   <span className="text-xs text-slate-500">
-                    {remaining} agent{remaining > 1 ? "s" : ""} restant{remaining > 1 ? "s" : ""}
+                    {remaining} mot{remaining > 1 ? "s" : ""} restant{remaining > 1 ? "s" : ""}
                   </span>
                 </div>
                 <div className="font-mono text-sm font-bold text-white">
-                  {t.roundsWon} <span className="text-xs text-slate-500">W</span>
+                  {points} <span className="text-xs text-slate-500">pt{points > 1 ? "s" : ""}</span>
                 </div>
               </div>
 

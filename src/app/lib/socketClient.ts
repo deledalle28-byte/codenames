@@ -5,7 +5,7 @@ import type { Action, GameState } from "@/engine/types";
 
 let socket: Socket | null = null;
 
-type JoinAck = { ok: boolean; isMaster?: boolean; error?: string };
+type JoinAck = { ok: boolean; isMaster?: boolean; isHost?: boolean; error?: string };
 type RoomError = { code?: string };
 
 /**

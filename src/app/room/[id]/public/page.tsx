@@ -30,7 +30,7 @@ function PublicRoomInner({ roomId }: { roomId: string }) {
   useEffect(() => {
     setPlayerName(localStorage.getItem("codename_playerName") ?? "");
   }, []);
-  const { state, dispatch, error, connectedPlayers } = useRoomOnlineGame({ roomId, role: "public", playerName });
+  const { state, dispatch, error, isHost, connectedPlayers } = useRoomOnlineGame({ roomId, role: "public", playerName });
 
   const teamColorById = useMemo(() => {
     const map: Record<string, TeamColor> = {};
@@ -89,12 +89,14 @@ function PublicRoomInner({ roomId }: { roomId: string }) {
             >
               Accueil
             </Link>
-            <button
-              className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-slate-400 transition hover:bg-white/[0.08] hover:text-white"
-              onClick={() => dispatch({ type: "RESET_MATCH" })}
-            >
-              Reset match
-            </button>
+            {isHost && (
+              <button
+                className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-slate-400 transition hover:bg-white/[0.08] hover:text-white"
+                onClick={() => dispatch({ type: "RESET_MATCH" })}
+              >
+                Reset match
+              </button>
+            )}
           </div>
         </header>
 

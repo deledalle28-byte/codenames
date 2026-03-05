@@ -22,7 +22,7 @@ type JoinPayload = {
   pin?: string;
   playerName?: string;
 };
-type JoinAck = { ok: boolean; isMaster?: boolean; error?: string };
+type JoinAck = { ok: boolean; isMaster?: boolean; isHost?: boolean; error?: string };
 
 // Keep a module-level reference so Socket.io event handlers can access the
 // server even after the original HTTP response has been closed.
@@ -180,6 +180,10 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         room.state = state;
         room.lobby.started = true;
 
+        // Save host player name for reset-match authorization
+        const hostPlayer = room.lobby.players.find((p) => p.socketId === room.lobby!.hostSocketId);
+        room.hostPlayerName = hostPlayer?.name ?? null;
+
         // Store player→team mapping for team validation during game
         for (const p of room.lobby.players) {
           if (p.teamId) {
@@ -228,7 +232,9 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
 
         const stateToSend = isMaster ? room.state : sanitizeStateForPublic(room.state);
         socket.emit("room:state", stateToSend);
-        ack?.({ ok: true, isMaster });
+        const isHost = room.hostPlayerName != null &&
+          (socket.data.playerName as string) === room.hostPlayerName;
+        ack?.({ ok: true, isMaster, isHost });
 
         // Broadcast updated player list
         await broadcastPlayers(io, payload.roomId);
@@ -246,6 +252,15 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         if (!canCallAction({ isMaster, action: payload.action })) {
           socket.emit("room:error", { code: "FORBIDDEN" });
           return;
+        }
+
+        // Host-only actions: only the game host can reset the match
+        if (payload.action.type === "RESET_MATCH") {
+          const playerName = (socket.data.playerName as string) || "";
+          if (room.hostPlayerName && playerName !== room.hostPlayerName) {
+            socket.emit("room:error", { code: "HOST_ONLY" });
+            return;
+          }
         }
 
         // Team-gated actions: only the active team's players can act

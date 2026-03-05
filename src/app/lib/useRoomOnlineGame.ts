@@ -14,6 +14,7 @@ export function useRoomOnlineGame(args: {
   const [state, setState] = useState<GameState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [serverIsMaster, setServerIsMaster] = useState<boolean | null>(null);
+  const [isHost, setIsHost] = useState(false);
   const [connectedPlayers, setConnectedPlayers] = useState<ConnectedPlayer[]>([]);
 
   useEffect(() => {
@@ -35,6 +36,7 @@ export function useRoomOnlineGame(args: {
       if (cancelled) return;
       if (!resp.ok) setError(resp.error ?? "ERROR");
       setServerIsMaster(Boolean(resp.isMaster));
+      setIsHost(Boolean(resp.isHost));
     })();
 
     return () => {
@@ -53,7 +55,7 @@ export function useRoomOnlineGame(args: {
   );
 
   return useMemo(
-    () => ({ state, dispatch, error, serverIsMaster, connectedPlayers }),
-    [state, dispatch, error, serverIsMaster, connectedPlayers],
+    () => ({ state, dispatch, error, serverIsMaster, isHost, connectedPlayers }),
+    [state, dispatch, error, serverIsMaster, isHost, connectedPlayers],
   );
 }

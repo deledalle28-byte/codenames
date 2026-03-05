@@ -70,15 +70,11 @@ function finalizeRound(state: GameState, winnerTeamId: TeamId): GameState {
 
 function endTurn(state: GameState): GameState {
   const nextActive = nextTeamId(state.turnOrderTeamIds, state.activeTeamId);
-  let turnsInCurrentCycle = state.turnsInCurrentCycle + 1;
-  let cards: Card[] = state.cards;
+  const turnsInCurrentCycle = (state.turnsInCurrentCycle + 1) % state.turnOrderTeamIds.length;
 
-  if (turnsInCurrentCycle >= state.turnOrderTeamIds.length) {
-    // Full cycle completed -> assassin shift
-    const shiftSeed = (state.seed ^ (state.roundIndex + 1) * 2654435761) >>> 0;
-    cards = assassinShift({ cards, seed: shiftSeed });
-    turnsInCurrentCycle = 0;
-  }
+  // Assassin shifts every end of turn
+  const shiftSeed = (state.seed ^ (state.turnsInCurrentCycle + 1) * 2654435761) >>> 0;
+  const cards = assassinShift({ cards: state.cards, seed: shiftSeed });
 
   return {
     ...state,

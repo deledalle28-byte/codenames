@@ -28,6 +28,7 @@ export async function POST(req: Request) {
       started: false,
     },
     playerTeams: new Map(),
+    hostPlayerName: null,
   });
 
   return NextResponse.json({ roomId });

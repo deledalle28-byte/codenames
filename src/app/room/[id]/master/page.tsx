@@ -49,7 +49,7 @@ function MasterRoomInner({ roomId }: { roomId: string }) {
     }
   }, []);
 
-  const { state, dispatch, error, serverIsMaster, connectedPlayers } = useRoomOnlineGame({
+  const { state, dispatch, error, serverIsMaster, isHost, connectedPlayers } = useRoomOnlineGame({
     roomId,
     role: "master",
     pin: pinOk ? pin : undefined,
@@ -174,12 +174,14 @@ function MasterRoomInner({ roomId }: { roomId: string }) {
             >
               Shuffle / new seed
             </button>
-            <button
-              className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-slate-400 transition hover:bg-white/[0.08] hover:text-white"
-              onClick={() => dispatch({ type: "RESET_MATCH" })}
-            >
-              Reset match
-            </button>
+            {isHost && (
+              <button
+                className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-slate-400 transition hover:bg-white/[0.08] hover:text-white"
+                onClick={() => dispatch({ type: "RESET_MATCH" })}
+              >
+                Reset match
+              </button>
+            )}
           </div>
         </header>
 

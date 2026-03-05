@@ -29,10 +29,10 @@ function secretStyles(
       classes: "bg-amber-900/30 border-amber-700/30 text-amber-200/90",
     };
 
-  // Assassin
+  // Assassin — distinct violet/purple so it's clearly different from teams
   if (secret.kind === "ASSASSIN")
     return {
-      classes: "bg-red-950/60 border-red-800/50 text-red-100",
+      classes: "bg-violet-950/70 border-violet-500/40 text-violet-100",
       style: { animation: "assassin-pulse 2s ease-in-out infinite" },
     };
 

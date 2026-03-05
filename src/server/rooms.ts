@@ -27,6 +27,8 @@ export type Room = {
   lobby: Lobby | null;
   /** Maps player name → teamId, populated when game starts from lobby. */
   playerTeams: Map<string, string>;
+  /** Player name of the game host (can reset match). */
+  hostPlayerName: string | null;
 };
 
 // Use globalThis so the Map is shared between App Router and Pages Router

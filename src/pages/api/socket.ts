@@ -180,6 +180,13 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         room.state = state;
         room.lobby.started = true;
 
+        // Store player→team mapping for team validation during game
+        for (const p of room.lobby.players) {
+          if (p.teamId) {
+            room.playerTeams.set(p.name, p.teamId);
+          }
+        }
+
         // Notify each connected socket of their assigned role
         const sockets = await io.in(roomId).fetchSockets();
         for (const s of sockets) {
@@ -214,6 +221,8 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         socket.data.isMaster = isMaster;
         socket.data.playerName = (payload.playerName ?? "").trim() || "Anonyme";
         socket.data.role = payload.role;
+        // Look up the player's team from the lobby mapping
+        socket.data.teamId = room.playerTeams.get(socket.data.playerName as string) ?? null;
 
         socket.join(payload.roomId);
 
@@ -237,6 +246,16 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         if (!canCallAction({ isMaster, action: payload.action })) {
           socket.emit("room:error", { code: "FORBIDDEN" });
           return;
+        }
+
+        // Team-gated actions: only the active team's players can act
+        const teamGatedActions = new Set(["REVEAL_CARD", "STOP_GUESSING", "END_TURN"]);
+        if (teamGatedActions.has(payload.action.type) && !isMaster) {
+          const playerTeamId = socket.data.teamId as string | null;
+          if (playerTeamId !== room.state.activeTeamId) {
+            socket.emit("room:error", { code: "NOT_YOUR_TURN" });
+            return;
+          }
         }
 
         const next = reduce(room.state, payload.action);

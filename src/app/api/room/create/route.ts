@@ -27,6 +27,7 @@ export async function POST(req: Request) {
       config: { roundsToWinMatch },
       started: false,
     },
+    playerTeams: new Map(),
   });
 
   return NextResponse.json({ roomId });

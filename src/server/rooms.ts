@@ -25,6 +25,8 @@ export type Room = {
   masterPin: string;
   createdAt: number;
   lobby: Lobby | null;
+  /** Maps player name → teamId, populated when game starts from lobby. */
+  playerTeams: Map<string, string>;
 };
 
 // Use globalThis so the Map is shared between App Router and Pages Router

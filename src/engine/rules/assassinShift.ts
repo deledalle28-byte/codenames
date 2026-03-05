@@ -2,7 +2,10 @@ import type { Card } from "../types";
 import { mulberry32, randInt } from "../random";
 
 export function assassinShift(args: { cards: Card[]; seed: number }): Card[] {
-  const assassinIndex = args.cards.findIndex((c) => c.secret.kind === "ASSASSIN");
+  // Find the unrevealed assassin (skip already-revealed ones from previous hits)
+  const assassinIndex = args.cards.findIndex(
+    (c) => c.secret.kind === "ASSASSIN" && c.revealedByTeamId === null,
+  );
   if (assassinIndex < 0) return args.cards;
 
   const candidates: number[] = [];

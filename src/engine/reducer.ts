@@ -5,7 +5,7 @@ import { validateClue } from "./rules/clueValidator";
 import { assassinShift } from "./rules/assassinShift";
 import { getRoundWinnerTeamId, getWinnerIfAssassinRevealed } from "./rules/winConditions";
 import { applyMissionTrigger } from "./missions";
-import { mulberry32 } from "./random";
+import { mulberry32, randInt } from "./random";
 
 const DEFAULT_TEAM_ORDER: Array<{ id: TeamId; color: Team["color"]; name: string }> = [
   { id: "red", color: "red", name: "Rouge" },
@@ -121,6 +121,7 @@ export function reduce(state: GameState | null, action: Action): GameState {
         playerIds: [],
         spymasterIndex: 0,
         roundsWon: 0,
+        assassinPenalty: 0,
         mission: null,
       };
     }
@@ -285,11 +286,36 @@ export function reduce(state: GameState | null, action: Action): GameState {
         guessesRemaining: Math.max(0, state.clue.guessesRemaining - 1),
       };
 
-      // Assassin -> immediate round loss
+      // Assassin -> -5 points penalty, relocate assassin, end turn
       if (card.secret.kind === "ASSASSIN") {
-        const winner = getWinnerIfAssassinRevealed(state, activeTeamId);
-        if (!winner) return state;
-        return finalizeRound({ ...state, cards: nextCards, clue: null }, winner);
+        const team = state.teams[activeTeamId];
+        const penaltyTeams = {
+          ...state.teams,
+          [activeTeamId]: { ...team, assassinPenalty: team.assassinPenalty + 5 },
+        };
+
+        // Place a new assassin on a random unrevealed neutral card
+        const neutrals: number[] = [];
+        for (let i = 0; i < nextCards.length; i++) {
+          if (!nextCards[i].revealedByTeamId && nextCards[i].secret.kind === "NEUTRAL") {
+            neutrals.push(i);
+          }
+        }
+        let relocatedCards = nextCards;
+        if (neutrals.length > 0) {
+          const rng = mulberry32((state.seed ^ (state.roundIndex + 1) * 0x9e3779b9) >>> 0);
+          const pick = neutrals[randInt(rng, 0, neutrals.length)];
+          relocatedCards = nextCards.slice();
+          relocatedCards[pick] = { ...relocatedCards[pick], secret: { kind: "ASSASSIN" } };
+        }
+
+        return endTurn({
+          ...state,
+          cards: relocatedCards,
+          teams: penaltyTeams,
+          clue: null,
+          hadErrorThisTurn: true,
+        });
       }
 
       let teams = state.teams;

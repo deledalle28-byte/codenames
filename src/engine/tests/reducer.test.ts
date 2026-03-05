@@ -48,14 +48,22 @@ describe("reducer", () => {
     expect(next.activeTeamId).not.toBe(activeBefore);
   });
 
-  test("REVEAL_CARD sur assassin déclenche fin de manche", () => {
+  test("REVEAL_CARD sur assassin donne -5 points et change de tour", () => {
     let state = createBase();
+    const activeBefore = state.activeTeamId;
     state = reduce(state, { type: "GIVE_CLUE", payload: { text: "océan", count: 1 } });
 
     const assassin = state.cards.find((c) => c.secret.kind === "ASSASSIN")!;
     const next = reduce(state, { type: "REVEAL_CARD", payload: { cardId: assassin.id } });
-    expect(next.phase).toBe("ROUND_OVER");
-    expect(next.roundWinnerTeamId).toBeTruthy();
+    // Assassin now ends the turn with -5 penalty instead of ending the round
+    expect(next.phase).toBe("CLUE");
+    expect(next.activeTeamId).not.toBe(activeBefore);
+    expect(next.teams[activeBefore].assassinPenalty).toBe(5);
+    // A new assassin should exist on an unrevealed card
+    const newAssassin = next.cards.find(
+      (c) => c.secret.kind === "ASSASSIN" && c.revealedByTeamId === null,
+    );
+    expect(newAssassin).toBeTruthy();
   });
 });
 

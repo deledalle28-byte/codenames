@@ -33,6 +33,7 @@ function makeState(): GameState {
         playerIds: ["p1"],
         spymasterIndex: 0,
         roundsWon: 0,
+        assassinPenalty: 0,
         mission: {
           definitionId: "m1",
           title: "Mission",
@@ -50,6 +51,7 @@ function makeState(): GameState {
         playerIds: ["p2"],
         spymasterIndex: 0,
         roundsWon: 0,
+        assassinPenalty: 0,
         mission: {
           definitionId: "m2",
           title: "Mission",

@@ -29,8 +29,9 @@ function getTeamStats(state: GameState, t: Team) {
     t.agentsRemaining ?? getTeamAgentsRemaining(state, t.id);
   const found = total - remaining;
   const missionDone = t.missionCompleted ?? t.mission?.completed ?? false;
-  const points = found + (missionDone ? 3 : 0);
-  return { total, remaining, found, points };
+  const penalty = t.assassinPenalty ?? 0;
+  const points = found + (missionDone ? 3 : 0) - penalty;
+  return { total, remaining, found, points, penalty };
 }
 
 export function Scoreboard({ state }: { state: GameState }) {

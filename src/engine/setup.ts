@@ -26,7 +26,7 @@ function computeDistribution(args: {
     const [starting, other] = args.turnOrderTeamIds;
     return {
       neutrals: 12,
-      agentsByTeamId: { [starting]: 12, [other]: 11 },
+      agentsByTeamId: { [starting]: 11, [other]: 12 },
     };
   }
 
@@ -38,7 +38,8 @@ function computeDistribution(args: {
   let extra = agentsTotal % teamsCount;
 
   const agentsByTeamId: Record<TeamId, number> = {};
-  for (const teamId of args.turnOrderTeamIds) {
+  const reversed = [...args.turnOrderTeamIds].reverse();
+  for (const teamId of reversed) {
     const add = extra > 0 ? 1 : 0;
     agentsByTeamId[teamId] = base + add;
     extra = Math.max(0, extra - add);

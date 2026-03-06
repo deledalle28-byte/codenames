@@ -25,7 +25,7 @@ export function isMissionCompleted(state: GameState, teamId: TeamId): boolean {
 
 export function getRoundWinnerTeamId(state: GameState): TeamId | null {
   for (const teamId of state.turnOrderTeamIds) {
-    if (areAllAgentsRevealed(state.cards, teamId) && isMissionCompleted(state, teamId)) {
+    if (areAllAgentsRevealed(state.cards, teamId)) {
       return teamId;
     }
   }

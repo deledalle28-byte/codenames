@@ -6,7 +6,7 @@ import { Server as IOServer } from "socket.io";
 import type { Action, TeamId } from "@/engine/types";
 import { reduce } from "@/engine/reducer";
 import { getRoom, sanitizeStateForPublic, updateRoomState } from "@/server/rooms";
-import type { Room } from "@/server/rooms";
+import type { Room, LobbyTeamId } from "@/server/rooms";
 
 export const config = {
   api: { bodyParser: false },
@@ -127,7 +127,7 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         },
       );
 
-      socket.on("lobby:chooseTeam", (payload: { teamId: "red" | "blue" | "green" | "yellow" | null }) => {
+      socket.on("lobby:chooseTeam", (payload: { teamId: LobbyTeamId | null }) => {
         const roomId = socket.data.roomId as string | null;
         if (!roomId) return;
         const room = getRoom(roomId);
@@ -154,7 +154,7 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         if (socket.id !== room.lobby.hostSocketId) return;
 
         const teamsCount = room.lobby.config.teamsCount;
-        const allTeamIds: Array<"red" | "blue" | "green" | "yellow"> = ["red", "blue", "green", "yellow"];
+        const allTeamIds: LobbyTeamId[] = ["red", "blue", "green", "yellow"];
         const teamIds = allTeamIds.slice(0, teamsCount);
 
         // Shuffle all players randomly across teams (round-robin on shuffled list)
@@ -180,7 +180,7 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         if (socket.id !== room.lobby.hostSocketId) return;
 
         const teamsCount = room.lobby.config.teamsCount;
-        const allTeamIds: Array<"red" | "blue" | "green" | "yellow"> = ["red", "blue", "green", "yellow"];
+        const allTeamIds: LobbyTeamId[] = ["red", "blue", "green", "yellow"];
         const teamIds = allTeamIds.slice(0, teamsCount);
 
         const teamPlayers: Record<string, typeof room.lobby.players> = {};

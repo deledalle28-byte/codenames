@@ -43,7 +43,7 @@ function LobbyInner({ roomId }: { roomId: string }) {
 
   const teamsCount = lobby?.config.teamsCount ?? 2;
   const teamDefs: Array<{
-    id: "red" | "blue" | "green";
+    id: "red" | "blue" | "green" | "yellow";
     label: string;
     dotClass: string;
     textClass: string;
@@ -71,6 +71,12 @@ function LobbyInner({ roomId }: { roomId: string }) {
       textClass: "text-green-400", selectedBorder: "border-green-500/60", selectedBg: "bg-green-500/[0.08]",
       hoverBorder: "hover:border-green-500/30", hoverBg: "hover:bg-green-500/[0.04]",
       shadowClass: "shadow-green-500/15", neonStyle: { textShadow: "0 0 10px rgba(34,197,94,0.3)" },
+    },
+    {
+      id: "yellow", label: "Jaune", dotClass: "bg-yellow-400 shadow-lg shadow-yellow-400/50",
+      textClass: "text-yellow-300", selectedBorder: "border-yellow-400/60", selectedBg: "bg-yellow-400/[0.08]",
+      hoverBorder: "hover:border-yellow-400/30", hoverBg: "hover:bg-yellow-400/[0.04]",
+      shadowClass: "shadow-yellow-400/15", neonStyle: { textShadow: "0 0 10px rgba(250,204,21,0.3)" },
     },
   ];
   const activeTeamDefs = teamDefs.slice(0, teamsCount);
@@ -105,7 +111,7 @@ function LobbyInner({ roomId }: { roomId: string }) {
               {roomId}
             </span>
             <span className="rounded-full bg-white/[0.08] px-2.5 py-0.5 text-[11px] font-semibold text-slate-400">
-              {teamsCount === 3 ? "2v2v2" : "2v2"}
+              {teamsCount === 4 ? "2v2v2v2" : teamsCount === 3 ? "2v2v2" : "2v2"}
             </span>
             <button
               onClick={() => {
@@ -166,7 +172,7 @@ function LobbyInner({ roomId }: { roomId: string }) {
           <>
             <div className={clsx(
               "grid gap-4",
-              teamsCount === 3 ? "md:grid-cols-3" : "md:grid-cols-2",
+              teamsCount === 4 ? "md:grid-cols-4" : teamsCount === 3 ? "md:grid-cols-3" : "md:grid-cols-2",
             )}>
               {activeTeamDefs.map((td) => {
                 const players = teamPlayers[td.id] ?? [];

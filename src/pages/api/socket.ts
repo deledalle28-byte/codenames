@@ -126,7 +126,7 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         },
       );
 
-      socket.on("lobby:chooseTeam", (payload: { teamId: "red" | "blue" | "green" | null }) => {
+      socket.on("lobby:chooseTeam", (payload: { teamId: "red" | "blue" | "green" | "yellow" | null }) => {
         const roomId = socket.data.roomId as string | null;
         if (!roomId) return;
         const room = getRoom(roomId);
@@ -134,6 +134,7 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
 
         // Validate team choice against lobby config
         if (payload.teamId === "green" && room.lobby.config.teamsCount < 3) return;
+        if (payload.teamId === "yellow" && room.lobby.config.teamsCount < 4) return;
 
         const player = room.lobby.players.find((p) => p.socketId === socket.id);
         if (player) {
@@ -152,9 +153,8 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         if (socket.id !== room.lobby.hostSocketId) return;
 
         const teamsCount = room.lobby.config.teamsCount;
-        const teamIds: Array<"red" | "blue" | "green"> = teamsCount >= 3
-          ? ["red", "blue", "green"]
-          : ["red", "blue"];
+        const allTeamIds: Array<"red" | "blue" | "green" | "yellow"> = ["red", "blue", "green", "yellow"];
+        const teamIds = allTeamIds.slice(0, teamsCount);
 
         // Shuffle all players randomly across teams (round-robin on shuffled list)
         const shuffled = [...room.lobby.players];
@@ -179,9 +179,8 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         if (socket.id !== room.lobby.hostSocketId) return;
 
         const teamsCount = room.lobby.config.teamsCount;
-        const teamIds: Array<"red" | "blue" | "green"> = teamsCount >= 3
-          ? ["red", "blue", "green"]
-          : ["red", "blue"];
+        const allTeamIds: Array<"red" | "blue" | "green" | "yellow"> = ["red", "blue", "green", "yellow"];
+        const teamIds = allTeamIds.slice(0, teamsCount);
 
         const teamPlayers: Record<string, typeof room.lobby.players> = {};
         for (const tid of teamIds) {

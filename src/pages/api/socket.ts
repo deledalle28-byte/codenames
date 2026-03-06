@@ -28,6 +28,61 @@ type JoinAck = { ok: boolean; isMaster?: boolean; isHost?: boolean; teamId?: str
 // server even after the original HTTP response has been closed.
 let ioRef: IOServer | null = null;
 
+/* ─── Clue-phase timer (2 min 30 s) ─────────────────────────── */
+const CLUE_TIMER_MS = 150_000; // 2 min 30 s
+const roomTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const roomDeadlines = new Map<string, number>();
+
+function clearClueTimer(roomId: string) {
+  const existing = roomTimers.get(roomId);
+  if (existing) {
+    clearTimeout(existing);
+    roomTimers.delete(roomId);
+  }
+  roomDeadlines.delete(roomId);
+}
+
+function startClueTimer(roomId: string) {
+  clearClueTimer(roomId);
+
+  const deadline = Date.now() + CLUE_TIMER_MS;
+  roomDeadlines.set(roomId, deadline);
+
+  // Broadcast deadline to all clients
+  if (ioRef) {
+    ioRef.to(roomId).emit("room:timer", { deadline });
+  }
+
+  const timer = setTimeout(async () => {
+    roomTimers.delete(roomId);
+    const room = getRoom(roomId);
+    if (!room?.state || room.state.phase !== "CLUE") return;
+
+    // Auto-skip: dispatch END_TURN
+    const next = reduce(room.state, { type: "END_TURN", payload: {} });
+    updateRoomState(roomId, next);
+
+    if (!ioRef) return;
+
+    // Broadcast cleared timer
+    ioRef.to(roomId).emit("room:timer", { deadline: null });
+
+    // Broadcast new state
+    const sockets = await ioRef.in(roomId).fetchSockets();
+    for (const s of sockets) {
+      const sendMaster = Boolean(s.data.isMaster);
+      s.emit("room:state", sendMaster ? next : sanitizeStateForPublic(next));
+    }
+
+    // Start a new timer if the new state is also CLUE phase (next team)
+    if (next.phase === "CLUE") {
+      startClueTimer(roomId);
+    }
+  }, CLUE_TIMER_MS);
+
+  roomTimers.set(roomId, timer);
+}
+
 /* ─── Helpers ──────────────────────────────────────────────── */
 
 function canCallAction(args: { isMaster: boolean; action: Action }) {
@@ -239,6 +294,11 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
             masterPin: isSpy ? room.masterPin : undefined,
           });
         }
+
+        // Start the clue timer for the first team
+        if (state.phase === "CLUE") {
+          startClueTimer(roomId);
+        }
       });
 
       /* ─── Game events ──────────────────────────────────── */
@@ -271,6 +331,11 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
 
         const stateToSend = isMaster ? room.state : sanitizeStateForPublic(room.state);
         socket.emit("room:state", stateToSend);
+
+        // Send current timer deadline if clue phase is active
+        const currentDeadline = roomDeadlines.get(payload.roomId);
+        socket.emit("room:timer", { deadline: currentDeadline ?? null });
+
         const isHost = room.hostPlayerName != null &&
           (socket.data.playerName as string) === room.hostPlayerName;
         const playerTeamId = socket.data.teamId as string | null;
@@ -322,7 +387,8 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
           }
         }
 
-        const next = reduce(room.state, payload.action);
+        const prev = room.state;
+        const next = reduce(prev, payload.action);
         updateRoomState(roomId, next);
 
         if (!ioRef) return;
@@ -367,6 +433,18 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
             const sendMaster = Boolean(s.data.isMaster);
             s.emit("room:state", sendMaster ? next : sanitizeStateForPublic(next));
           }
+        }
+
+        // ── Clue-phase timer management ──
+        // When entering CLUE phase → start timer; otherwise → clear it
+        if (next.phase === "CLUE") {
+          // (Re)start timer if we just entered CLUE phase or active team changed
+          if (prev.phase !== "CLUE" || prev.activeTeamId !== next.activeTeamId) {
+            startClueTimer(roomId);
+          }
+        } else {
+          clearClueTimer(roomId);
+          ioRef.to(roomId).emit("room:timer", { deadline: null });
         }
       });
 

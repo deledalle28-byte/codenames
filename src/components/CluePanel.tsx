@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import type { Clue, Phase, Team, TeamColor } from "@/engine/types";
 
 const NEON: Record<TeamColor, string> = {
@@ -16,14 +17,70 @@ const PHASE_LABEL: Record<string, string> = {
   MATCH_OVER: "Terminé",
 };
 
+function CountdownTimer({ deadline }: { deadline: number }) {
+  const [remaining, setRemaining] = useState(() => Math.max(0, deadline - Date.now()));
+
+  useEffect(() => {
+    setRemaining(Math.max(0, deadline - Date.now()));
+    const interval = setInterval(() => {
+      const r = Math.max(0, deadline - Date.now());
+      setRemaining(r);
+      if (r <= 0) clearInterval(interval);
+    }, 200);
+    return () => clearInterval(interval);
+  }, [deadline]);
+
+  const totalSec = Math.ceil(remaining / 1000);
+  const min = Math.floor(totalSec / 60);
+  const sec = totalSec % 60;
+  const isLow = totalSec <= 30;
+  const isCritical = totalSec <= 10;
+
+  return (
+    <div
+      className="flex items-center gap-2 rounded-lg border px-3 py-2"
+      style={{
+        borderColor: isCritical
+          ? "rgba(255,59,92,0.4)"
+          : isLow
+            ? "rgba(250,204,21,0.3)"
+            : "rgba(255,255,255,0.08)",
+        backgroundColor: isCritical
+          ? "rgba(255,59,92,0.08)"
+          : isLow
+            ? "rgba(250,204,21,0.06)"
+            : "rgba(255,255,255,0.03)",
+      }}
+    >
+      <span className="text-sm">⏱</span>
+      <span
+        className="font-mono text-lg font-bold tabular-nums"
+        style={{
+          color: isCritical ? "#ff3b5c" : isLow ? "#eab308" : "#e2e8f0",
+          textShadow: isCritical
+            ? "0 0 12px rgba(255,59,92,0.5)"
+            : isLow
+              ? "0 0 12px rgba(250,204,21,0.4)"
+              : "none",
+          animation: isCritical ? "pulse 1s ease-in-out infinite" : "none",
+        }}
+      >
+        {min}:{sec.toString().padStart(2, "0")}
+      </span>
+    </div>
+  );
+}
+
 export function CluePanel({
   phase,
   activeTeam,
   clue,
+  timerDeadline,
 }: {
   phase: Phase;
   activeTeam: Team;
   clue: Clue | null;
+  timerDeadline?: number | null;
 }) {
   const neon = NEON[activeTeam.color] ?? "#f1f5f9";
 
@@ -44,12 +101,17 @@ export function CluePanel({
             {activeTeam.name}
           </div>
         </div>
-        <div className="text-right">
-          <div className="text-xs font-semibold uppercase tracking-widest text-slate-500">
-            Phase
-          </div>
-          <div className="rounded-md bg-white/[0.06] px-2 py-0.5 font-mono text-xs text-slate-300">
-            {PHASE_LABEL[phase] ?? phase}
+        <div className="flex items-center gap-3">
+          {timerDeadline && phase === "CLUE" && (
+            <CountdownTimer deadline={timerDeadline} />
+          )}
+          <div className="text-right">
+            <div className="text-xs font-semibold uppercase tracking-widest text-slate-500">
+              Phase
+            </div>
+            <div className="rounded-md bg-white/[0.06] px-2 py-0.5 font-mono text-xs text-slate-300">
+              {PHASE_LABEL[phase] ?? phase}
+            </div>
           </div>
         </div>
       </div>

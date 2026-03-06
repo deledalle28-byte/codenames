@@ -60,6 +60,16 @@ export async function onPlayers(handler: (players: ConnectedPlayer[]) => void) {
   return () => s.off("room:players", handler);
 }
 
+/* ─── Clue-phase timer ─────────────────────────────────────── */
+
+export type TimerInfo = { deadline: number | null };
+
+export async function onTimer(handler: (info: TimerInfo) => void) {
+  const s = await getSocket();
+  s.on("room:timer", handler);
+  return () => s.off("room:timer", handler);
+}
+
 /* ─── Role change (spymaster rotation between rounds) ──────── */
 
 export type RoleChangeInfo = {

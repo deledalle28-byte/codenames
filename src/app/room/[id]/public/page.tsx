@@ -31,7 +31,7 @@ function PublicRoomInner({ roomId }: { roomId: string }) {
   useEffect(() => {
     setPlayerName(localStorage.getItem("codename_playerName") ?? "");
   }, []);
-  const { state, dispatch, error, isHost, myTeamId, connectedPlayers, roleChange } = useRoomOnlineGame({ roomId, role: "public", playerName });
+  const { state, dispatch, error, isHost, myTeamId, connectedPlayers, roleChange, timerDeadline } = useRoomOnlineGame({ roomId, role: "public", playerName });
 
   // Redirect when promoted to spymaster (role rotation between rounds)
   useEffect(() => {
@@ -180,7 +180,7 @@ function PublicRoomInner({ roomId }: { roomId: string }) {
           </div>
 
           <div className="grid gap-6">
-            <CluePanel phase={state.phase} activeTeam={activeTeam} clue={state.clue} />
+            <CluePanel phase={state.phase} activeTeam={activeTeam} clue={state.clue} timerDeadline={timerDeadline} />
             <Scoreboard state={state} />
 
             {/* ── Connected players ── */}

@@ -50,7 +50,7 @@ function MasterRoomInner({ roomId }: { roomId: string }) {
     }
   }, []);
 
-  const { state, dispatch, error, serverIsMaster, isHost, myTeamId, connectedPlayers, roleChange } = useRoomOnlineGame({
+  const { state, dispatch, error, serverIsMaster, isHost, myTeamId, connectedPlayers, roleChange, timerDeadline } = useRoomOnlineGame({
     roomId,
     role: "master",
     pin: pinOk ? pin : undefined,
@@ -295,7 +295,7 @@ function MasterRoomInner({ roomId }: { roomId: string }) {
           </div>
 
           <div className="grid gap-6">
-            <CluePanel phase={state.phase} activeTeam={activeTeam} clue={state.clue} />
+            <CluePanel phase={state.phase} activeTeam={activeTeam} clue={state.clue} timerDeadline={timerDeadline} />
             <Scoreboard state={state} />
             <MissionPanel teams={Object.values(state.teams)} />
 

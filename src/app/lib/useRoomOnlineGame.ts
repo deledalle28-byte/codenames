@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Action, GameState } from "@/engine/types";
-import { joinRoom, onError, onPlayers, onRoleChange, onState, sendAction } from "./socketClient";
+import { joinRoom, onError, onPlayers, onRoleChange, onState, onTimer, sendAction } from "./socketClient";
 import type { ConnectedPlayer, RoleChangeInfo } from "./socketClient";
 
 export function useRoomOnlineGame(args: {
@@ -18,12 +18,14 @@ export function useRoomOnlineGame(args: {
   const [myTeamId, setMyTeamId] = useState<string | null>(null);
   const [connectedPlayers, setConnectedPlayers] = useState<ConnectedPlayer[]>([]);
   const [roleChange, setRoleChange] = useState<RoleChangeInfo | null>(null);
+  const [timerDeadline, setTimerDeadline] = useState<number | null>(null);
 
   useEffect(() => {
     let unsubState: null | (() => void) = null;
     let unsubErr: null | (() => void) = null;
     let unsubPlayers: null | (() => void) = null;
     let unsubRole: null | (() => void) = null;
+    let unsubTimer: null | (() => void) = null;
     let cancelled = false;
 
     (async () => {
@@ -31,6 +33,7 @@ export function useRoomOnlineGame(args: {
       unsubErr = await onError((e) => setError(e?.code ?? "ERROR"));
       unsubPlayers = await onPlayers((p) => setConnectedPlayers(p));
       unsubRole = await onRoleChange((info) => setRoleChange(info));
+      unsubTimer = await onTimer((info) => setTimerDeadline(info.deadline));
       const resp = await joinRoom({
         roomId: args.roomId,
         role: args.role,
@@ -50,6 +53,7 @@ export function useRoomOnlineGame(args: {
       unsubErr?.();
       unsubPlayers?.();
       unsubRole?.();
+      unsubTimer?.();
     };
   }, [args.roomId, args.role, args.pin, args.playerName]);
 
@@ -61,7 +65,7 @@ export function useRoomOnlineGame(args: {
   );
 
   return useMemo(
-    () => ({ state, dispatch, error, serverIsMaster, isHost, myTeamId, connectedPlayers, roleChange }),
-    [state, dispatch, error, serverIsMaster, isHost, myTeamId, connectedPlayers, roleChange],
+    () => ({ state, dispatch, error, serverIsMaster, isHost, myTeamId, connectedPlayers, roleChange, timerDeadline }),
+    [state, dispatch, error, serverIsMaster, isHost, myTeamId, connectedPlayers, roleChange, timerDeadline],
   );
 }

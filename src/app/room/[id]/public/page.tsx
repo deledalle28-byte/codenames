@@ -30,7 +30,7 @@ function PublicRoomInner({ roomId }: { roomId: string }) {
   useEffect(() => {
     setPlayerName(localStorage.getItem("codename_playerName") ?? "");
   }, []);
-  const { state, dispatch, error, isHost, connectedPlayers } = useRoomOnlineGame({ roomId, role: "public", playerName });
+  const { state, dispatch, error, isHost, myTeamId, connectedPlayers } = useRoomOnlineGame({ roomId, role: "public", playerName });
 
   const teamColorById = useMemo(() => {
     const map: Record<string, TeamColor> = {};
@@ -78,9 +78,30 @@ function PublicRoomInner({ roomId }: { roomId: string }) {
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className="text-xs font-bold uppercase tracking-widest text-slate-500">
-              Public
+              Room {roomId}
             </div>
-            <div className="text-xl font-bold">Room {roomId}</div>
+            {myTeamId && state.teams[myTeamId] ? (
+              <div className="flex items-center gap-2">
+                <span
+                  className="inline-block h-3.5 w-3.5 rounded-full shadow-lg"
+                  style={{
+                    backgroundColor: NEON[state.teams[myTeamId].color] ?? "#94a3b8",
+                    boxShadow: `0 0 10px ${NEON[state.teams[myTeamId].color] ?? "#94a3b8"}60`,
+                  }}
+                />
+                <span
+                  className="text-xl font-bold"
+                  style={{
+                    color: NEON[state.teams[myTeamId].color] ?? "#f1f5f9",
+                    textShadow: `0 0 12px ${NEON[state.teams[myTeamId].color] ?? "#f1f5f9"}40`,
+                  }}
+                >
+                  Équipe {state.teams[myTeamId].name}
+                </span>
+              </div>
+            ) : (
+              <div className="text-xl font-bold">Spectateur</div>
+            )}
           </div>
           <div className="flex flex-wrap gap-2">
             <Link

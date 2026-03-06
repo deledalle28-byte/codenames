@@ -22,7 +22,7 @@ type JoinPayload = {
   pin?: string;
   playerName?: string;
 };
-type JoinAck = { ok: boolean; isMaster?: boolean; isHost?: boolean; error?: string };
+type JoinAck = { ok: boolean; isMaster?: boolean; isHost?: boolean; teamId?: string | null; error?: string };
 
 // Keep a module-level reference so Socket.io event handlers can access the
 // server even after the original HTTP response has been closed.
@@ -234,7 +234,8 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         socket.emit("room:state", stateToSend);
         const isHost = room.hostPlayerName != null &&
           (socket.data.playerName as string) === room.hostPlayerName;
-        ack?.({ ok: true, isMaster, isHost });
+        const playerTeamId = socket.data.teamId as string | null;
+        ack?.({ ok: true, isMaster, isHost, teamId: playerTeamId });
 
         // Broadcast updated player list
         await broadcastPlayers(io, payload.roomId);

@@ -22,11 +22,21 @@ function computeDistribution(args: {
 }): { neutrals: number; agentsByTeamId: Record<TeamId, number> } {
   const teamsCount = args.turnOrderTeamIds.length;
 
+  // 2 teams, 6×6 = 36 cards: starting team gets fewer (11 vs 12)
   if (teamsCount === 2 && args.total === 36) {
     const [starting, other] = args.turnOrderTeamIds;
     return {
       neutrals: 12,
       agentsByTeamId: { [starting]: 11, [other]: 12 },
+    };
+  }
+
+  // 3 teams, 7×7 = 49 cards: 11 / 10 / 9 agents (starting team gets most)
+  if (teamsCount === 3 && args.total === 49) {
+    const [first, second, third] = args.turnOrderTeamIds;
+    return {
+      neutrals: 18,
+      agentsByTeamId: { [first]: 11, [second]: 10, [third]: 9 },
     };
   }
 

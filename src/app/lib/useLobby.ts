@@ -10,7 +10,7 @@ import {
   lobbyChooseTeam,
   lobbyStart,
 } from "./socketClient";
-import type { LobbyState, GameStartInfo } from "./socketClient";
+import type { LobbyState, GameStartInfo, LobbyTeamId } from "./socketClient";
 
 export function useLobby(args: { roomId: string; playerName: string }) {
   const [lobby, setLobby] = useState<LobbyState | null>(null);
@@ -87,7 +87,7 @@ export function useLobby(args: { roomId: string; playerName: string }) {
     // Only depend on roomId — playerName is read from ref
   }, [args.roomId]);
 
-  const chooseTeam = useCallback((teamId: "red" | "blue" | null) => {
+  const chooseTeam = useCallback((teamId: LobbyTeamId | null) => {
     lobbyChooseTeam(teamId);
   }, []);
 

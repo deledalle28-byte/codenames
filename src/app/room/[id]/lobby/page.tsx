@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import clsx from "clsx";
@@ -41,11 +41,47 @@ function LobbyInner({ roomId }: { roomId: string }) {
     }
   }, [error, roomId, router]);
 
-  const redPlayers = lobby?.players.filter((p) => p.teamId === "red") ?? [];
-  const bluePlayers = lobby?.players.filter((p) => p.teamId === "blue") ?? [];
+  const teamsCount = lobby?.config.teamsCount ?? 2;
+  const teamDefs: Array<{
+    id: "red" | "blue" | "green";
+    label: string;
+    dotClass: string;
+    textClass: string;
+    selectedBorder: string;
+    selectedBg: string;
+    hoverBorder: string;
+    hoverBg: string;
+    shadowClass: string;
+    neonStyle: React.CSSProperties;
+  }> = [
+    {
+      id: "red", label: "Rouge", dotClass: "bg-red-500 shadow-lg shadow-red-500/50",
+      textClass: "text-red-400", selectedBorder: "border-red-500/60", selectedBg: "bg-red-500/[0.08]",
+      hoverBorder: "hover:border-red-500/30", hoverBg: "hover:bg-red-500/[0.04]",
+      shadowClass: "shadow-red-500/15", neonStyle: { textShadow: "0 0 10px rgba(255,59,92,0.3)" },
+    },
+    {
+      id: "blue", label: "Bleu", dotClass: "bg-blue-500 shadow-lg shadow-blue-500/50",
+      textClass: "text-blue-400", selectedBorder: "border-blue-500/60", selectedBg: "bg-blue-500/[0.08]",
+      hoverBorder: "hover:border-blue-500/30", hoverBg: "hover:bg-blue-500/[0.04]",
+      shadowClass: "shadow-blue-500/15", neonStyle: { textShadow: "0 0 10px rgba(59,130,246,0.3)" },
+    },
+    {
+      id: "green", label: "Vert", dotClass: "bg-green-500 shadow-lg shadow-green-500/50",
+      textClass: "text-green-400", selectedBorder: "border-green-500/60", selectedBg: "bg-green-500/[0.08]",
+      hoverBorder: "hover:border-green-500/30", hoverBg: "hover:bg-green-500/[0.04]",
+      shadowClass: "shadow-green-500/15", neonStyle: { textShadow: "0 0 10px rgba(34,197,94,0.3)" },
+    },
+  ];
+  const activeTeamDefs = teamDefs.slice(0, teamsCount);
+
+  const teamPlayers: Record<string, NonNullable<typeof lobby>["players"]> = {};
+  for (const td of activeTeamDefs) {
+    teamPlayers[td.id] = lobby?.players.filter((p) => p.teamId === td.id) ?? [];
+  }
   const unassigned = lobby?.players.filter((p) => p.teamId === null) ?? [];
   const myTeam = lobby?.players.find((p) => p.socketId === socketId)?.teamId ?? null;
-  const canStart = redPlayers.length >= 2 && bluePlayers.length >= 2;
+  const canStart = activeTeamDefs.every((td) => (teamPlayers[td.id]?.length ?? 0) >= 2);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 bg-grid-pattern p-4 text-white sm:p-8">
@@ -67,6 +103,9 @@ function LobbyInner({ roomId }: { roomId: string }) {
           <div className="flex items-center gap-3">
             <span className="font-mono text-2xl font-bold tracking-[0.3em] text-white">
               {roomId}
+            </span>
+            <span className="rounded-full bg-white/[0.08] px-2.5 py-0.5 text-[11px] font-semibold text-slate-400">
+              {teamsCount === 3 ? "2v2v2" : "2v2"}
             </span>
             <button
               onClick={() => {
@@ -125,88 +164,56 @@ function LobbyInner({ roomId }: { roomId: string }) {
         {/* ── Teams ──────────────────────────────────────── */}
         {lobby && (
           <>
-            <div className="grid gap-4 md:grid-cols-2">
-              {/* Red team */}
-              <button
-                type="button"
-                className={clsx(
-                  "rounded-2xl border-2 p-5 text-left transition-all duration-300",
-                  myTeam === "red"
-                    ? "border-red-500/60 bg-red-500/[0.08] shadow-lg shadow-red-500/15"
-                    : "border-white/[0.08] bg-white/[0.03] hover:border-red-500/30 hover:bg-red-500/[0.04]",
-                )}
-                onClick={() => chooseTeam(myTeam === "red" ? null : "red")}
-              >
-                <div className="mb-4 flex items-center gap-2">
-                  <span className="inline-block h-4 w-4 rounded-full bg-red-500 shadow-lg shadow-red-500/50" />
-                  <span
-                    className="text-lg font-bold text-red-400"
-                    style={{ textShadow: "0 0 10px rgba(255,59,92,0.3)" }}
+            <div className={clsx(
+              "grid gap-4",
+              teamsCount === 3 ? "md:grid-cols-3" : "md:grid-cols-2",
+            )}>
+              {activeTeamDefs.map((td) => {
+                const players = teamPlayers[td.id] ?? [];
+                const isMyTeam = myTeam === td.id;
+                return (
+                  <button
+                    key={td.id}
+                    type="button"
+                    className={clsx(
+                      "rounded-2xl border-2 p-5 text-left transition-all duration-300",
+                      isMyTeam
+                        ? `${td.selectedBorder} ${td.selectedBg} shadow-lg ${td.shadowClass}`
+                        : `border-white/[0.08] bg-white/[0.03] ${td.hoverBorder} ${td.hoverBg}`,
+                    )}
+                    onClick={() => chooseTeam(isMyTeam ? null : td.id)}
                   >
-                    Rouge
-                  </span>
-                  <span className="ml-auto text-sm text-slate-600">
-                    {redPlayers.length} joueur
-                    {redPlayers.length > 1 ? "s" : ""}
-                  </span>
-                </div>
-                <div className="grid min-h-[80px] gap-2">
-                  {redPlayers.length === 0 && (
-                    <p className="text-sm italic text-slate-700">
-                      Clique pour rejoindre...
-                    </p>
-                  )}
-                  {redPlayers.map((p) => (
-                    <PlayerChip
-                      key={p.socketId}
-                      name={p.name}
-                      isHost={p.socketId === lobby.hostSocketId}
-                      isMe={p.socketId === socketId}
-                    />
-                  ))}
-                </div>
-              </button>
-
-              {/* Blue team */}
-              <button
-                type="button"
-                className={clsx(
-                  "rounded-2xl border-2 p-5 text-left transition-all duration-300",
-                  myTeam === "blue"
-                    ? "border-blue-500/60 bg-blue-500/[0.08] shadow-lg shadow-blue-500/15"
-                    : "border-white/[0.08] bg-white/[0.03] hover:border-blue-500/30 hover:bg-blue-500/[0.04]",
-                )}
-                onClick={() => chooseTeam(myTeam === "blue" ? null : "blue")}
-              >
-                <div className="mb-4 flex items-center gap-2">
-                  <span className="inline-block h-4 w-4 rounded-full bg-blue-500 shadow-lg shadow-blue-500/50" />
-                  <span
-                    className="text-lg font-bold text-blue-400"
-                    style={{ textShadow: "0 0 10px rgba(59,130,246,0.3)" }}
-                  >
-                    Bleu
-                  </span>
-                  <span className="ml-auto text-sm text-slate-600">
-                    {bluePlayers.length} joueur
-                    {bluePlayers.length > 1 ? "s" : ""}
-                  </span>
-                </div>
-                <div className="grid min-h-[80px] gap-2">
-                  {bluePlayers.length === 0 && (
-                    <p className="text-sm italic text-slate-700">
-                      Clique pour rejoindre...
-                    </p>
-                  )}
-                  {bluePlayers.map((p) => (
-                    <PlayerChip
-                      key={p.socketId}
-                      name={p.name}
-                      isHost={p.socketId === lobby.hostSocketId}
-                      isMe={p.socketId === socketId}
-                    />
-                  ))}
-                </div>
-              </button>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className={clsx("inline-block h-4 w-4 rounded-full", td.dotClass)} />
+                      <span
+                        className={clsx("text-lg font-bold", td.textClass)}
+                        style={td.neonStyle}
+                      >
+                        {td.label}
+                      </span>
+                      <span className="ml-auto text-sm text-slate-600">
+                        {players.length} joueur
+                        {players.length > 1 ? "s" : ""}
+                      </span>
+                    </div>
+                    <div className="grid min-h-[80px] gap-2">
+                      {players.length === 0 && (
+                        <p className="text-sm italic text-slate-700">
+                          Clique pour rejoindre...
+                        </p>
+                      )}
+                      {players.map((p) => (
+                        <PlayerChip
+                          key={p.socketId}
+                          name={p.name}
+                          isHost={p.socketId === lobby.hostSocketId}
+                          isMe={p.socketId === socketId}
+                        />
+                      ))}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
 
             {/* Unassigned players */}

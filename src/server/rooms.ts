@@ -4,16 +4,18 @@ export type RoomId = string;
 
 /* ─── Lobby types ──────────────────────────────────────────── */
 
+export type LobbyTeamId = "red" | "blue" | "green";
+
 export type LobbyPlayer = {
   socketId: string;
   name: string;
-  teamId: "red" | "blue" | null;
+  teamId: LobbyTeamId | null;
 };
 
 export type Lobby = {
   hostSocketId: string;
   players: LobbyPlayer[];
-  config: { roundsToWinMatch: number };
+  config: { roundsToWinMatch: number; teamsCount: number };
   started: boolean;
 };
 

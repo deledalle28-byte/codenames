@@ -5,11 +5,13 @@ export const runtime = "nodejs";
 
 type Body = {
   roundsToWinMatch?: number;
+  teamsCount?: number;
 };
 
 export async function POST(req: Request) {
   const body = (await req.json().catch(() => ({}))) as Body;
   const roundsToWinMatch = Math.max(1, Math.floor(body.roundsToWinMatch ?? 3));
+  const teamsCount = Math.max(2, Math.min(3, Math.floor(body.teamsCount ?? 2)));
 
   // Auto-generate a 4-digit PIN for the master view
   const masterPin = String(Math.floor(1000 + Math.random() * 9000));
@@ -24,7 +26,7 @@ export async function POST(req: Request) {
     lobby: {
       hostSocketId: "",
       players: [],
-      config: { roundsToWinMatch },
+      config: { roundsToWinMatch, teamsCount },
       started: false,
     },
     playerTeams: new Map(),

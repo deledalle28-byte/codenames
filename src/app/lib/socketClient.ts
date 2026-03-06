@@ -62,16 +62,18 @@ export async function onPlayers(handler: (players: ConnectedPlayer[]) => void) {
 
 /* ─── Lobby ────────────────────────────────────────────────── */
 
+export type LobbyTeamId = "red" | "blue" | "green";
+
 export type LobbyPlayer = {
   socketId: string;
   name: string;
-  teamId: "red" | "blue" | null;
+  teamId: LobbyTeamId | null;
 };
 
 export type LobbyState = {
   hostSocketId: string;
   players: LobbyPlayer[];
-  config: { roundsToWinMatch: number };
+  config: { roundsToWinMatch: number; teamsCount: number };
   started: boolean;
 };
 
@@ -89,7 +91,7 @@ export async function joinLobby(args: { roomId: string; playerName: string }) {
   });
 }
 
-export async function lobbyChooseTeam(teamId: "red" | "blue" | null) {
+export async function lobbyChooseTeam(teamId: LobbyTeamId | null) {
   const s = await getSocket();
   s.emit("lobby:chooseTeam", { teamId });
 }

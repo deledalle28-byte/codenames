@@ -126,11 +126,14 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         },
       );
 
-      socket.on("lobby:chooseTeam", (payload: { teamId: "red" | "blue" | null }) => {
+      socket.on("lobby:chooseTeam", (payload: { teamId: "red" | "blue" | "green" | null }) => {
         const roomId = socket.data.roomId as string | null;
         if (!roomId) return;
         const room = getRoom(roomId);
         if (!room?.lobby || room.lobby.started) return;
+
+        // Validate team choice against lobby config
+        if (payload.teamId === "green" && room.lobby.config.teamsCount < 3) return;
 
         const player = room.lobby.players.find((p) => p.socketId === socket.id);
         if (player) {
@@ -148,18 +151,27 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         // Only the host can start
         if (socket.id !== room.lobby.hostSocketId) return;
 
-        const redPlayers = room.lobby.players.filter((p) => p.teamId === "red");
-        const bluePlayers = room.lobby.players.filter((p) => p.teamId === "blue");
+        const teamsCount = room.lobby.config.teamsCount;
+        const teamIds: Array<"red" | "blue" | "green"> = teamsCount >= 3
+          ? ["red", "blue", "green"]
+          : ["red", "blue"];
 
-        if (redPlayers.length < 2 || bluePlayers.length < 2) {
-          socket.emit("lobby:error", { code: "TEAMS_NOT_READY" });
-          return;
+        const teamPlayers: Record<string, typeof room.lobby.players> = {};
+        for (const tid of teamIds) {
+          teamPlayers[tid] = room.lobby.players.filter((p) => p.teamId === tid);
+          if (teamPlayers[tid].length < 2) {
+            socket.emit("lobby:error", { code: "TEAMS_NOT_READY" });
+            return;
+          }
         }
 
         // Randomly pick one spymaster per team
-        const redSpy = redPlayers[Math.floor(Math.random() * redPlayers.length)];
-        const blueSpy = bluePlayers[Math.floor(Math.random() * bluePlayers.length)];
-        const spymasterSocketIds = new Set([redSpy.socketId, blueSpy.socketId]);
+        const spymasterSocketIds = new Set<string>();
+        for (const tid of teamIds) {
+          const tp = teamPlayers[tid];
+          const spy = tp[Math.floor(Math.random() * tp.length)];
+          spymasterSocketIds.add(spy.socketId);
+        }
 
         // Build the player list for the game engine
         const allPlayers = room.lobby.players
@@ -172,7 +184,7 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
           type: "CREATE_MATCH",
           payload: {
             seed,
-            config: { teamsCount: 2, roundsToWinMatch: room.lobby.config.roundsToWinMatch },
+            config: { teamsCount, roundsToWinMatch: room.lobby.config.roundsToWinMatch },
             players: allPlayers,
           },
         });
@@ -267,6 +279,15 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         // Team-gated actions: only the active team's players can act
         const teamGatedActions = new Set(["REVEAL_CARD", "STOP_GUESSING", "END_TURN"]);
         if (teamGatedActions.has(payload.action.type) && !isMaster) {
+          const playerTeamId = socket.data.teamId as string | null;
+          if (playerTeamId !== room.state.activeTeamId) {
+            socket.emit("room:error", { code: "NOT_YOUR_TURN" });
+            return;
+          }
+        }
+
+        // GIVE_CLUE: only the active team's spymaster can give clues
+        if (payload.action.type === "GIVE_CLUE" && isMaster) {
           const playerTeamId = socket.data.teamId as string | null;
           if (playerTeamId !== room.state.activeTeamId) {
             socket.emit("room:error", { code: "NOT_YOUR_TURN" });

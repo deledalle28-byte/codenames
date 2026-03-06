@@ -62,6 +62,7 @@ export default function Home() {
 
   /* ---- create form state ---- */
   const [roundsToWin, setRoundsToWin] = useState(3);
+  const [teamsCount, setTeamsCount] = useState<2 | 3>(2);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
@@ -92,7 +93,7 @@ export default function Home() {
     const resp = await fetch("/api/room/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ roundsToWinMatch: roundsToWin }),
+      body: JSON.stringify({ roundsToWinMatch: roundsToWin, teamsCount }),
     }).catch(() => null);
 
     setCreating(false);
@@ -238,6 +239,45 @@ export default function Home() {
             </h2>
 
             <div className="mt-5 grid gap-4">
+              {/* ── Mode selector ── */}
+              <div className="grid gap-1 text-xs">
+                <span className="font-semibold text-slate-500">Mode de jeu</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setTeamsCount(2)}
+                    className={`rounded-lg border px-3 py-2.5 text-sm font-semibold transition ${
+                      teamsCount === 2
+                        ? "border-purple-500/50 bg-purple-500/15 text-purple-300 shadow-lg shadow-purple-500/10"
+                        : "border-white/[0.1] bg-white/[0.04] text-slate-400 hover:bg-white/[0.08] hover:text-white"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="inline-block h-2.5 w-2.5 rounded-full bg-red-500" />
+                      <span>vs</span>
+                      <span className="inline-block h-2.5 w-2.5 rounded-full bg-blue-500" />
+                    </div>
+                    <div className="mt-1 text-[11px] text-slate-500">2v2 &middot; 6&times;6</div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTeamsCount(3)}
+                    className={`rounded-lg border px-3 py-2.5 text-sm font-semibold transition ${
+                      teamsCount === 3
+                        ? "border-purple-500/50 bg-purple-500/15 text-purple-300 shadow-lg shadow-purple-500/10"
+                        : "border-white/[0.1] bg-white/[0.04] text-slate-400 hover:bg-white/[0.08] hover:text-white"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="inline-block h-2.5 w-2.5 rounded-full bg-red-500" />
+                      <span className="inline-block h-2.5 w-2.5 rounded-full bg-blue-500" />
+                      <span className="inline-block h-2.5 w-2.5 rounded-full bg-green-500" />
+                    </div>
+                    <div className="mt-1 text-[11px] text-slate-500">2v2v2 &middot; 7&times;7</div>
+                  </button>
+                </div>
+              </div>
+
               <label className="grid gap-1 text-xs">
                 <span className="font-semibold text-slate-500">Longueur de la partie (manches)</span>
                 <input

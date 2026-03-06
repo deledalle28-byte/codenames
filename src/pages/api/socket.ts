@@ -6,7 +6,7 @@ import { Server as IOServer } from "socket.io";
 import type { Action, TeamId } from "@/engine/types";
 import { reduce } from "@/engine/reducer";
 import { getRoom, sanitizeStateForPublic, updateRoomState } from "@/server/rooms";
-import type { Room, LobbyTeamId } from "@/server/rooms";
+import type { Room } from "@/server/rooms";
 
 export const config = {
   api: { bodyParser: false },
@@ -127,20 +127,19 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         },
       );
 
-      socket.on("lobby:chooseTeam", (payload: { teamId: LobbyTeamId | null }) => {
+      socket.on("lobby:chooseTeam", (payload: { teamId: string | null }) => {
         const roomId = socket.data.roomId as string | null;
         if (!roomId) return;
         const room = getRoom(roomId);
         if (!room?.lobby || room.lobby.started) return;
 
         // Validate team choice against lobby config
-        const tid = payload.teamId as string | null;
-        if (tid === "green" && room.lobby.config.teamsCount < 3) return;
-        if (tid === "yellow" && room.lobby.config.teamsCount < 4) return;
+        if (payload.teamId === "green" && room.lobby.config.teamsCount < 3) return;
+        if (payload.teamId === "yellow" && room.lobby.config.teamsCount < 4) return;
 
         const player = room.lobby.players.find((p) => p.socketId === socket.id);
         if (player) {
-          player.teamId = payload.teamId;
+          (player as { teamId: string | null }).teamId = payload.teamId;
           broadcastLobby(io, room);
         }
       });
@@ -155,7 +154,7 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         if (socket.id !== room.lobby.hostSocketId) return;
 
         const teamsCount = room.lobby.config.teamsCount;
-        const allTeamIds: LobbyTeamId[] = ["red", "blue", "green", "yellow"];
+        const allTeamIds: string[] = ["red", "blue", "green", "yellow"];
         const teamIds = allTeamIds.slice(0, teamsCount);
 
         // Shuffle all players randomly across teams (round-robin on shuffled list)
@@ -165,7 +164,7 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
           [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
         for (let i = 0; i < shuffled.length; i++) {
-          shuffled[i].teamId = teamIds[i % teamIds.length];
+          (shuffled[i] as { teamId: string | null }).teamId = teamIds[i % teamIds.length];
         }
 
         broadcastLobby(io, room);
@@ -181,7 +180,7 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         if (socket.id !== room.lobby.hostSocketId) return;
 
         const teamsCount = room.lobby.config.teamsCount;
-        const allTeamIds: LobbyTeamId[] = ["red", "blue", "green", "yellow"];
+        const allTeamIds: string[] = ["red", "blue", "green", "yellow"];
         const teamIds = allTeamIds.slice(0, teamsCount);
 
         const teamPlayers: Record<string, typeof room.lobby.players> = {};

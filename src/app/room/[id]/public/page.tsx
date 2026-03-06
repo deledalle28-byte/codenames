@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Board } from "@/components/Board";
 import { CluePanel } from "@/components/CluePanel";
 import { Scoreboard } from "@/components/Scoreboard";
@@ -26,11 +26,19 @@ export default function PublicRoomPage() {
 }
 
 function PublicRoomInner({ roomId }: { roomId: string }) {
+  const router = useRouter();
   const [playerName, setPlayerName] = useState("");
   useEffect(() => {
     setPlayerName(localStorage.getItem("codename_playerName") ?? "");
   }, []);
-  const { state, dispatch, error, isHost, myTeamId, connectedPlayers } = useRoomOnlineGame({ roomId, role: "public", playerName });
+  const { state, dispatch, error, isHost, myTeamId, connectedPlayers, roleChange } = useRoomOnlineGame({ roomId, role: "public", playerName });
+
+  // Redirect when promoted to spymaster (role rotation between rounds)
+  useEffect(() => {
+    if (roleChange?.role === "spymaster" && roleChange.masterPin) {
+      router.push(`/room/${roomId}/master#pin=${encodeURIComponent(roleChange.masterPin)}`);
+    }
+  }, [roleChange, roomId, router]);
 
   const teamColorById = useMemo(() => {
     const map: Record<string, TeamColor> = {};

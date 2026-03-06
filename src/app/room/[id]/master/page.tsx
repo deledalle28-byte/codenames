@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, useMemo } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Board } from "@/components/Board";
 import { CluePanel } from "@/components/CluePanel";
 import { MissionPanel } from "@/components/MissionPanel";
@@ -35,6 +35,7 @@ export default function MasterRoomPage() {
 }
 
 function MasterRoomInner({ roomId }: { roomId: string }) {
+  const router = useRouter();
 
   const [playerName, setPlayerName] = useState("");
   const [pin, setPin] = useState("");
@@ -49,12 +50,19 @@ function MasterRoomInner({ roomId }: { roomId: string }) {
     }
   }, []);
 
-  const { state, dispatch, error, serverIsMaster, isHost, myTeamId, connectedPlayers } = useRoomOnlineGame({
+  const { state, dispatch, error, serverIsMaster, isHost, myTeamId, connectedPlayers, roleChange } = useRoomOnlineGame({
     roomId,
     role: "master",
     pin: pinOk ? pin : undefined,
     playerName,
   });
+
+  // Redirect when demoted to guesser (role rotation between rounds)
+  useEffect(() => {
+    if (roleChange?.role === "guesser") {
+      router.push(`/room/${roomId}/public`);
+    }
+  }, [roleChange, roomId, router]);
 
   const teamColorById = useMemo(() => {
     const map: Record<string, TeamColor> = {};

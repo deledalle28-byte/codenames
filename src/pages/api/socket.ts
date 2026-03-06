@@ -326,10 +326,47 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         updateRoomState(roomId, next);
 
         if (!ioRef) return;
-        const sockets = await ioRef.in(roomId).fetchSockets();
-        for (const s of sockets) {
-          const sendMaster = Boolean(s.data.isMaster);
-          s.emit("room:state", sendMaster ? next : sanitizeStateForPublic(next));
+
+        // Detect spymaster rotation on round-changing actions
+        const roundActions = new Set(["NEXT_ROUND", "START_ROUND", "RESET_MATCH"]);
+        if (roundActions.has(payload.action.type)) {
+          // Build set of current spymaster player names from new state
+          const spymasterNames = new Set<string>();
+          for (const team of Object.values(next.teams)) {
+            const spyId = team.playerIds[team.spymasterIndex];
+            if (spyId && next.players[spyId]) {
+              spymasterNames.add(next.players[spyId].name);
+            }
+          }
+
+          const sockets = await ioRef.in(roomId).fetchSockets();
+          for (const s of sockets) {
+            const pName = s.data.playerName as string;
+            const wasMaster = Boolean(s.data.isMaster);
+            const isNowSpy = spymasterNames.has(pName);
+
+            // Update socket flags
+            s.data.isMaster = isNowSpy;
+            s.data.role = isNowSpy ? "master" : "public";
+
+            // Send state with correct view
+            s.emit("room:state", isNowSpy ? next : sanitizeStateForPublic(next));
+
+            // Notify role change so clients can redirect
+            if (wasMaster !== isNowSpy) {
+              s.emit("room:roleChange", {
+                role: isNowSpy ? "spymaster" : "guesser",
+                masterPin: isNowSpy ? room.masterPin : undefined,
+              });
+            }
+          }
+        } else {
+          // Normal broadcast (no role changes)
+          const sockets = await ioRef.in(roomId).fetchSockets();
+          for (const s of sockets) {
+            const sendMaster = Boolean(s.data.isMaster);
+            s.emit("room:state", sendMaster ? next : sanitizeStateForPublic(next));
+          }
         }
       });
 

@@ -60,6 +60,19 @@ export async function onPlayers(handler: (players: ConnectedPlayer[]) => void) {
   return () => s.off("room:players", handler);
 }
 
+/* ─── Role change (spymaster rotation between rounds) ──────── */
+
+export type RoleChangeInfo = {
+  role: "spymaster" | "guesser";
+  masterPin?: string;
+};
+
+export async function onRoleChange(handler: (info: RoleChangeInfo) => void) {
+  const s = await getSocket();
+  s.on("room:roleChange", handler);
+  return () => s.off("room:roleChange", handler);
+}
+
 /* ─── Lobby ────────────────────────────────────────────────── */
 
 export type LobbyTeamId = "red" | "blue" | "green" | "yellow";

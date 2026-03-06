@@ -134,8 +134,9 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         if (!room?.lobby || room.lobby.started) return;
 
         // Validate team choice against lobby config
-        if (payload.teamId === "green" && room.lobby.config.teamsCount < 3) return;
-        if (payload.teamId === "yellow" && room.lobby.config.teamsCount < 4) return;
+        const tid = payload.teamId as string | null;
+        if (tid === "green" && room.lobby.config.teamsCount < 3) return;
+        if (tid === "yellow" && room.lobby.config.teamsCount < 4) return;
 
         const player = room.lobby.players.find((p) => p.socketId === socket.id);
         if (player) {

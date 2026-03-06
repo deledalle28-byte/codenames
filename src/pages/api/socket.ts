@@ -142,6 +142,33 @@ export default function handler(req: NextApiRequest, res: NextResWithSocket) {
         }
       });
 
+      socket.on("lobby:shuffle", () => {
+        const roomId = socket.data.roomId as string | null;
+        if (!roomId) return;
+        const room = getRoom(roomId);
+        if (!room?.lobby || room.lobby.started) return;
+
+        // Only the host can shuffle
+        if (socket.id !== room.lobby.hostSocketId) return;
+
+        const teamsCount = room.lobby.config.teamsCount;
+        const teamIds: Array<"red" | "blue" | "green"> = teamsCount >= 3
+          ? ["red", "blue", "green"]
+          : ["red", "blue"];
+
+        // Shuffle all players randomly across teams (round-robin on shuffled list)
+        const shuffled = [...room.lobby.players];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        for (let i = 0; i < shuffled.length; i++) {
+          shuffled[i].teamId = teamIds[i % teamIds.length];
+        }
+
+        broadcastLobby(io, room);
+      });
+
       socket.on("lobby:start", async () => {
         const roomId = socket.data.roomId as string | null;
         if (!roomId) return;

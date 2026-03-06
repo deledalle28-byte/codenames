@@ -19,7 +19,7 @@ function LobbyInner({ roomId }: { roomId: string }) {
   useEffect(() => {
     setPlayerName(localStorage.getItem("codename_playerName") ?? "");
   }, []);
-  const { lobby, gameStarted, isHost, socketId, error, chooseTeam, start } = useLobby({
+  const { lobby, gameStarted, isHost, socketId, error, chooseTeam, shuffle, start } = useLobby({
     roomId,
     playerName,
   });
@@ -232,6 +232,20 @@ function LobbyInner({ roomId }: { roomId: string }) {
                     />
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Shuffle button (host only) */}
+            {isHost && lobby.players.length >= 2 && (
+              <div className="flex justify-center">
+                <button
+                  type="button"
+                  onClick={shuffle}
+                  className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-5 py-2.5 text-sm font-semibold text-slate-400 transition hover:bg-white/[0.08] hover:text-white active:scale-[0.97]"
+                >
+                  <span className="text-lg">🎲</span>
+                  Répartition aléatoire
+                </button>
               </div>
             )}
 

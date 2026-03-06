@@ -96,6 +96,11 @@ export async function lobbyChooseTeam(teamId: LobbyTeamId | null) {
   s.emit("lobby:chooseTeam", { teamId });
 }
 
+export async function lobbyShuffle() {
+  const s = await getSocket();
+  s.emit("lobby:shuffle");
+}
+
 export async function lobbyStart() {
   const s = await getSocket();
   s.emit("lobby:start");

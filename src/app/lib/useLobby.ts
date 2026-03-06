@@ -8,6 +8,7 @@ import {
   onGameStarted,
   onLobbyError,
   lobbyChooseTeam,
+  lobbyShuffle,
   lobbyStart,
 } from "./socketClient";
 import type { LobbyState, GameStartInfo, LobbyTeamId } from "./socketClient";
@@ -91,12 +92,16 @@ export function useLobby(args: { roomId: string; playerName: string }) {
     lobbyChooseTeam(teamId);
   }, []);
 
+  const shuffle = useCallback(() => {
+    lobbyShuffle();
+  }, []);
+
   const start = useCallback(() => {
     lobbyStart();
   }, []);
 
   return useMemo(
-    () => ({ lobby, gameStarted, isHost, socketId, error, chooseTeam, start }),
-    [lobby, gameStarted, isHost, socketId, error, chooseTeam, start],
+    () => ({ lobby, gameStarted, isHost, socketId, error, chooseTeam, shuffle, start }),
+    [lobby, gameStarted, isHost, socketId, error, chooseTeam, shuffle, start],
   );
 }

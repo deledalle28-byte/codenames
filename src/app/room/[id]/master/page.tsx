@@ -298,23 +298,39 @@ function MasterRoomInner({ roomId }: { roomId: string }) {
                   Joueurs connectés ({connectedPlayers.length})
                 </div>
                 <ul className="mt-2 grid gap-1.5">
-                  {connectedPlayers.map((p) => (
-                    <li key={p.id} className="flex items-center gap-2 text-sm">
-                      <span
-                        className={`inline-block h-2 w-2 rounded-full ${
-                          p.role === "master"
-                            ? "bg-purple-500 shadow-lg shadow-purple-500/50"
-                            : "bg-blue-500 shadow-lg shadow-blue-500/50"
-                        }`}
-                      />
-                      <span className="font-medium text-slate-200">
-                        {p.name}
-                      </span>
-                      <span className="text-[11px] text-slate-600">
-                        {p.role === "master" ? "Master" : "Joueur"}
-                      </span>
-                    </li>
-                  ))}
+                  {connectedPlayers.map((p) => {
+                    const teamColor = p.teamId && state.teams[p.teamId]
+                      ? NEON[state.teams[p.teamId].color] ?? "#94a3b8"
+                      : "#94a3b8";
+                    const teamName = p.teamId && state.teams[p.teamId]
+                      ? state.teams[p.teamId].name
+                      : null;
+                    return (
+                      <li key={p.id} className="flex items-center gap-2 text-sm">
+                        <span
+                          className="inline-block h-2.5 w-2.5 rounded-full shadow-lg"
+                          style={{
+                            backgroundColor: teamColor,
+                            boxShadow: `0 0 8px ${teamColor}50`,
+                          }}
+                        />
+                        <span className="font-medium text-slate-200">
+                          {p.name}
+                        </span>
+                        {teamName && (
+                          <span
+                            className="text-[11px] font-semibold"
+                            style={{ color: teamColor }}
+                          >
+                            {teamName}
+                          </span>
+                        )}
+                        <span className="text-[11px] text-slate-600">
+                          {p.role === "master" ? "Master" : "Joueur"}
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}

@@ -47,6 +47,7 @@ async function broadcastPlayers(io: IOServer, roomId: string) {
     id: s.id,
     name: (s.data.playerName as string) || "Anonyme",
     role: (s.data.role as "public" | "master") || "public",
+    teamId: (s.data.teamId as string | null) ?? null,
   }));
   io.to(roomId).emit("room:players", players);
 }

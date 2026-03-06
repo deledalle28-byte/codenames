@@ -26,7 +26,7 @@ export async function getSocket(): Promise<Socket> {
 
 /* ─── Connected players (in-game) ──────────────────────────── */
 
-export type ConnectedPlayer = { id: string; name: string; role: "public" | "master" };
+export type ConnectedPlayer = { id: string; name: string; role: "public" | "master"; teamId: string | null };
 
 export type JoinArgs = { roomId: string; role: "public" | "master"; pin?: string; playerName?: string };
 
@@ -62,7 +62,7 @@ export async function onPlayers(handler: (players: ConnectedPlayer[]) => void) {
 
 /* ─── Lobby ────────────────────────────────────────────────── */
 
-export type LobbyTeamId = "red" | "blue" | "green";
+export type LobbyTeamId = "red" | "blue" | "green" | "yellow";
 
 export type LobbyPlayer = {
   socketId: string;

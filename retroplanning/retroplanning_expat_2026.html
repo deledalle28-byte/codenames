@@ -64,7 +64,7 @@
 
   /* ---------- Scène ---------- */
   .wrap{position:relative}
-  .stage{position:relative;overflow-x:auto;overflow-y:hidden;cursor:grab;background:#fff;scrollbar-width:thin}
+  .stage{position:relative;overflow-x:auto;overflow-y:auto;cursor:grab;background:#fff;scrollbar-width:thin}
   .stage.drag{cursor:grabbing;user-select:none}
   .edge{position:absolute;top:50%;transform:translateY(-50%);z-index:9;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.95);
     box-shadow:0 6px 18px rgba(15,31,61,.14);font-size:24px;line-height:1;color:var(--navy);display:flex;align-items:center;justify-content:center;transition:.15s}
@@ -114,7 +114,11 @@
   .bar .out{position:absolute;left:100%;margin-left:8px;color:color-mix(in srgb,var(--c) 85%,#000);font-weight:700;overflow:hidden;text-overflow:ellipsis}
   .bar .out small{margin-left:6px;opacity:.7;font-weight:600}
   .mk{position:absolute;top:0;width:12px;height:12px;border-radius:50%;background:#fff;border:3px solid var(--c);transform:translate(-50%,-50%);z-index:3;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+  .mk.dn{top:100%}
   .mk:hover{transform:translate(-50%,-50%) scale(1.25);z-index:8}
+  .mkl{position:absolute;height:14px;line-height:14px;font-size:10.5px;font-weight:700;color:color-mix(in srgb,var(--c) 80%,#000);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+  .mkc{position:absolute;width:1px;background:var(--c);opacity:.5;transform:translateX(-.5px);pointer-events:none}
+  .mkl small{font-weight:600;opacity:.7;margin-left:4px}
   .mk::after{content:attr(data-tip);position:absolute;left:50%;bottom:100%;transform:translate(-50%,-6px);background:var(--navy);color:#fff;font-size:11px;font-weight:600;padding:5px 9px;border-radius:7px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s;box-shadow:0 6px 16px rgba(15,31,61,.25)}
   .mk::before{content:"";position:absolute;left:50%;bottom:100%;transform:translate(-50%,0);border:5px solid transparent;border-top-color:var(--navy);opacity:0;transition:opacity .12s}
   .mk:hover::after,.mk:hover::before{opacity:1}
@@ -390,12 +394,64 @@
     }).sort(function (a, b) { return a.x1 - b.x1; });
     var lanes = [];
     bars.forEach(function (b) { var ln = 0; while (ln < lanes.length && lanes[ln] + GAP > b.x1) ln++; lanes[ln] = b.ext; b.lane = ln; });
+    // Jalons de période : étiquettes visibles, réparties au-dessus / en dessous du ruban sans chevauchement.
+    var BAR_H = 24, LBL = 15;
+    var laneUp = [], laneDn = [];
+    var SHELVES = [{ side: 0, lv: 0 }, { side: 1, lv: 0 }, { side: 0, lv: 1 }, { side: 1, lv: 1 }];
+    bars.forEach(function (b) {
+      var mks = (b.it.milestones || []).filter(function (mk) { return validISO(mk.date); })
+        .map(function (mk) { return { mk: mk, x: X(parseD(mk.date)), w: Math.min(190, (mk.title || 'Jalon').length * 6.2 + 44) }; })
+        .sort(function (a, c) { return a.x - c.x; });
+      var ends = [-1e9, -1e9, -1e9, -1e9];
+      mks.forEach(function (k) {
+        var left = k.x + 8, si = -1;
+        for (var i = 0; i < 4; i++) if (left >= ends[i] + 8) { si = i; break; }
+        if (si < 0) { si = 0; for (var j = 1; j < 4; j++) if (ends[j] < ends[si]) si = j; }
+        k.side = SHELVES[si].side; k.lv = SHELVES[si].lv; k.sh = si; k.left = left; ends[si] = left + k.w;
+      });
+      for (var sh = 0; sh < 4; sh++) {
+        var arr = mks.filter(function (k) { return k.sh === sh; });
+        arr.forEach(function (k, i) { if (i < arr.length - 1) k.w = Math.min(k.w, arr[i + 1].left - k.left - 8); });
+      }
+      b.mks = mks; b.up = 0; b.dn = 0;
+      mks.forEach(function (k) { if (k.side === 0) b.up = Math.max(b.up, k.lv + 1); else b.dn = Math.max(b.dn, k.lv + 1); });
+      laneUp[b.lane] = Math.max(laneUp[b.lane] || 0, b.up); laneDn[b.lane] = Math.max(laneDn[b.lane] || 0, b.dn);
+    });
+    var laneH = [], laneTop = [], laneBarOff = [], yy = 0;
+    for (var li = 0; li < lanes.length; li++) {
+      var u = laneUp[li] || 0, dn = laneDn[li] || 0;
+      laneBarOff[li] = u ? u * LBL + 5 : 0;
+      laneH[li] = (u || dn) ? laneBarOff[li] + BAR_H + (dn ? dn * LBL + 5 : 0) + 12 : LANE;
+      laneTop[li] = yy; yy += laneH[li];
+    }
+    var lanesH = yy;
 
-    var aboveH = 30 + (shelvesUp.length ? (shelvesUp.length - 1) * LSTEP + CARD_H + 34 : 50);
-    var axisY = aboveH;
+    // Hauteur naturelle, puis répartition de l'espace disponible à l'écran.
+    var upLv = shelvesUp.length, dnLv = shelvesDown.length;
+    var upH = upLv ? (upLv - 1) * LSTEP + CARD_H + 34 : 50;
+    var midH = 50 + lanesH + (lanes.length ? 22 : 8);
+    var dnH = dnLv ? (dnLv - 1) * LSTEP + CARD_H : 0;
+    var H = 30 + upH + midH + dnH + 26;
+    var st0 = $('stage'); var availH = Math.floor(window.innerHeight - st0.getBoundingClientRect().top - 2);
+    var LSTEP_UP = LSTEP, LSTEP_DN = LSTEP, padTop = 30, padMid = 0, padBot = 26;
+    if (availH > H) {
+      var extra = availH - H;
+      var slotsUp = Math.max(0, upLv - 1), slotsDn = Math.max(0, dnLv - 1);
+      var per = Math.min(60, extra / Math.max(1, slotsUp + slotsDn + 2));
+      LSTEP_UP += per; LSTEP_DN += per;
+      var used = per * (slotsUp + slotsDn); var rest = extra - used;
+      padTop += rest * 0.45; padMid += rest * 0.15; padBot += rest * 0.4;
+      H = availH;
+    } else if (H > availH && availH > 320) {
+      // Légèrement trop haut : on réduit d'abord les marges, puis l'espacement des cartes.
+      var over = H - availH, cut = Math.min(over, 44); padTop -= cut * 0.55; padBot -= cut * 0.45; over -= cut;
+      if (over > 0) { var slots = Math.max(0, upLv - 1) + Math.max(0, dnLv - 1); if (slots) { var d2 = Math.min(18, over / slots); LSTEP_UP -= d2; LSTEP_DN -= d2; over -= d2 * slots; } }
+      H = availH + Math.max(0, over);
+      upH = upLv ? (upLv - 1) * LSTEP_UP + CARD_H + 34 : 50; dnH = dnLv ? (dnLv - 1) * LSTEP_DN + CARD_H : 0;
+    }
+    var axisY = padTop + upH;
     var barsTop = axisY + 50;
-    var downTop = barsTop + lanes.length * LANE + (lanes.length ? 22 : 8);
-    var H = downTop + (shelvesDown.length ? (shelvesDown.length - 1) * LSTEP + CARD_H : 0) + 26;
+    var downTop = barsTop + lanesH + (lanes.length ? 22 : 8) + padMid;
     geo = { s: R.s, pxDay: pxDay, axisY: axisY };
 
     var h = '';
@@ -419,7 +475,7 @@
     var idx = 0;
     ms.forEach(function (m) {
       var it = m.it, c = itemColor(it), sel = state.selected === it.id ? ' selected' : '';
-      var top = m.below ? downTop + m.level * LSTEP : axisY - 30 - m.level * LSTEP - CARD_H;
+      var top = m.below ? downTop + m.level * LSTEP_DN : axisY - 30 - m.level * LSTEP_UP - CARD_H;
       var stemTop = m.below ? axisY + 5 : top + CARD_H, stemBottom = m.below ? top : axisY + 5;
       h += '<div class="stem" style="left:' + m.x + 'px;top:' + stemTop + 'px;height:' + (stemBottom - stemTop) + 'px;--c:' + c + ';--i:' + idx + '"></div>';
       h += '<div class="dot" data-id="' + esc(it.id) + '" style="left:' + m.x + 'px;top:' + (axisY + 5) + 'px;--c:' + c + ';--i:' + idx + '"></div>';
@@ -431,13 +487,17 @@
     // Périodes
     bars.forEach(function (b) {
       var it = b.it, c = itemColor(it), sel = state.selected === it.id ? ' selected' : '';
-      var top = barsTop + b.lane * LANE;
+      var top = barsTop + laneTop[b.lane] + laneBarOff[b.lane];
       var label = esc(it.title) + '<small>' + fmtLong(it.start) + ' → ' + fmtLong(it.end || it.start) + '</small>';
       var inside = b.w > it.title.length * 6.8 + 140;
       var mks = '';
-      (it.milestones || []).forEach(function (mk) {
-        if (!validISO(mk.date)) return;
-        mks += '<span class="mk" data-mk="' + esc(mk.id) + '" data-tip="' + esc(mk.title || 'Jalon') + ' · ' + fmtLong(mk.date) + '" style="left:' + (X(parseD(mk.date)) - b.x1) + 'px"></span>';
+      b.mks.forEach(function (k) {
+        var mk = k.mk, tip = esc(mk.title || 'Jalon') + ' · ' + fmtLong(mk.date);
+        var ly = k.side ? 'top:calc(100% + ' + (3 + k.lv * LBL) + 'px)' : 'top:' + (-(k.lv * LBL) - LBL - 3) + 'px';
+        var cy = k.side ? 'top:100%;height:' + (3 + k.lv * LBL) + 'px' : 'bottom:100%;height:' + (3 + k.lv * LBL) + 'px';
+        mks += (k.lv ? '<span class="mkc" style="left:' + (k.x - b.x1) + 'px;' + cy + '"></span>' : '') +
+          '<span class="mk' + (k.side ? ' dn' : '') + '" data-mk="' + esc(mk.id) + '" data-tip="' + tip + '" style="left:' + (k.x - b.x1) + 'px"></span>' +
+          '<span class="mkl' + (k.side ? ' dn' : '') + '" style="left:' + (k.left - b.x1) + 'px;max-width:' + Math.max(24, k.w) + 'px;' + ly + '" title="' + tip + '">' + esc(mk.title || 'Jalon') + '<small>' + fmtFR(mk.date).slice(0, 5) + '</small></span>';
       });
       h += '<div class="bar ' + statusKey(it.status) + sel + '" data-id="' + esc(it.id) + '" style="left:' + b.x1 + 'px;width:' + b.w + 'px;top:' + top + 'px;--c:' + c + ';--i:' + idx + '" title="' + esc(it.title) + ' : ' + fmtFR(it.start) + ' → ' + fmtFR(it.end) + '">' +
         (inside ? '<span class="in">' + label + '</span>' : '<span class="out">' + label + '</span>') + mks + '</div>';
@@ -445,7 +505,8 @@
     });
     if (!visible.length) h += '<div class="empty">Aucun projet à afficher. Utilisez « + Ajouter » ou réactivez une catégorie.</div>';
     var cv = $('canvas'); cv.style.width = W + 'px'; cv.style.height = H + 'px'; cv.innerHTML = h;
-    $('stage').style.height = (H + 12) + 'px';
+    var capH = Math.max(320, availH); $('stage').style.height = Math.min(H, capH) + 'px';
+    if (H > capH) $('stage').scrollTop = Math.max(0, axisY - capH / 2);
     if (!state.intro) cv.classList.remove('intro');
     state.intro = false;
     geo.W = W; geo.R = R;
@@ -738,6 +799,7 @@
   stage.scrollLeft = (t0 - geo.s) / DAY * geo.pxDay + 60 - stage.clientWidth / 2;
   syncNav();
   var rt; window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(render, 120); });
+  setTimeout(render, 50);
 })();
 </script>
 </body>

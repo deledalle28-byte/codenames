@@ -8,7 +8,7 @@
   :root{
     --bg:#ffffff; --bg2:#f6f8fb; --ink:#0f1f3d; --muted:#6b7590; --line:#e3e8f0; --line2:#eef1f6;
     --navy:#0f1f3d; --accent:#1f4e9c; --danger:#c62828; --today:#e5484d;
-    --card-w:196px; --level-step:86px; --lane-step:30px;
+    --card-w:196px; --level-step:86px; --lane-step:36px;
   }
   *{box-sizing:border-box}
   html,body{margin:0}
@@ -113,6 +113,11 @@
   .bar .in small{opacity:.75;font-weight:600;margin-left:6px}
   .bar .out{position:absolute;left:100%;margin-left:8px;color:color-mix(in srgb,var(--c) 85%,#000);font-weight:700;overflow:hidden;text-overflow:ellipsis}
   .bar .out small{margin-left:6px;opacity:.7;font-weight:600}
+  .mk{position:absolute;top:0;width:12px;height:12px;border-radius:50%;background:#fff;border:3px solid var(--c);transform:translate(-50%,-50%);z-index:3;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+  .mk:hover{transform:translate(-50%,-50%) scale(1.25);z-index:8}
+  .mk::after{content:attr(data-tip);position:absolute;left:50%;bottom:100%;transform:translate(-50%,-6px);background:var(--navy);color:#fff;font-size:11px;font-weight:600;padding:5px 9px;border-radius:7px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s;box-shadow:0 6px 16px rgba(15,31,61,.25)}
+  .mk::before{content:"";position:absolute;left:50%;bottom:100%;transform:translate(-50%,0);border:5px solid transparent;border-top-color:var(--navy);opacity:0;transition:opacity .12s}
+  .mk:hover::after,.mk:hover::before{opacity:1}
   .bar.termine{background-image:repeating-linear-gradient(135deg,color-mix(in srgb,var(--c) 22%,#fff) 0 6px,transparent 6px 12px)}
   .bar.annule{opacity:.45}
   .empty{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:var(--muted)}
@@ -148,6 +153,22 @@
   .sw.on{border-color:var(--navy)}
   .colors input[type=color]{width:36px;height:30px;border:1px solid #cfd7e3;border-radius:8px;padding:2px;background:#fff}
   .meta{font-size:12px;color:var(--muted);margin:-6px 0 12px}
+  .sub{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:13px;background:var(--bg2)}
+  .sub h3{margin:0 0 8px;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.6px;text-transform:uppercase}
+  .sub .mrow{display:grid;grid-template-columns:118px 1fr 28px;gap:6px;margin-bottom:6px;align-items:center}
+  .sub .mrow input{border:1px solid #cfd7e3;border-radius:7px;padding:6px 8px;background:#fff;font-size:12.5px;min-width:0}
+  .sub .mrow .del{border:0;background:transparent;color:var(--muted);font-size:18px;line-height:1;border-radius:6px;padding:2px}
+  .sub .mrow .del:hover{background:#fdecec;color:var(--danger)}
+  .sub .none{font-size:12px;color:var(--muted);margin:0 0 8px}
+  .link{border:0;background:transparent;color:var(--accent);font-weight:600;padding:0;font-size:12px;text-decoration:underline;cursor:pointer}
+  .crow{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line2)}
+  .crow input[type=color]{width:34px;height:30px;border:1px solid #cfd7e3;border-radius:8px;padding:2px;background:#fff}
+  .crow input[type=text]{border:1px solid #cfd7e3;border-radius:8px;padding:7px 9px;background:#fff;min-width:0}
+  .crow .acts{display:flex;gap:2px}
+  .crow .acts button{border:1px solid transparent;background:transparent;color:var(--muted);border-radius:6px;padding:4px 6px;font-size:13px;line-height:1}
+  .crow .acts button:hover{background:var(--bg2);color:var(--ink);border-color:var(--line)}
+  .crow .acts button.del:hover{background:#fdecec;color:var(--danger)}
+  .crow small{grid-column:2;color:var(--muted);font-size:11px;margin-top:-2px}
   .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:11px 18px;border-radius:12px;opacity:0;transition:all .25s;z-index:60;font-weight:600;font-size:13px;box-shadow:0 10px 30px rgba(15,31,61,.3);max-width:92vw}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
@@ -205,14 +226,9 @@
     {"id": "j-12", "title": "À définir (xxxx)", "type": "jalon", "start": "2026-12-11", "end": "2026-12-11", "category": "Offres & lancements", "owner": "", "status": "Planifié", "description": "Jalon non renseigné dans le rétroplanning d'origine (« xxxx »). À compléter."},
     {"id": "c-01", "title": "Ateliers de travail offre Henner", "type": "periode", "start": "2026-01-05", "end": "2026-09-14", "category": "Chantiers", "owner": "Henner", "status": "Planifié", "description": "Ateliers de travail sur l'offre Henner, de janvier à mi-septembre."},
     {"id": "c-02", "title": "Offre VERSPIREN", "type": "periode", "start": "2026-04-13", "end": "2026-09-14", "category": "Chantiers", "owner": "Verspieren", "status": "Planifié", "description": "Chantier Offre VERSPIREN, du Go/NoGo (13 avril) à mi-septembre."},
-    {"id": "c-03", "title": "Surveillance (MSH)", "type": "periode", "start": "2026-05-27", "end": "2026-09-14", "category": "Surveillance MSH", "owner": "MSH", "status": "Planifié", "description": "Surveillance MSH : résultats, préconisations, validation, grilles tarifaires (voir les jalons Surveillance MSH)."},
+    {"id": "c-03", "title": "Surveillance (MSH)", "type": "periode", "start": "2026-05-27", "end": "2026-09-14", "category": "Surveillance MSH", "owner": "MSH", "status": "Planifié", "description": "Surveillance MSH : résultats, préconisations, validation, grilles tarifaires. Les étapes sont des jalons sur la période.", "milestones": [{"id": "s-01", "title": "Résultats (MSH)", "date": "2026-06-20", "description": "Résultats de surveillance MSH le 20 juin."}, {"id": "s-02", "title": "Précos (GGVIE)", "date": "2026-07-10", "description": "Préconisations GGVie le 10 juillet."}, {"id": "s-03", "title": "Validation précos", "date": "2026-07-17", "description": "Validation des préconisations le 17 juillet."}, {"id": "s-04", "title": "Présentation précos ASFE (MSH)", "date": "2026-07-23", "description": "Présentation des préconisations ASFE le 23 juillet."}, {"id": "s-05", "title": "Grilles tarifaires (MSH)", "date": "2026-07-31", "description": "Grilles tarifaires MSH le 31 juillet."}]},
     {"id": "c-04", "title": "AICF : Réassurance offre Mexique", "type": "periode", "start": "2026-09-15", "end": "2026-12-31", "category": "Chantiers", "owner": "AICF", "status": "Planifié", "description": "Réassurance de l'offre Mexique (AICF), de mi-septembre à fin d'année."},
     {"id": "c-05", "title": "Chargements OCS", "type": "periode", "start": "2026-09-15", "end": "2026-12-31", "category": "Chantiers", "owner": "OCS", "status": "Planifié", "description": "Chargements OCS, de mi-septembre à fin d'année."},
-    {"id": "s-01", "title": "Résultats (MSH)", "type": "jalon", "start": "2026-06-20", "end": "2026-06-20", "category": "Surveillance MSH", "owner": "MSH", "status": "Planifié", "description": "Résultats de surveillance MSH le 20 juin."},
-    {"id": "s-02", "title": "Précos (GGVIE)", "type": "jalon", "start": "2026-07-10", "end": "2026-07-10", "category": "Surveillance MSH", "owner": "GGVie", "status": "Planifié", "description": "Préconisations GGVie le 10 juillet."},
-    {"id": "s-03", "title": "Validation précos", "type": "jalon", "start": "2026-07-17", "end": "2026-07-17", "category": "Surveillance MSH", "owner": "", "status": "Planifié", "description": "Validation des préconisations le 17 juillet."},
-    {"id": "s-04", "title": "Présentation précos ASFE (MSH)", "type": "jalon", "start": "2026-07-23", "end": "2026-07-23", "category": "Surveillance MSH", "owner": "MSH", "status": "Planifié", "description": "Présentation des préconisations ASFE le 23 juillet."},
-    {"id": "s-05", "title": "Grilles tarifaires (MSH)", "type": "jalon", "start": "2026-07-31", "end": "2026-07-31", "category": "Surveillance MSH", "owner": "MSH", "status": "Planifié", "description": "Grilles tarifaires MSH le 31 juillet."},
     {"id": "r-01", "title": "Kick-off renew Gammes individuelles", "type": "jalon", "start": "2025-05-19", "end": "2025-05-19", "category": "Renouvellement 2027 · Réunions", "owner": "GGVie & AICF", "status": "Planifié", "description": "19 mai – 10h\nKick-off renouvellement gammes individuelles.\nPrésentation des résultats GGVie & AICF."},
     {"id": "r-02", "title": "Présentation Comité", "type": "jalon", "start": "2025-06-08", "end": "2025-06-08", "category": "Renouvellement 2027 · Réunions", "owner": "", "status": "Planifié", "description": "XX juin – heure à définir.\nDate à confirmer (début juin 2025 sur le rétroplanning d'origine)."},
     {"id": "r-03", "title": "Validation des renouvellements 2027 GGVie & ICF", "type": "jalon", "start": "2025-06-25", "end": "2025-06-25", "category": "Renouvellement 2027 · Réunions", "owner": "GGVie & ICF", "status": "Planifié", "description": "25 juin – 10h30\nValidation des renouvellements 2027 GGVie & ICF."},
@@ -241,6 +257,7 @@
       <button class="btn icon" id="z-in" title="Zoom avant">+</button>
       <button class="btn" id="go-today">Aujourd'hui</button>
     </div>
+    <button class="btn" id="btn-cats">Catégories</button>
     <button class="btn" id="btn-add">+ Ajouter</button>
     <button class="btn primary" id="btn-save">Enregistrer et générer</button>
   </div>
@@ -267,7 +284,8 @@
       <div class="field" id="w-end"><label for="f-end">Fin</label><input type="date" id="f-end"></div>
     </div>
     <div class="meta" id="f-duration"></div>
-    <div class="field"><label for="f-category">Catégorie</label><input type="text" id="f-category" list="cat-list"><datalist id="cat-list"></datalist></div>
+    <div class="field"><label for="f-category">Catégorie <button type="button" class="link" id="f-cats-open" style="float:right;text-transform:none;letter-spacing:0">Gérer les catégories</button></label><select id="f-category"></select></div>
+    <div class="sub" id="w-ms"><h3>Jalons sur la période</h3><div id="ms-list"></div><button type="button" class="btn" id="ms-add" style="padding:6px 10px;font-size:12.5px">+ Ajouter un jalon</button></div>
     <div class="row2">
       <div class="field"><label for="f-owner">Responsable / entité</label><input type="text" id="f-owner" placeholder="Henner, MSH, GGVie…"></div>
       <div class="field"><label for="f-status">Statut</label><select id="f-status"></select></div>
@@ -276,6 +294,15 @@
     <div class="field"><label for="f-desc">Description / informations</label><textarea id="f-desc"></textarea></div>
   </div>
   <footer><button class="btn danger" id="d-delete">Supprimer</button><button class="btn" id="d-ok">Fermer</button></footer>
+</aside>
+<aside class="drawer" id="cat-drawer" aria-label="Catégories">
+  <header><h2>Catégories</h2><button class="x" id="c-close" title="Fermer">×</button></header>
+  <div class="body">
+    <p class="meta" style="margin:0 0 10px">Renommez, changez la couleur, réordonnez avec ↑ ↓ ou supprimez. Le nom se met à jour sur tous les projets de la catégorie.</p>
+    <div id="cat-list"></div>
+    <button class="btn" id="c-add" style="margin-top:12px">+ Nouvelle catégorie</button>
+  </div>
+  <footer><span></span><button class="btn" id="c-ok">Fermer</button></footer>
 </aside>
 <div class="toast" id="toast"></div>
 
@@ -366,7 +393,7 @@
 
     var aboveH = 30 + (shelvesUp.length ? (shelvesUp.length - 1) * LSTEP + CARD_H + 34 : 50);
     var axisY = aboveH;
-    var barsTop = axisY + 46;
+    var barsTop = axisY + 50;
     var downTop = barsTop + lanes.length * LANE + (lanes.length ? 22 : 8);
     var H = downTop + (shelvesDown.length ? (shelvesDown.length - 1) * LSTEP + CARD_H : 0) + 26;
     geo = { s: R.s, pxDay: pxDay, axisY: axisY };
@@ -407,8 +434,13 @@
       var top = barsTop + b.lane * LANE;
       var label = esc(it.title) + '<small>' + fmtLong(it.start) + ' → ' + fmtLong(it.end || it.start) + '</small>';
       var inside = b.w > it.title.length * 6.8 + 140;
+      var mks = '';
+      (it.milestones || []).forEach(function (mk) {
+        if (!validISO(mk.date)) return;
+        mks += '<span class="mk" data-mk="' + esc(mk.id) + '" data-tip="' + esc(mk.title || 'Jalon') + ' · ' + fmtLong(mk.date) + '" style="left:' + (X(parseD(mk.date)) - b.x1) + 'px"></span>';
+      });
       h += '<div class="bar ' + statusKey(it.status) + sel + '" data-id="' + esc(it.id) + '" style="left:' + b.x1 + 'px;width:' + b.w + 'px;top:' + top + 'px;--c:' + c + ';--i:' + idx + '" title="' + esc(it.title) + ' : ' + fmtFR(it.start) + ' → ' + fmtFR(it.end) + '">' +
-        (inside ? '<span class="in">' + label + '</span>' : '<span class="out">' + label + '</span>') + '</div>';
+        (inside ? '<span class="in">' + label + '</span>' : '<span class="out">' + label + '</span>') + mks + '</div>';
       idx++;
     });
     if (!visible.length) h += '<div class="empty">Aucun projet à afficher. Utilisez « + Ajouter » ou réactivez une catégorie.</div>';
@@ -430,7 +462,10 @@
     DATA.items.forEach(function (it) {
       if (state.hidden[it.category] || !validISO(it.start)) return; var c = itemColor(it);
       if (it.type === 'jalon') h += '<div class="mm-dot" style="left:' + P(parseD(it.start)) + 'px;top:' + (18 + (lane++ % 3) * 6) + 'px;--c:' + c + '"></div>';
-      else { var a = P(parseD(it.start)), b = P(parseD(validISO(it.end) ? it.end : it.start) + DAY); h += '<div class="mm-bar" style="left:' + a + 'px;width:' + Math.max(2, b - a) + 'px;top:' + (37 + (lane++ % 2) * 4) + 'px;--c:' + c + '"></div>'; }
+      else {
+        var a = P(parseD(it.start)), b = P(parseD(validISO(it.end) ? it.end : it.start) + DAY); h += '<div class="mm-bar" style="left:' + a + 'px;width:' + Math.max(2, b - a) + 'px;top:' + (37 + (lane++ % 2) * 4) + 'px;--c:' + c + '"></div>';
+        (it.milestones || []).forEach(function (mk) { if (validISO(mk.date)) h += '<div class="mm-dot" style="left:' + P(parseD(mk.date)) + 'px;top:' + (18 + (lane++ % 3) * 6) + 'px;--c:' + c + '"></div>'; });
+      }
     });
     h += '<div class="mm-win" id="mm-win"></div>';
     mm.innerHTML = h;
@@ -517,11 +552,43 @@
     DATA.statuses.forEach(function (s) { var o = document.createElement('option'); o.value = s; o.textContent = s; st.appendChild(o); });
     if (it.status && DATA.statuses.indexOf(it.status) < 0) { var o = document.createElement('option'); o.value = it.status; o.textContent = it.status; st.appendChild(o); }
     st.value = it.status || DATA.statuses[0];
-    var dl = $('cat-list'); dl.innerHTML = ''; DATA.categories.forEach(function (c) { var o = document.createElement('option'); o.value = c.name; dl.appendChild(o); });
-    syncType(); renderColors(); updateDuration();
+    fillCategorySelect(it.category);
+    syncType(); renderColors(); updateDuration(); renderMilestoneList();
+    closeCats(true);
     $('drawer').classList.add('on'); document.body.classList.add('drawer-open'); render();
   }
   function closeDrawer() { editing = null; state.selected = null; $('drawer').classList.remove('on'); document.body.classList.remove('drawer-open'); render(); }
+  function fillCategorySelect(cur) {
+    var sel = $('f-category'); sel.innerHTML = '';
+    DATA.categories.forEach(function (c) { var o = document.createElement('option'); o.value = c.name; o.textContent = c.name; sel.appendChild(o); });
+    if (cur && !DATA.categories.some(function (c) { return c.name === cur; })) { var o = document.createElement('option'); o.value = cur; o.textContent = cur + ' (inconnue)'; sel.appendChild(o); }
+    sel.value = cur || (DATA.categories[0] ? DATA.categories[0].name : '');
+  }
+  // Jalons rattachés à une période
+  function renderMilestoneList() {
+    if (!editing) return;
+    var box = $('w-ms'); box.style.display = editing.type === 'jalon' ? 'none' : '';
+    var list = $('ms-list'); list.innerHTML = '';
+    var ms = editing.milestones || [];
+    if (!ms.length) { list.innerHTML = '<p class="none">Aucun jalon. Ils s\'affichent comme des repères sur le ruban (nom et date au survol).</p>'; return; }
+    ms.slice().sort(function (a, b) { return (a.date || '').localeCompare(b.date || ''); }).forEach(function (mk) {
+      var row = document.createElement('div'); row.className = 'mrow';
+      var d = document.createElement('input'); d.type = 'date'; d.value = mk.date || '';
+      var t = document.createElement('input'); t.type = 'text'; t.value = mk.title || ''; t.placeholder = 'Nom du jalon';
+      var x = document.createElement('button'); x.type = 'button'; x.className = 'del'; x.title = 'Supprimer'; x.textContent = '×';
+      d.oninput = function () { if (validISO(d.value)) { mk.date = d.value; markDirty(); render(); } };
+      t.oninput = function () { mk.title = t.value; markDirty(); render(); };
+      x.onclick = function () { editing.milestones = editing.milestones.filter(function (o) { return o !== mk; }); markDirty(); renderMilestoneList(); render(); };
+      row.appendChild(d); row.appendChild(t); row.appendChild(x); list.appendChild(row);
+    });
+  }
+  $('ms-add').onclick = function () {
+    if (!editing) return; editing.milestones = editing.milestones || [];
+    var base = validISO(editing.start) ? parseD(editing.start) : parseD(todayISO()); var end = validISO(editing.end) ? parseD(editing.end) : base;
+    editing.milestones.push({ id: 'm-' + Date.now().toString(36), title: 'Nouveau jalon', date: iso(Math.round((base + end) / 2 / DAY) * DAY), description: '' });
+    markDirty(); renderMilestoneList(); render();
+    var inputs = $('ms-list').querySelectorAll('input[type=text]'); if (inputs.length) { var last = inputs[inputs.length - 1]; last.focus(); last.select(); }
+  };
   function syncType() {
     if (!editing) return; var j = editing.type === 'jalon';
     $('t-jalon').classList.toggle('on', j); $('t-periode').classList.toggle('on', !j);
@@ -554,7 +621,8 @@
     });
   }
   bind('f-title', 'title'); bind('f-owner', 'owner'); bind('f-desc', 'description');
-  bind('f-category', 'category', function () { ensureCategory(editing.category); renderColors(); });
+  $('f-category').addEventListener('change', function () { if (!editing) return; editing.category = this.value; markDirty(); renderColors(); renderMinimap(); render(); });
+  $('f-cats-open').onclick = function () { openCats(); };
   $('f-status').addEventListener('change', function () { if (!editing) return; editing.status = this.value; markDirty(); render(); });
   $('f-start').addEventListener('input', function () {
     if (!editing || !validISO(this.value)) return; editing.start = this.value;
@@ -562,23 +630,79 @@
     markDirty(); updateDuration(); renderYears(); render();
   });
   $('f-end').addEventListener('input', function () { if (!editing || !validISO(this.value)) return; editing.end = this.value; markDirty(); updateDuration(); renderYears(); render(); });
-  $('t-jalon').onclick = function () { if (!editing) return; editing.type = 'jalon'; editing.end = editing.start; $('f-end').value = editing.end; markDirty(); syncType(); updateDuration(); render(); };
+  $('t-jalon').onclick = function () { if (!editing) return; editing.type = 'jalon'; editing.end = editing.start; $('f-end').value = editing.end; markDirty(); syncType(); updateDuration(); renderMilestoneList(); render(); };
   $('t-periode').onclick = function () {
     if (!editing) return; editing.type = 'periode';
     if (!validISO(editing.end) || parseD(editing.end) <= parseD(editing.start)) { editing.end = iso(parseD(editing.start) + 14 * DAY); $('f-end').value = editing.end; }
-    markDirty(); syncType(); updateDuration(); render();
+    markDirty(); syncType(); updateDuration(); renderMilestoneList(); render();
   };
+
+  // ---------- Gestion des catégories ----------
+  function openCats() {
+    if (editing) { $('drawer').classList.remove('on'); }
+    renderCatList(); $('cat-drawer').classList.add('on'); document.body.classList.add('drawer-open');
+  }
+  function closeCats(silent) {
+    $('cat-drawer').classList.remove('on');
+    if (silent) return;
+    if (editing) { fillCategorySelect(editing.category); renderColors(); $('drawer').classList.add('on'); } else document.body.classList.remove('drawer-open');
+  }
+  function renameCategory(cat, newName) {
+    newName = (newName || '').trim(); if (!newName || newName === cat.name) return;
+    if (DATA.categories.some(function (c) { return c !== cat && c.name === newName; })) { toast('Une catégorie porte déjà ce nom.'); return; }
+    DATA.items.forEach(function (it) { if (it.category === cat.name) it.category = newName; });
+    if (state.hidden[cat.name]) { state.hidden[newName] = true; delete state.hidden[cat.name]; }
+    cat.name = newName;
+  }
+  function renderCatList() {
+    var list = $('cat-list'); list.innerHTML = '';
+    DATA.categories.forEach(function (cat, i) {
+      var n = DATA.items.filter(function (it) { return it.category === cat.name; }).length;
+      var row = document.createElement('div'); row.className = 'crow';
+      var col = document.createElement('input'); col.type = 'color'; col.value = cat.color; col.title = 'Couleur';
+      col.oninput = function () { cat.color = col.value; markDirty(); renderLegend(); renderMinimap(); render(); };
+      var name = document.createElement('input'); name.type = 'text'; name.value = cat.name;
+      name.onchange = function () { renameCategory(cat, name.value); name.value = cat.name; markDirty(); renderLegend(); render(); };
+      var acts = document.createElement('div'); acts.className = 'acts';
+      var up = document.createElement('button'); up.textContent = '↑'; up.title = 'Monter'; up.disabled = i === 0;
+      up.onclick = function () { DATA.categories.splice(i - 1, 0, DATA.categories.splice(i, 1)[0]); markDirty(); renderLegend(); renderCatList(); };
+      var down = document.createElement('button'); down.textContent = '↓'; down.title = 'Descendre'; down.disabled = i === DATA.categories.length - 1;
+      down.onclick = function () { DATA.categories.splice(i + 1, 0, DATA.categories.splice(i, 1)[0]); markDirty(); renderLegend(); renderCatList(); };
+      var del = document.createElement('button'); del.className = 'del'; del.textContent = '×'; del.title = 'Supprimer';
+      del.onclick = function () {
+        var others = DATA.categories.filter(function (c) { return c !== cat; });
+        if (n && !others.length) { toast('Impossible : c\'est la seule catégorie et elle contient des projets.'); return; }
+        var msg = n ? 'Supprimer « ' + cat.name + ' » ? Ses ' + n + ' projet(s) seront déplacés vers « ' + others[0].name + ' ».' : 'Supprimer « ' + cat.name + ' » ?';
+        if (!confirm(msg)) return;
+        if (n) DATA.items.forEach(function (it) { if (it.category === cat.name) it.category = others[0].name; });
+        DATA.categories = others; delete state.hidden[cat.name];
+        markDirty(); renderLegend(); renderMinimap(); renderCatList(); render();
+      };
+      acts.appendChild(up); acts.appendChild(down); acts.appendChild(del);
+      var cnt = document.createElement('small'); cnt.textContent = n + ' projet' + (n > 1 ? 's' : '');
+      row.appendChild(col); row.appendChild(name); row.appendChild(acts); row.appendChild(cnt); list.appendChild(row);
+    });
+  }
+  $('c-add').onclick = function () {
+    var k = 1, nm; do { nm = 'Nouvelle catégorie' + (k > 1 ? ' ' + k : ''); k++; } while (DATA.categories.some(function (c) { return c.name === nm; }));
+    DATA.categories.push({ name: nm, color: PALETTE[DATA.categories.length % PALETTE.length] });
+    markDirty(); renderLegend(); renderCatList();
+    var inputs = $('cat-list').querySelectorAll('input[type=text]'); var last = inputs[inputs.length - 1]; last.focus(); last.select();
+  };
+  $('btn-cats').onclick = function () { if ($('cat-drawer').classList.contains('on')) closeCats(); else openCats(); };
+  $('c-close').onclick = function () { closeCats(); }; $('c-ok').onclick = function () { closeCats(); };
   $('d-close').onclick = closeDrawer; $('d-ok').onclick = closeDrawer;
   $('d-delete').onclick = function () {
     if (!editing) return; if (!confirm('Supprimer « ' + editing.title + ' » ?')) return;
     DATA.items = DATA.items.filter(function (it) { return it.id !== editing.id; }); markDirty(); closeDrawer();
   };
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && editing) closeDrawer(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { if ($('cat-drawer').classList.contains('on')) closeCats(); else if (editing) closeDrawer(); } });
 
   // ---------- Ajout ----------
   $('btn-add').onclick = function () {
     var start = todayISO(); var R = range(); if (parseD(start) < R.s || parseD(start) >= R.e) start = iso(R.s);
-    var cat = DATA.categories[0] ? DATA.categories[0].name : 'Général'; ensureCategory(cat);
+    if (!DATA.categories.length) DATA.categories.push({ name: 'Général', color: PALETTE[0] });
+    var cat = DATA.categories[0].name;
     var it = { id: 'p-' + Date.now().toString(36), title: 'Nouveau projet', type: 'jalon', start: start, end: start, category: cat, owner: '', status: DATA.statuses[0], description: '' };
     DATA.items.push(it); state.hidden[cat] = false; renderLegend(); markDirty(); openDrawer(it.id); scrollTo(parseD(start));
     setTimeout(function () { $('f-title').focus(); $('f-title').select(); }, 260);

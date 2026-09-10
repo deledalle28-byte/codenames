@@ -6,220 +6,206 @@
 <title>Rétroplanning Expat</title>
 <style>
   :root{
-    --bg:#070b18; --ink:#eef2ff; --muted:#8d97b8; --line:rgba(255,255,255,.08); --glass:rgba(255,255,255,.055);
-    --accent:#6d8cff; --danger:#ff5d6c; --today:#ff6b6b;
-    --card-w:196px; --level-step:86px; --lane-step:42px;
+    --bg:#ffffff; --bg2:#f6f8fb; --ink:#0f1f3d; --muted:#6b7590; --line:#e3e8f0; --line2:#eef1f6;
+    --navy:#0f1f3d; --accent:#1f4e9c; --danger:#c62828; --today:#e5484d;
+    --card-w:196px; --level-step:86px; --lane-step:30px;
   }
   *{box-sizing:border-box}
   html,body{margin:0;height:100%}
-  body{background:var(--bg);color:var(--ink);font:14px/1.45 Inter,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;overflow:hidden;
-    background-image:radial-gradient(1200px 600px at 8% -10%,rgba(109,140,255,.22),transparent 60%),
-                     radial-gradient(900px 500px at 92% 110%,rgba(244,114,182,.16),transparent 60%),
-                     radial-gradient(700px 400px at 55% 50%,rgba(34,211,238,.06),transparent 60%)}
+  body{background:var(--bg);color:var(--ink);font:14px/1.45 "Segoe UI",Inter,-apple-system,Roboto,Helvetica,Arial,sans-serif;overflow:hidden}
   button,input,select,textarea{font:inherit;color:inherit}
   button{cursor:pointer}
   ::-webkit-scrollbar{height:10px;width:10px}
-  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:10px;border:2px solid var(--bg)}
+  ::-webkit-scrollbar-thumb{background:#c9d1de;border-radius:10px;border:2px solid #fff}
   ::-webkit-scrollbar-track{background:transparent}
 
   /* ---------- Barre du haut ---------- */
-  .top{position:fixed;inset:0 0 auto 0;z-index:30;display:flex;flex-direction:column;gap:8px;padding:12px 22px 10px;
-    background:linear-gradient(180deg,rgba(7,11,24,.95),rgba(7,11,24,.75) 80%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  .top{position:fixed;inset:0 0 auto 0;z-index:30;display:flex;flex-direction:column;gap:8px;padding:12px 24px 10px;background:#fff;border-bottom:1px solid var(--line);
+    box-shadow:0 4px 20px rgba(15,31,61,.06);transition:padding-right .25s cubic-bezier(.2,.8,.2,1)}
+  body.drawer-open .top{padding-right:444px}
   .top .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-  .top{transition:padding-right .25s cubic-bezier(.2,.8,.2,1)}
-  body.drawer-open .top{padding-right:442px}
-  .brand h1{margin:0;font-size:20px;font-weight:800;letter-spacing:-.2px;
-    background:linear-gradient(90deg,#fff,#b7c6ff 60%,#8ee7ff);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .brand small{display:block;color:var(--muted);font-size:12px;margin-top:-2px}
+  .brand h1{margin:0;font-size:19px;font-weight:800;letter-spacing:-.2px;color:var(--navy)}
+  .brand small{display:block;color:var(--muted);font-size:12px}
   .legend{display:flex;gap:6px;flex-wrap:wrap}
-  .chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--glass);padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:600;color:#d5dcf5;transition:.15s}
-  .chip i{width:9px;height:9px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c)}
-  .chip:hover{background:rgba(255,255,255,.1)}
-  .chip.off{opacity:.38;text-decoration:line-through}
+  .chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:600;color:#334;transition:.15s}
+  .chip i{width:9px;height:9px;border-radius:50%;background:var(--c)}
+  .chip:hover{background:var(--bg2)}
+  .chip.off{opacity:.4;text-decoration:line-through}
   .spacer{flex:1}
   .ctl{display:flex;align-items:center;gap:6px}
-  .btn{border:1px solid var(--line);background:var(--glass);padding:8px 13px;border-radius:10px;font-weight:600;color:var(--ink);transition:.15s;white-space:nowrap}
-  .btn:hover{background:rgba(255,255,255,.12)}
+  .btn{border:1px solid var(--line);background:#fff;padding:8px 13px;border-radius:9px;font-weight:600;color:var(--ink);transition:.15s;white-space:nowrap}
+  .btn:hover{background:var(--bg2);border-color:#cfd7e3}
   .btn.icon{padding:8px 11px;min-width:36px;text-align:center}
-  .btn.primary{background:linear-gradient(135deg,#6d8cff,#8b5cf6);border-color:transparent;box-shadow:0 6px 24px rgba(109,140,255,.35)}
-  .btn.primary:hover{filter:brightness(1.1)}
-  .btn.danger{color:#ffb4bb;border-color:rgba(255,93,108,.35)}
-  .btn.danger:hover{background:rgba(255,93,108,.15)}
-  .years{display:flex;background:var(--glass);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .btn.primary{background:var(--navy);border-color:var(--navy);color:#fff;box-shadow:0 6px 18px rgba(15,31,61,.25)}
+  .btn.primary:hover{background:#1a3466}
+  .btn.danger{color:var(--danger);border-color:#f1c8c8}
+  .btn.danger:hover{background:#fdecec}
+  .years{display:flex;background:var(--bg2);border:1px solid var(--line);border-radius:9px;overflow:hidden}
   .years button{border:0;background:transparent;padding:8px 12px;font-weight:700;color:var(--muted)}
-  .years button:hover{color:#fff;background:rgba(255,255,255,.08)}
-  .dirty{display:none;align-items:center;gap:6px;color:#ffd166;font-weight:600;font-size:12px}
+  .years button:hover{color:var(--navy);background:#e9eef6}
+  .dirty{display:none;align-items:center;gap:6px;color:#b26a00;font-weight:600;font-size:12px}
   .dirty.on{display:inline-flex}
-  .dirty::before{content:"";width:7px;height:7px;border-radius:50%;background:#ffd166;box-shadow:0 0 8px #ffd166}
+  .dirty::before{content:"";width:7px;height:7px;border-radius:50%;background:#f0a300}
+  .help{color:var(--muted);font-size:11.5px;white-space:nowrap}
+  .help b{color:#334}
 
   /* ---------- Scène ---------- */
-  .stage{position:absolute;inset:0;overflow:auto;cursor:grab;padding-top:110px}
+  .stage{position:absolute;inset:0;overflow:auto;cursor:grab;background:
+    linear-gradient(180deg,#fff,#fbfcfe 40%,#f4f6fa)}
   .stage.drag{cursor:grabbing;user-select:none}
   .canvas{position:relative;margin:0 60px}
   .yr-mark{position:absolute;top:0;bottom:0;pointer-events:none}
-  .yr-mark .big{position:absolute;left:0;top:10px;font-size:150px;font-weight:900;letter-spacing:-6px;color:rgba(255,255,255,.035);line-height:1;user-select:none}
-  .yr-mark .sep{position:absolute;left:0;top:0;bottom:0;border-left:1px dashed rgba(255,255,255,.14)}
-  .mgrid{position:absolute;top:0;bottom:0;border-left:1px solid rgba(255,255,255,.045);pointer-events:none}
+  .yr-mark .big{position:absolute;left:0;font-size:150px;font-weight:900;letter-spacing:-6px;color:rgba(15,31,61,.045);line-height:1;user-select:none}
+  .yr-mark .sep{position:absolute;left:0;top:0;bottom:0;border-left:2px dashed #c9d1de}
+  .mgrid{position:absolute;top:0;bottom:0;border-left:1px solid var(--line2);pointer-events:none}
 
   /* axe */
-  .axis{position:absolute;left:0;right:0;height:16px;border-radius:999px;
-    background:linear-gradient(90deg,#4f7cff,#22d3ee,#34d399,#facc15,#fb923c,#f472b6,#a78bfa,#4f7cff);
-    box-shadow:0 0 30px rgba(109,140,255,.45),0 0 2px rgba(255,255,255,.6) inset}
-  .axis::after{content:"";position:absolute;inset:0;border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.35),transparent 55%,rgba(0,0,0,.25))}
-  .tick{position:absolute;width:1px;height:26px;background:rgba(255,255,255,.35);transform:translateY(-5px)}
-  .mlabel{position:absolute;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#aab4d6;white-space:nowrap;transform:translateX(-50%)}
-  .mlabel b{display:block;color:#fff;font-size:12px;letter-spacing:.4px;text-transform:none}
-  .ypill{position:absolute;transform:translate(-50%,-50%);background:#0b1024;border:1px solid rgba(255,255,255,.25);color:#fff;font-weight:800;font-size:13px;padding:4px 12px;border-radius:999px;letter-spacing:1px;box-shadow:0 0 18px rgba(109,140,255,.6);z-index:4}
-  .today{position:absolute;top:0;bottom:0;width:0;border-left:2px solid var(--today);box-shadow:0 0 14px var(--today);z-index:3;pointer-events:none}
-  .today span{position:absolute;left:50%;transform:translate(-50%,-50%);background:var(--today);color:#fff;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;white-space:nowrap;letter-spacing:.3px;box-shadow:0 0 14px var(--today)}
+  .axis{position:absolute;left:0;right:0;height:10px;border-radius:999px;background:linear-gradient(90deg,#0f1f3d,#1f4e9c 40%,#0e8a8a 70%,#0f1f3d);box-shadow:0 4px 14px rgba(15,31,61,.25)}
+  .tick{position:absolute;width:1px;height:18px;background:#b8c2d3;transform:translateY(-4px)}
+  .mlabel{position:absolute;font-size:10.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#7d879e;white-space:nowrap;transform:translateX(-50%)}
+  .ypill{position:absolute;transform:translate(-50%,-50%);background:var(--navy);color:#fff;font-weight:800;font-size:12px;padding:4px 12px;border-radius:999px;letter-spacing:1px;box-shadow:0 4px 12px rgba(15,31,61,.3);z-index:4}
+  .today{position:absolute;top:0;bottom:0;width:0;border-left:2px solid var(--today);z-index:1;pointer-events:none;opacity:.85}
+  .today span{position:absolute;left:50%;transform:translate(-50%,-50%);z-index:7;background:var(--today);color:#fff;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;white-space:nowrap;letter-spacing:.3px;box-shadow:0 4px 12px rgba(229,72,77,.35)}
 
   /* jalons */
-  .stem{position:absolute;width:2px;transform:translateX(-1px);background:linear-gradient(180deg,var(--c),rgba(255,255,255,.08));opacity:.8;pointer-events:none}
-  .dot{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--c);border:3px solid #0b1024;box-shadow:0 0 0 2px var(--c),0 0 16px var(--c);transform:translate(-50%,-50%);z-index:5;cursor:pointer;transition:transform .15s}
+  .stem{position:absolute;width:1px;background:#b8c2d3;pointer-events:none}
+  .dot{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--c);border:3px solid #fff;box-shadow:0 0 0 2px var(--c),0 2px 6px rgba(0,0,0,.2);transform:translate(-50%,-50%);z-index:5;cursor:pointer;transition:transform .15s}
   .dot:hover{transform:translate(-50%,-50%) scale(1.3)}
-  .card{position:absolute;width:var(--card-w);background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.14);
-    border-radius:12px;padding:8px 10px 8px 13px;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-    box-shadow:0 10px 30px rgba(0,0,0,.35);transition:transform .18s,box-shadow .18s,border-color .18s;z-index:2}
-  .card::before{content:"";position:absolute;left:-1px;top:14px;bottom:14px;width:3px;border-radius:3px;background:var(--c);box-shadow:0 0 10px var(--c)}
-  .card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.3);box-shadow:0 16px 40px rgba(0,0,0,.5),0 0 0 1px var(--c) inset;z-index:6}
+  .card{position:absolute;width:var(--card-w);background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px 8px 13px;cursor:pointer;
+    box-shadow:0 6px 18px rgba(15,31,61,.08);transition:transform .18s,box-shadow .18s,border-color .18s;z-index:2}
+  .card::before{content:"";position:absolute;left:-1px;top:12px;bottom:12px;width:3px;border-radius:3px;background:var(--c)}
+  .card:hover{transform:translateY(-3px);border-color:var(--c);box-shadow:0 14px 30px rgba(15,31,61,.16);z-index:6}
   .card .d{font-size:10.5px;font-weight:800;color:var(--c);letter-spacing:.5px;text-transform:uppercase;display:flex;align-items:center;gap:6px;white-space:nowrap}
   .card .d em{font-style:normal;color:var(--muted);font-weight:600;text-transform:none;letter-spacing:0;overflow:hidden;text-overflow:ellipsis;min-width:0}
-  .card .t{font-weight:700;font-size:12.5px;line-height:1.25;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .card .st{display:inline-block;font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:999px;background:rgba(255,255,255,.1);color:#cfd6f3;margin-left:auto;letter-spacing:.2px;text-transform:none;flex:0 0 auto}
+  .card .t{font-weight:700;font-size:12.5px;line-height:1.25;margin-top:3px;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .card .st{display:inline-block;font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:999px;background:#eef1f6;color:#4a5573;margin-left:auto;letter-spacing:.2px;text-transform:none;flex:0 0 auto}
   .card .st.planifie{display:none}
-  .st.termine{background:rgba(52,211,153,.2);color:#8ff0c9}
-  .st.en-cours{background:rgba(109,140,255,.25);color:#c1cfff}
-  .st.en-retard{background:rgba(255,93,108,.25);color:#ffb4bb}
-  .st.annule{background:rgba(255,255,255,.08);color:#98a0bd;text-decoration:line-through}
-  .selected.card,.selected.bar{outline:2px solid #fff;outline-offset:2px}
+  .st.termine{background:#e3f6ea;color:#1f7a3e}
+  .st.en-cours{background:#e6eefb;color:#1f4e9c}
+  .st.en-retard{background:#fdeaea;color:#b71c1c}
+  .st.annule{background:#eef1f6;color:#8a93a8;text-decoration:line-through}
+  .selected.card,.selected.bar{outline:2px solid var(--navy);outline-offset:2px}
 
-  /* périodes */
-  .bar{position:absolute;height:32px;border-radius:9px;display:flex;align-items:center;gap:8px;padding:0 12px;cursor:pointer;color:#fff;font-weight:700;font-size:12.5px;white-space:nowrap;
-    background:linear-gradient(180deg,color-mix(in srgb,var(--c) 92%,#fff),color-mix(in srgb,var(--c) 75%,#000));
-    box-shadow:0 8px 22px color-mix(in srgb,var(--c) 45%,transparent),0 0 0 1px rgba(255,255,255,.12) inset;transition:transform .15s,filter .15s;z-index:2;overflow:visible}
-  .bar:hover{transform:translateY(-2px);filter:brightness(1.12);z-index:6}
-  .bar .in{overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.35)}
-  .bar .in small{opacity:.85;font-weight:600;margin-left:6px}
-  .bar .out{position:absolute;left:100%;margin-left:10px;color:#dfe5ff;font-weight:600;text-shadow:0 1px 3px #000;overflow:hidden;text-overflow:ellipsis}
-  .bar .out small{margin-left:6px;opacity:.75}
-  .bar.termine{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.18) 0 7px,transparent 7px 14px),linear-gradient(180deg,color-mix(in srgb,var(--c) 92%,#fff),color-mix(in srgb,var(--c) 75%,#000))}
-  .bar.annule{opacity:.4}
-  .bar .tip{position:absolute;left:8px;top:-15px;font-size:10px;color:#b9c3e8;font-weight:600;letter-spacing:.3px}
+  /* périodes : rubans sous l'axe */
+  .bar{position:absolute;height:24px;border-radius:6px;display:flex;align-items:center;gap:8px;padding:0 10px;cursor:pointer;font-weight:700;font-size:11.5px;white-space:nowrap;
+    background:color-mix(in srgb,var(--c) 13%,#fff);border:1px solid color-mix(in srgb,var(--c) 45%,#fff);color:color-mix(in srgb,var(--c) 85%,#000);
+    transition:transform .15s,box-shadow .15s;z-index:2;overflow:visible}
+  .bar::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--c);flex:0 0 6px}
+  .bar:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(15,31,61,.14);z-index:6;background:color-mix(in srgb,var(--c) 20%,#fff)}
+  .bar .in{overflow:hidden;text-overflow:ellipsis}
+  .bar .in small{opacity:.75;font-weight:600;margin-left:6px}
+  .bar .out{position:absolute;left:100%;margin-left:8px;color:color-mix(in srgb,var(--c) 85%,#000);font-weight:700;overflow:hidden;text-overflow:ellipsis}
+  .bar .out small{margin-left:6px;opacity:.7;font-weight:600}
+  .bar.termine{background-image:repeating-linear-gradient(135deg,color-mix(in srgb,var(--c) 22%,#fff) 0 6px,transparent 6px 12px)}
+  .bar.annule{opacity:.45}
   .empty{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:var(--muted)}
 
-  .intro .card{animation:rise .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*28ms)}
-  .intro .bar{animation:grow .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*28ms + 200ms);transform-origin:left center}
-  .intro .dot,.intro .stem{animation:fade .5s both;animation-delay:calc(var(--i)*28ms)}
-  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-  @keyframes grow{from{opacity:0;transform:scaleX(.2)}to{opacity:1;transform:none}}
+  .intro .card{animation:rise .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*22ms)}
+  .intro .bar{animation:grow .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*22ms + 150ms);transform-origin:left center}
+  .intro .dot,.intro .stem{animation:fade .5s both;animation-delay:calc(var(--i)*22ms)}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @keyframes grow{from{opacity:0;transform:scaleX(.3)}to{opacity:1;transform:none}}
   @keyframes fade{from{opacity:0}to{opacity:1}}
 
   /* ---------- Panneau ---------- */
-  .drawer{position:fixed;top:0;right:0;bottom:0;width:420px;max-width:100vw;z-index:50;background:rgba(12,17,36,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-    border-left:1px solid rgba(255,255,255,.12);box-shadow:-20px 0 60px rgba(0,0,0,.5);transform:translateX(105%);transition:transform .25s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column}
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:420px;max-width:100vw;z-index:50;background:#fff;border-left:1px solid var(--line);box-shadow:-16px 0 40px rgba(15,31,61,.12);
+    transform:translateX(105%);transition:transform .25s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column}
   .drawer.on{transform:none}
   .drawer header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line)}
-  .drawer h2{margin:0;font-size:15px;font-weight:800}
+  .drawer h2{margin:0;font-size:15px;font-weight:800;color:var(--navy)}
   .drawer .body{padding:18px 20px;overflow-y:auto;flex:1}
   .drawer footer{padding:12px 20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px}
   .x{border:0;background:transparent;font-size:22px;line-height:1;color:var(--muted);padding:2px 8px;border-radius:8px}
-  .x:hover{background:rgba(255,255,255,.1);color:#fff}
+  .x:hover{background:var(--bg2);color:var(--ink)}
   .field{margin-bottom:13px}
   .field label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.6px;text-transform:uppercase}
-  .field input[type=text],.field input[type=date],.field select,.field textarea{width:100%;border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:9px 11px;background:rgba(255,255,255,.06);color:#fff;color-scheme:dark}
-  .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid rgba(109,140,255,.6);border-color:var(--accent)}
+  .field input[type=text],.field input[type=date],.field select,.field textarea{width:100%;border:1px solid #cfd7e3;border-radius:9px;padding:9px 11px;background:#fff;color:var(--ink)}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid rgba(31,78,156,.3);border-color:var(--accent)}
   .field textarea{min-height:100px;resize:vertical}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .seg{display:flex;border:1px solid rgba(255,255,255,.14);border-radius:10px;overflow:hidden}
-  .seg button{flex:1;border:0;background:transparent;padding:9px;font-weight:700;color:var(--muted)}
-  .seg button.on{background:linear-gradient(135deg,#6d8cff,#8b5cf6);color:#fff}
+  .seg{display:flex;border:1px solid #cfd7e3;border-radius:9px;overflow:hidden}
+  .seg button{flex:1;border:0;background:#fff;padding:9px;font-weight:700;color:var(--muted)}
+  .seg button.on{background:var(--navy);color:#fff}
   .colors{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
-  .sw{width:26px;height:26px;border-radius:8px;border:2px solid transparent;cursor:pointer;box-shadow:0 0 0 1px rgba(255,255,255,.15) inset}
-  .sw.on{border-color:#fff}
-  .colors input[type=color]{width:36px;height:30px;border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:2px;background:transparent}
+  .sw{width:26px;height:26px;border-radius:8px;border:2px solid transparent;cursor:pointer;box-shadow:0 0 0 1px rgba(0,0,0,.08) inset}
+  .sw.on{border-color:var(--navy)}
+  .colors input[type=color]{width:36px;height:30px;border:1px solid #cfd7e3;border-radius:8px;padding:2px;background:#fff}
   .meta{font-size:12px;color:var(--muted);margin:-6px 0 12px}
-  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#fff;color:#0b1024;padding:11px 18px;border-radius:12px;opacity:0;transition:all .25s;z-index:60;font-weight:600;font-size:13px;box-shadow:0 10px 40px rgba(0,0,0,.5);max-width:92vw}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:11px 18px;border-radius:12px;opacity:0;transition:all .25s;z-index:60;font-weight:600;font-size:13px;box-shadow:0 10px 30px rgba(15,31,61,.3);max-width:92vw}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-  .help{color:var(--muted);font-size:11.5px;white-space:nowrap}
-  .help b{color:#cfd6f3}
 
   @media (max-width:760px){
     :root{--card-w:170px;--level-step:96px}
     .top{padding:10px 14px;gap:8px}
     .brand h1{font-size:17px}
-    .years,.help{display:none}
     .brand small{display:none}
+    .years,.help{display:none}
     body.drawer-open .top{padding-right:14px}
-    .stage{padding-top:150px}
     .canvas{margin:0 16px}
   }
+  @media print{.top .btn,.top .ctl,.years,.dirty,.help,.drawer{display:none!important}.stage{position:static;overflow:visible}}
 </style>
 </head>
 <body>
 <script id="retro-data" type="application/json">
 {
   "meta": {
-    "title": "Rétroplanning Expat",
-    "subtitle": "Expatriés · April International · 2025 → 2027",
-    "rangeStart": "2025-01-01",
-    "rangeEnd": "2027-12-31",
-    "source": "Retroplanning_2026_EXPAT.pptx",
-    "savedAt": null
+      "title": "Rétroplanning Expat",
+      "subtitle": "Expatriés · April International · 2025 → 2027",
+      "rangeStart": "2025-01-01",
+      "rangeEnd": "2027-12-31",
+      "source": "Retroplanning_2026_EXPAT.pptx",
+      "savedAt": null
   },
   "statuses": ["Planifié", "En cours", "Terminé", "En retard", "Annulé"],
   "categories": [
-    {"name": "Comité International", "color": "#7c9cff"},
-    {"name": "Offres & lancements", "color": "#22d3ee"},
-    {"name": "Chantiers", "color": "#34d399"},
-    {"name": "Surveillance MSH", "color": "#facc15"},
-    {"name": "Renouvellement 2027 · Réunions", "color": "#f472b6"},
-    {"name": "Renouvellement 2027 · Travaux", "color": "#fb923c"}
+    {"name": "Comité International", "color": "#1f4e9c"},
+    {"name": "Offres & lancements", "color": "#0e8a8a"},
+    {"name": "Chantiers", "color": "#2f8f4e"},
+    {"name": "Surveillance MSH", "color": "#c98a00"},
+    {"name": "Renouvellement 2027 · Réunions", "color": "#b23a6f"},
+    {"name": "Renouvellement 2027 · Travaux", "color": "#d9662a"}
   ],
   "items": [
-    {"id":"ci-1","title":"Comité International","type":"jalon","start":"2026-03-26","end":"2026-03-26","category":"Comité International","owner":"Direction Internationale","status":"Planifié","description":"Comité International du 26 mars 2026."},
-    {"id":"ci-2","title":"Comité International","type":"jalon","start":"2026-06-29","end":"2026-06-29","category":"Comité International","owner":"Direction Internationale","status":"Planifié","description":"Comité International du 29 juin 2026."},
-    {"id":"ci-3","title":"Comité International","type":"jalon","start":"2026-09-08","end":"2026-09-08","category":"Comité International","owner":"Direction Internationale","status":"Planifié","description":"Comité International du 8 septembre 2026."},
-    {"id":"ci-4","title":"Comité International","type":"jalon","start":"2026-11-16","end":"2026-11-16","category":"Comité International","owner":"Direction Internationale","status":"Planifié","description":"Comité International du 16 novembre 2026."},
-
-    {"id":"j-01","title":"Bilan Prod 2025","type":"jalon","start":"2026-01-16","end":"2026-01-16","category":"Offres & lancements","owner":"","status":"Planifié","description":"Bilan de production 2025.\nDate indicative (mi-janvier sur le rétroplanning d'origine), à confirmer."},
-    {"id":"j-02","title":"Nouvelle offre Ind","type":"jalon","start":"2026-01-16","end":"2026-01-16","category":"Offres & lancements","owner":"","status":"Planifié","description":"Lancement des travaux nouvelle offre Individuelle :\n• Ateliers de travail offre Henner\n• MHI 2.0 CFE\n• Offre VERSPIREN\nDate indicative, à confirmer."},
-    {"id":"j-03","title":"Lancement MHI 2.0 1er €","type":"jalon","start":"2026-03-16","end":"2026-03-16","category":"Offres & lancements","owner":"","status":"Planifié","description":"Lancement MHI 2.0 au 1er euro."},
-    {"id":"j-04","title":"Comités : Go/NoGo Offre VERSPIREN · MHI 2.0 CFE","type":"jalon","start":"2026-04-13","end":"2026-04-13","category":"Offres & lancements","owner":"","status":"Planifié","description":"Comités du 13 avril :\n• Go / NoGo Offre VERSPIREN\n• MHI 2.0 CFE"},
-    {"id":"j-05","title":"Séminaire International","type":"periode","start":"2026-05-05","end":"2026-05-07","category":"Offres & lancements","owner":"","status":"Planifié","description":"Séminaire International du 5 au 7 mai."},
-    {"id":"j-06","title":"Lancement MHB","type":"jalon","start":"2026-06-15","end":"2026-06-15","category":"Offres & lancements","owner":"","status":"Planifié","description":"Lancement MHB le 15 juin."},
-    {"id":"j-07","title":"Lancement Offre tacite Henner","type":"jalon","start":"2026-07-01","end":"2026-07-01","category":"Offres & lancements","owner":"Henner","status":"Planifié","description":"Lancement de l'offre tacite Henner au 1er juillet."},
-    {"id":"j-08","title":"Validation tarifs (GGVIE)","type":"jalon","start":"2026-08-07","end":"2026-08-07","category":"Offres & lancements","owner":"GGVie","status":"Planifié","description":"Validation des tarifs par GGVie le 7 août."},
-    {"id":"j-09","title":"MEP grilles tarifaires (MSH)","type":"jalon","start":"2026-09-14","end":"2026-09-14","category":"Offres & lancements","owner":"MSH","status":"Planifié","description":"Mise en production des grilles tarifaires MSH.\nDate indicative (mi-septembre), à confirmer."},
-    {"id":"j-10","title":"Lancement offre Prev Henner","type":"jalon","start":"2026-10-12","end":"2026-10-12","category":"Offres & lancements","owner":"Henner","status":"Planifié","description":"Lancement de l'offre Prévoyance Henner.\nDate indicative (mi-octobre), à confirmer."},
-    {"id":"j-11","title":"Lancement offre tempo / Stay&Go Henner","type":"jalon","start":"2026-11-16","end":"2026-11-16","category":"Offres & lancements","owner":"Henner","status":"Planifié","description":"Lancement de l'offre temporaire / Stay&Go Henner.\nDate indicative (mi-novembre), à confirmer."},
-    {"id":"j-12","title":"À définir (xxxx)","type":"jalon","start":"2026-12-11","end":"2026-12-11","category":"Offres & lancements","owner":"","status":"Planifié","description":"Jalon non renseigné dans le rétroplanning d'origine (« xxxx »). À compléter."},
-
-    {"id":"c-01","title":"Ateliers de travail offre Henner","type":"periode","start":"2026-01-05","end":"2026-09-14","category":"Chantiers","owner":"Henner","status":"Planifié","description":"Ateliers de travail sur l'offre Henner, de janvier à mi-septembre."},
-    {"id":"c-02","title":"Offre VERSPIREN","type":"periode","start":"2026-04-13","end":"2026-09-14","category":"Chantiers","owner":"Verspieren","status":"Planifié","description":"Chantier Offre VERSPIREN, du Go/NoGo (13 avril) à mi-septembre."},
-    {"id":"c-03","title":"Surveillance (MSH)","type":"periode","start":"2026-05-27","end":"2026-09-14","category":"Surveillance MSH","owner":"MSH","status":"Planifié","description":"Surveillance MSH : résultats, préconisations, validation, grilles tarifaires (voir les jalons Surveillance MSH)."},
-    {"id":"c-04","title":"AICF : Réassurance offre Mexique","type":"periode","start":"2026-09-15","end":"2026-12-31","category":"Chantiers","owner":"AICF","status":"Planifié","description":"Réassurance de l'offre Mexique (AICF), de mi-septembre à fin d'année."},
-    {"id":"c-05","title":"Chargements OCS","type":"periode","start":"2026-09-15","end":"2026-12-31","category":"Chantiers","owner":"OCS","status":"Planifié","description":"Chargements OCS, de mi-septembre à fin d'année."},
-
-    {"id":"s-01","title":"Résultats (MSH)","type":"jalon","start":"2026-06-20","end":"2026-06-20","category":"Surveillance MSH","owner":"MSH","status":"Planifié","description":"Résultats de surveillance MSH le 20 juin."},
-    {"id":"s-02","title":"Précos (GGVIE)","type":"jalon","start":"2026-07-10","end":"2026-07-10","category":"Surveillance MSH","owner":"GGVie","status":"Planifié","description":"Préconisations GGVie le 10 juillet."},
-    {"id":"s-03","title":"Validation précos","type":"jalon","start":"2026-07-17","end":"2026-07-17","category":"Surveillance MSH","owner":"","status":"Planifié","description":"Validation des préconisations le 17 juillet."},
-    {"id":"s-04","title":"Présentation précos ASFE (MSH)","type":"jalon","start":"2026-07-23","end":"2026-07-23","category":"Surveillance MSH","owner":"MSH","status":"Planifié","description":"Présentation des préconisations ASFE le 23 juillet."},
-    {"id":"s-05","title":"Grilles tarifaires (MSH)","type":"jalon","start":"2026-07-31","end":"2026-07-31","category":"Surveillance MSH","owner":"MSH","status":"Planifié","description":"Grilles tarifaires MSH le 31 juillet."},
-
-    {"id":"r-01","title":"Kick-off renew Gammes individuelles","type":"jalon","start":"2026-05-19","end":"2026-05-19","category":"Renouvellement 2027 · Réunions","owner":"GGVie & AICF","status":"Planifié","description":"19 mai – 10h\nKick-off renouvellement gammes individuelles.\nPrésentation des résultats GGVie & AICF."},
-    {"id":"r-02","title":"Présentation Comité","type":"jalon","start":"2026-06-08","end":"2026-06-08","category":"Renouvellement 2027 · Réunions","owner":"","status":"Planifié","description":"XX juin – heure à définir.\nDate à confirmer (début juin sur le rétroplanning d'origine)."},
-    {"id":"r-03","title":"Validation des renouvellements 2027 GGVie & ICF","type":"jalon","start":"2026-06-25","end":"2026-06-25","category":"Renouvellement 2027 · Réunions","owner":"GGVie & ICF","status":"Planifié","description":"25 juin – 10h30\nValidation des renouvellements 2027 GGVie & ICF."},
-    {"id":"r-04","title":"Établissement ToDo rédaction GGVie interne","type":"jalon","start":"2026-07-02","end":"2026-07-02","category":"Renouvellement 2027 · Réunions","owner":"GGVie","status":"Planifié","description":"2 juillet – 11h30\nÉtablissement de la ToDo rédaction, GGVie interne."},
-    {"id":"r-05","title":"Ajustement éventuel","type":"jalon","start":"2026-07-16","end":"2026-07-16","category":"Renouvellement 2027 · Réunions","owner":"","status":"Planifié","description":"16 juillet – 15h\nPoint d'ajustement éventuel."},
-    {"id":"r-06","title":"Revue d'affaires Internationale","type":"jalon","start":"2026-09-14","end":"2026-09-14","category":"Renouvellement 2027 · Réunions","owner":"","status":"Planifié","description":"14 septembre – 9h30\nRevue d'affaires Internationale."},
-
-    {"id":"t-01","title":"Récupération des bordereaux Cotisations & Prestations","type":"periode","start":"2026-03-01","end":"2026-04-15","category":"Renouvellement 2027 · Travaux","owner":"","status":"Planifié","description":"Récupération des bordereaux de cotisations et de prestations."},
-    {"id":"t-02","title":"Analyse des bordereaux · Comptes techniques","type":"periode","start":"2026-04-01","end":"2026-04-30","category":"Renouvellement 2027 · Travaux","owner":"","status":"Planifié","description":"Analyse des bordereaux et établissement des comptes techniques."},
-    {"id":"t-03","title":"Préconisations renouvellement","type":"periode","start":"2026-05-01","end":"2026-06-01","category":"Renouvellement 2027 · Travaux","owner":"","status":"Planifié","description":"Préconisations de renouvellement."},
-    {"id":"t-04","title":"Projections","type":"periode","start":"2026-06-01","end":"2026-06-25","category":"Renouvellement 2027 · Travaux","owner":"","status":"Planifié","description":"Projections, jusqu'à la validation des renouvellements (25 juin)."},
-    {"id":"t-05","title":"Établissement grilles tarifaires","type":"periode","start":"2026-07-16","end":"2026-08-04","category":"Renouvellement 2027 · Travaux","owner":"","status":"Planifié","description":"Établissement des grilles tarifaires."},
-    {"id":"t-06","title":"Majorations moyennes & projections nouvelles","type":"periode","start":"2026-08-04","end":"2026-09-10","category":"Renouvellement 2027 · Travaux","owner":"","status":"Planifié","description":"Détermination des majorations moyennes et projections nouvelles, avant la Revue d'affaires (14 septembre)."},
-    {"id":"t-07","title":"Rédaction avenants cotisations CP – NI","type":"periode","start":"2026-10-15","end":"2026-11-27","category":"Renouvellement 2027 · Travaux","owner":"","status":"Planifié","description":"Rédaction des avenants cotisations CP – NI."}
+    {"id": "ci-1", "title": "Comité International", "type": "jalon", "start": "2026-03-26", "end": "2026-03-26", "category": "Comité International", "owner": "Direction Internationale", "status": "Planifié", "description": "Comité International du 26 mars 2026."},
+    {"id": "ci-2", "title": "Comité International", "type": "jalon", "start": "2026-06-29", "end": "2026-06-29", "category": "Comité International", "owner": "Direction Internationale", "status": "Planifié", "description": "Comité International du 29 juin 2026."},
+    {"id": "ci-3", "title": "Comité International", "type": "jalon", "start": "2026-09-08", "end": "2026-09-08", "category": "Comité International", "owner": "Direction Internationale", "status": "Planifié", "description": "Comité International du 8 septembre 2026."},
+    {"id": "ci-4", "title": "Comité International", "type": "jalon", "start": "2026-11-16", "end": "2026-11-16", "category": "Comité International", "owner": "Direction Internationale", "status": "Planifié", "description": "Comité International du 16 novembre 2026."},
+    {"id": "j-01", "title": "Bilan Prod 2025", "type": "jalon", "start": "2026-01-16", "end": "2026-01-16", "category": "Offres & lancements", "owner": "", "status": "Planifié", "description": "Bilan de production 2025.\nDate indicative (mi-janvier sur le rétroplanning d'origine), à confirmer."},
+    {"id": "j-02", "title": "Nouvelle offre Ind", "type": "jalon", "start": "2026-01-16", "end": "2026-01-16", "category": "Offres & lancements", "owner": "", "status": "Planifié", "description": "Lancement des travaux nouvelle offre Individuelle :\n• Ateliers de travail offre Henner\n• MHI 2.0 CFE\n• Offre VERSPIREN\nDate indicative, à confirmer."},
+    {"id": "j-03", "title": "Lancement MHI 2.0 1er €", "type": "jalon", "start": "2026-03-16", "end": "2026-03-16", "category": "Offres & lancements", "owner": "", "status": "Planifié", "description": "Lancement MHI 2.0 au 1er euro."},
+    {"id": "j-04", "title": "Comités : Go/NoGo Offre VERSPIREN · MHI 2.0 CFE", "type": "jalon", "start": "2026-04-13", "end": "2026-04-13", "category": "Offres & lancements", "owner": "", "status": "Planifié", "description": "Comités du 13 avril :\n• Go / NoGo Offre VERSPIREN\n• MHI 2.0 CFE"},
+    {"id": "j-05", "title": "Séminaire International", "type": "periode", "start": "2026-05-05", "end": "2026-05-07", "category": "Offres & lancements", "owner": "", "status": "Planifié", "description": "Séminaire International du 5 au 7 mai."},
+    {"id": "j-06", "title": "Lancement MHB", "type": "jalon", "start": "2026-06-15", "end": "2026-06-15", "category": "Offres & lancements", "owner": "", "status": "Planifié", "description": "Lancement MHB le 15 juin."},
+    {"id": "j-07", "title": "Lancement Offre tacite Henner", "type": "jalon", "start": "2026-07-01", "end": "2026-07-01", "category": "Offres & lancements", "owner": "Henner", "status": "Planifié", "description": "Lancement de l'offre tacite Henner au 1er juillet."},
+    {"id": "j-08", "title": "Validation tarifs (GGVIE)", "type": "jalon", "start": "2026-08-07", "end": "2026-08-07", "category": "Offres & lancements", "owner": "GGVie", "status": "Planifié", "description": "Validation des tarifs par GGVie le 7 août."},
+    {"id": "j-09", "title": "MEP grilles tarifaires (MSH)", "type": "jalon", "start": "2026-09-14", "end": "2026-09-14", "category": "Offres & lancements", "owner": "MSH", "status": "Planifié", "description": "Mise en production des grilles tarifaires MSH.\nDate indicative (mi-septembre), à confirmer."},
+    {"id": "j-10", "title": "Lancement offre Prev Henner", "type": "jalon", "start": "2026-10-12", "end": "2026-10-12", "category": "Offres & lancements", "owner": "Henner", "status": "Planifié", "description": "Lancement de l'offre Prévoyance Henner.\nDate indicative (mi-octobre), à confirmer."},
+    {"id": "j-11", "title": "Lancement offre tempo / Stay&Go Henner", "type": "jalon", "start": "2026-11-16", "end": "2026-11-16", "category": "Offres & lancements", "owner": "Henner", "status": "Planifié", "description": "Lancement de l'offre temporaire / Stay&Go Henner.\nDate indicative (mi-novembre), à confirmer."},
+    {"id": "j-12", "title": "À définir (xxxx)", "type": "jalon", "start": "2026-12-11", "end": "2026-12-11", "category": "Offres & lancements", "owner": "", "status": "Planifié", "description": "Jalon non renseigné dans le rétroplanning d'origine (« xxxx »). À compléter."},
+    {"id": "c-01", "title": "Ateliers de travail offre Henner", "type": "periode", "start": "2026-01-05", "end": "2026-09-14", "category": "Chantiers", "owner": "Henner", "status": "Planifié", "description": "Ateliers de travail sur l'offre Henner, de janvier à mi-septembre."},
+    {"id": "c-02", "title": "Offre VERSPIREN", "type": "periode", "start": "2026-04-13", "end": "2026-09-14", "category": "Chantiers", "owner": "Verspieren", "status": "Planifié", "description": "Chantier Offre VERSPIREN, du Go/NoGo (13 avril) à mi-septembre."},
+    {"id": "c-03", "title": "Surveillance (MSH)", "type": "periode", "start": "2026-05-27", "end": "2026-09-14", "category": "Surveillance MSH", "owner": "MSH", "status": "Planifié", "description": "Surveillance MSH : résultats, préconisations, validation, grilles tarifaires (voir les jalons Surveillance MSH)."},
+    {"id": "c-04", "title": "AICF : Réassurance offre Mexique", "type": "periode", "start": "2026-09-15", "end": "2026-12-31", "category": "Chantiers", "owner": "AICF", "status": "Planifié", "description": "Réassurance de l'offre Mexique (AICF), de mi-septembre à fin d'année."},
+    {"id": "c-05", "title": "Chargements OCS", "type": "periode", "start": "2026-09-15", "end": "2026-12-31", "category": "Chantiers", "owner": "OCS", "status": "Planifié", "description": "Chargements OCS, de mi-septembre à fin d'année."},
+    {"id": "s-01", "title": "Résultats (MSH)", "type": "jalon", "start": "2026-06-20", "end": "2026-06-20", "category": "Surveillance MSH", "owner": "MSH", "status": "Planifié", "description": "Résultats de surveillance MSH le 20 juin."},
+    {"id": "s-02", "title": "Précos (GGVIE)", "type": "jalon", "start": "2026-07-10", "end": "2026-07-10", "category": "Surveillance MSH", "owner": "GGVie", "status": "Planifié", "description": "Préconisations GGVie le 10 juillet."},
+    {"id": "s-03", "title": "Validation précos", "type": "jalon", "start": "2026-07-17", "end": "2026-07-17", "category": "Surveillance MSH", "owner": "", "status": "Planifié", "description": "Validation des préconisations le 17 juillet."},
+    {"id": "s-04", "title": "Présentation précos ASFE (MSH)", "type": "jalon", "start": "2026-07-23", "end": "2026-07-23", "category": "Surveillance MSH", "owner": "MSH", "status": "Planifié", "description": "Présentation des préconisations ASFE le 23 juillet."},
+    {"id": "s-05", "title": "Grilles tarifaires (MSH)", "type": "jalon", "start": "2026-07-31", "end": "2026-07-31", "category": "Surveillance MSH", "owner": "MSH", "status": "Planifié", "description": "Grilles tarifaires MSH le 31 juillet."},
+    {"id": "r-01", "title": "Kick-off renew Gammes individuelles", "type": "jalon", "start": "2025-05-19", "end": "2025-05-19", "category": "Renouvellement 2027 · Réunions", "owner": "GGVie & AICF", "status": "Planifié", "description": "19 mai – 10h\nKick-off renouvellement gammes individuelles.\nPrésentation des résultats GGVie & AICF."},
+    {"id": "r-02", "title": "Présentation Comité", "type": "jalon", "start": "2025-06-08", "end": "2025-06-08", "category": "Renouvellement 2027 · Réunions", "owner": "", "status": "Planifié", "description": "XX juin – heure à définir.\nDate à confirmer (début juin 2025 sur le rétroplanning d'origine)."},
+    {"id": "r-03", "title": "Validation des renouvellements 2027 GGVie & ICF", "type": "jalon", "start": "2025-06-25", "end": "2025-06-25", "category": "Renouvellement 2027 · Réunions", "owner": "GGVie & ICF", "status": "Planifié", "description": "25 juin – 10h30\nValidation des renouvellements 2027 GGVie & ICF."},
+    {"id": "r-04", "title": "Établissement ToDo rédaction GGVie interne", "type": "jalon", "start": "2025-07-02", "end": "2025-07-02", "category": "Renouvellement 2027 · Réunions", "owner": "GGVie", "status": "Planifié", "description": "2 juillet – 11h30\nÉtablissement de la ToDo rédaction, GGVie interne."},
+    {"id": "r-05", "title": "Ajustement éventuel", "type": "jalon", "start": "2025-07-16", "end": "2025-07-16", "category": "Renouvellement 2027 · Réunions", "owner": "", "status": "Planifié", "description": "16 juillet – 15h\nPoint d'ajustement éventuel."},
+    {"id": "r-06", "title": "Revue d'affaires Internationale", "type": "jalon", "start": "2025-09-14", "end": "2025-09-14", "category": "Renouvellement 2027 · Réunions", "owner": "", "status": "Planifié", "description": "14 septembre – 9h30\nRevue d'affaires Internationale."},
+    {"id": "t-01", "title": "Récupération des bordereaux Cotisations & Prestations", "type": "periode", "start": "2025-03-01", "end": "2025-04-15", "category": "Renouvellement 2027 · Travaux", "owner": "", "status": "Planifié", "description": "Récupération des bordereaux de cotisations et de prestations."},
+    {"id": "t-02", "title": "Analyse des bordereaux · Comptes techniques", "type": "periode", "start": "2025-04-01", "end": "2025-04-30", "category": "Renouvellement 2027 · Travaux", "owner": "", "status": "Planifié", "description": "Analyse des bordereaux et établissement des comptes techniques."},
+    {"id": "t-03", "title": "Préconisations renouvellement", "type": "periode", "start": "2025-05-01", "end": "2025-06-01", "category": "Renouvellement 2027 · Travaux", "owner": "", "status": "Planifié", "description": "Préconisations de renouvellement."},
+    {"id": "t-04", "title": "Projections", "type": "periode", "start": "2025-06-01", "end": "2025-06-25", "category": "Renouvellement 2027 · Travaux", "owner": "", "status": "Planifié", "description": "Projections, jusqu'à la validation des renouvellements (25 juin)."},
+    {"id": "t-05", "title": "Établissement grilles tarifaires", "type": "periode", "start": "2025-07-16", "end": "2025-08-04", "category": "Renouvellement 2027 · Travaux", "owner": "", "status": "Planifié", "description": "Établissement des grilles tarifaires."},
+    {"id": "t-06", "title": "Majorations moyennes & projections nouvelles", "type": "periode", "start": "2025-08-04", "end": "2025-09-10", "category": "Renouvellement 2027 · Travaux", "owner": "", "status": "Planifié", "description": "Détermination des majorations moyennes et projections nouvelles, avant la Revue d'affaires (14 septembre 2025)."},
+    {"id": "t-07", "title": "Rédaction avenants cotisations CP – NI", "type": "periode", "start": "2025-10-15", "end": "2025-11-27", "category": "Renouvellement 2027 · Travaux", "owner": "", "status": "Planifié", "description": "Rédaction des avenants cotisations CP – NI."}
   ]
 }
 </script>
@@ -273,7 +259,7 @@
   var state = { selected: null, dirty: false, hidden: {}, zoom: 190, intro: true };
   var DAY = 86400000, MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
   var MSHORT = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
-  var PALETTE = ['#7c9cff','#22d3ee','#34d399','#facc15','#fb923c','#f472b6','#a78bfa','#f87171','#4ade80','#38bdf8','#e879f9','#fbbf24'];
+  var PALETTE = ['#1f4e9c','#0e8a8a','#2f8f4e','#c98a00','#b23a6f','#d9662a','#6a4fb3','#c62828','#3b7dd8','#5c6b8a','#8a3fa0','#1c8c6e'];
   var $ = function (id) { return document.getElementById(id); };
 
   // ---------- Dates ----------
@@ -290,7 +276,7 @@
   function findItem(id) { for (var i = 0; i < DATA.items.length; i++) if (DATA.items[i].id === id) return DATA.items[i]; return null; }
   function catColor(name) {
     for (var i = 0; i < DATA.categories.length; i++) if (DATA.categories[i].name === name) return DATA.categories[i].color;
-    return '#9aa3c7';
+    return '#5c6b8a';
   }
   function ensureCategory(name) {
     if (!name) return;
@@ -346,7 +332,7 @@
     var bars = visible.filter(function (it) { return it.type !== 'jalon'; }).map(function (it) {
       var a = parseD(it.start), b = validISO(it.end) ? parseD(it.end) : a; if (b < a) b = a;
       var x1 = X(a), x2 = X(b + DAY); var w = Math.max(10, x2 - x1);
-      var lab = it.title.length * 7.2 + 150;
+      var lab = it.title.length * 6.8 + 140;
       return { it: it, x1: x1, w: w, ext: w > lab ? x1 + w : x1 + w + lab };
     }).sort(function (a, b) { return a.x1 - b.x1; });
     var lanes = [];
@@ -354,9 +340,9 @@
 
     var aboveH = 30 + (shelvesUp.length ? (shelvesUp.length - 1) * LSTEP + CARD_H + 34 : 50);
     var axisY = aboveH;
-    var downTop = axisY + 64;
-    var barsTop = downTop + (shelvesDown.length ? (shelvesDown.length - 1) * LSTEP + CARD_H + 26 : 0);
-    var H = barsTop + Math.max(1, lanes.length) * LANE + 30;
+    var barsTop = axisY + 46;
+    var downTop = barsTop + lanes.length * LANE + (lanes.length ? 22 : 8);
+    var H = downTop + (shelvesDown.length ? (shelvesDown.length - 1) * LSTEP + CARD_H : 0) + 40;
     geo = { s: R.s, pxDay: pxDay, axisY: axisY };
 
     var h = '';
@@ -366,11 +352,11 @@
       if (m === 0 || t === R.s) {
         var yEnd = Math.min(R.e, Date.UTC(y + 1, 0, 1));
         h += '<div class="yr-mark" style="left:' + x + 'px;width:' + (X(yEnd) - x) + 'px">' + (m === 0 && t !== R.s ? '<div class="sep"></div>' : '') + '<div class="big" style="left:' + Math.max(0, (X(yEnd) - x) / 2 - 170) + 'px;top:' + Math.max(0, axisY - 190) + 'px">' + y + '</div></div>';
-        h += '<div class="ypill" style="left:' + x + 'px;top:' + (axisY + 8) + 'px">' + y + '</div>';
+        h += '<div class="ypill" style="left:' + x + 'px;top:' + (axisY + 5) + 'px">' + y + '</div>';
       }
       h += '<div class="mgrid" style="left:' + x + 'px"></div>';
       h += '<div class="tick" style="left:' + x + 'px;top:' + axisY + 'px"></div>';
-      h += '<div class="mlabel" style="left:' + (x + (X(addMonths(t, 1)) - x) / 2) + 'px;top:' + (axisY + 30) + 'px">' + MONTHS[m] + '</div>';
+      h += '<div class="mlabel" style="left:' + (x + (X(addMonths(t, 1)) - x) / 2) + 'px;top:' + (axisY + 22) + 'px">' + MONTHS[m] + '</div>';
     }
     h += '<div class="axis" style="top:' + axisY + 'px;width:' + W + 'px"></div>';
     // Aujourd'hui
@@ -380,10 +366,10 @@
     var idx = 0;
     ms.forEach(function (m) {
       var it = m.it, c = itemColor(it), sel = state.selected === it.id ? ' selected' : '';
-      var top = m.below ? downTop + m.level * LSTEP : axisY - 32 - m.level * LSTEP - CARD_H;
-      var stemTop = m.below ? axisY + 8 : top + CARD_H, stemBottom = m.below ? top : axisY + 8;
+      var top = m.below ? downTop + m.level * LSTEP : axisY - 30 - m.level * LSTEP - CARD_H;
+      var stemTop = m.below ? axisY + 5 : top + CARD_H, stemBottom = m.below ? top : axisY + 5;
       h += '<div class="stem" style="left:' + m.x + 'px;top:' + stemTop + 'px;height:' + (stemBottom - stemTop) + 'px;--c:' + c + ';--i:' + idx + '"></div>';
-      h += '<div class="dot" data-id="' + esc(it.id) + '" style="left:' + m.x + 'px;top:' + (axisY + 8) + 'px;--c:' + c + ';--i:' + idx + '"></div>';
+      h += '<div class="dot" data-id="' + esc(it.id) + '" style="left:' + m.x + 'px;top:' + (axisY + 5) + 'px;--c:' + c + ';--i:' + idx + '"></div>';
       h += '<div class="card' + sel + '" data-id="' + esc(it.id) + '" style="left:' + m.left + 'px;top:' + top + 'px;height:' + CARD_H + 'px;--c:' + c + ';--i:' + idx + '">' +
         '<div class="d">' + fmtLong(it.start) + (it.owner ? '<em>· ' + esc(it.owner) + '</em>' : '') + '<span class="st ' + statusKey(it.status) + '">' + esc(it.status || '') + '</span></div>' +
         '<div class="t">' + esc(it.title) + '</div></div>';
@@ -394,7 +380,7 @@
       var it = b.it, c = itemColor(it), sel = state.selected === it.id ? ' selected' : '';
       var top = barsTop + b.lane * LANE;
       var label = esc(it.title) + '<small>' + fmtLong(it.start) + ' → ' + fmtLong(it.end || it.start) + '</small>';
-      var inside = b.w > it.title.length * 7.2 + 150;
+      var inside = b.w > it.title.length * 6.8 + 140;
       h += '<div class="bar ' + statusKey(it.status) + sel + '" data-id="' + esc(it.id) + '" style="left:' + b.x1 + 'px;width:' + b.w + 'px;top:' + top + 'px;--c:' + c + ';--i:' + idx + '" title="' + esc(it.title) + ' : ' + fmtFR(it.start) + ' → ' + fmtFR(it.end) + '">' +
         (inside ? '<span class="in">' + label + '</span>' : '<span class="out">' + label + '</span>') + '</div>';
       idx++;

@@ -433,7 +433,7 @@
     var dnH = dnLv ? (dnLv - 1) * LSTEP + CARD_H : 0;
     var H = 30 + upH + midH + dnH + 26;
     var st0 = $('stage'); var availH = Math.floor(window.innerHeight - st0.getBoundingClientRect().top - 2);
-    var LSTEP_UP = LSTEP, LSTEP_DN = LSTEP, padTop = 30, padMid = 0, padBot = 26;
+    var LSTEP_UP = LSTEP, LSTEP_DN = LSTEP, padTop = 30, padMid = 0, padBot = 26, scaleK = 1;
     if (availH > H) {
       var extra = availH - H;
       var slotsUp = Math.max(0, upLv - 1), slotsDn = Math.max(0, dnLv - 1);
@@ -442,17 +442,18 @@
       var used = per * (slotsUp + slotsDn); var rest = extra - used;
       padTop += rest * 0.45; padMid += rest * 0.15; padBot += rest * 0.4;
       H = availH;
-    } else if (H > availH && availH > 320) {
-      // Légèrement trop haut : on réduit d'abord les marges, puis l'espacement des cartes.
-      var over = H - availH, cut = Math.min(over, 44); padTop -= cut * 0.55; padBot -= cut * 0.45; over -= cut;
-      if (over > 0) { var slots = Math.max(0, upLv - 1) + Math.max(0, dnLv - 1); if (slots) { var d2 = Math.min(18, over / slots); LSTEP_UP -= d2; LSTEP_DN -= d2; over -= d2 * slots; } }
-      H = availH + Math.max(0, over);
+    } else if (H > availH && availH > 300) {
+      // Trop haut : 1) marges au minimum, 2) cartes rapprochées, 3) réduction d'échelle de toute la frise.
+      var over = H - availH, cut = Math.min(over, (padTop - 8) + (padBot - 8)); padTop -= cut * 0.55; padBot -= cut * 0.45; over -= cut;
+      if (over > 0) { var slots = Math.max(0, upLv - 1) + Math.max(0, dnLv - 1); if (slots) { var d2 = Math.min(LSTEP - (CARD_H + 10), over / slots); LSTEP_UP -= d2; LSTEP_DN -= d2; over -= d2 * slots; } }
       upH = upLv ? (upLv - 1) * LSTEP_UP + CARD_H + 34 : 50; dnH = dnLv ? (dnLv - 1) * LSTEP_DN + CARD_H : 0;
+      H = padTop + upH + midH + dnH + padBot;
+      if (H > availH) scaleK = Math.max(0.55, availH / H);
     }
     var axisY = padTop + upH;
     var barsTop = axisY + 50;
     var downTop = barsTop + lanesH + (lanes.length ? 22 : 8) + padMid;
-    geo = { s: R.s, pxDay: pxDay, axisY: axisY };
+    geo = { s: R.s, pxDay: pxDay, axisY: axisY, k: scaleK };
 
     var h = '';
     // Années et mois
@@ -504,9 +505,9 @@
       idx++;
     });
     if (!visible.length) h += '<div class="empty">Aucun projet à afficher. Utilisez « + Ajouter » ou réactivez une catégorie.</div>';
-    var cv = $('canvas'); cv.style.width = W + 'px'; cv.style.height = H + 'px'; cv.innerHTML = h;
-    var capH = Math.max(320, availH); $('stage').style.height = Math.min(H, capH) + 'px';
-    if (H > capH) $('stage').scrollTop = Math.max(0, axisY - capH / 2);
+    var cv = $('canvas'); cv.style.width = W + 'px'; cv.style.height = H + 'px'; cv.style.zoom = scaleK; cv.innerHTML = h;
+    var capH = Math.max(300, availH), shownH = Math.round(H * scaleK); $('stage').style.height = Math.min(shownH, capH) + 'px';
+    if (shownH > capH) $('stage').scrollTop = Math.max(0, axisY * scaleK - capH / 2);
     if (!state.intro) cv.classList.remove('intro');
     state.intro = false;
     geo.W = W; geo.R = R;
@@ -570,7 +571,7 @@
     }
   }
   function scrollTo(t, leftAlign) {
-    var st = $('stage'); var x = (t - geo.s) / DAY * geo.pxDay + 60;
+    var st = $('stage'); var x = ((t - geo.s) / DAY * geo.pxDay + 60) * geo.k;
     st.scrollTo({ left: leftAlign ? x - 40 : x - st.clientWidth / 2, behavior: 'smooth' });
   }
 
@@ -591,8 +592,8 @@
   function zoom(f, cx) {
     var old = state.zoom; state.zoom = Math.max(60, Math.min(420, Math.round(old * f)));
     if (state.zoom === old) return;
-    var st = $('stage'); var px = cx == null ? st.clientWidth / 2 : cx; var world = (st.scrollLeft + px - 60) / old;
-    render(); st.scrollLeft = world * state.zoom + 60 - px;
+    var st = $('stage'); var px = cx == null ? st.clientWidth / 2 : cx; var world = ((st.scrollLeft + px) / geo.k - 60) / old;
+    render(); st.scrollLeft = (world * state.zoom + 60) * geo.k - px;
   }
   $('z-in').onclick = function () { zoom(1.25); }; $('z-out').onclick = function () { zoom(0.8); };
   stage.addEventListener('wheel', function (e) {
@@ -796,7 +797,7 @@
   // Centre la vue sur aujourd'hui (ou sur le premier projet).
   var t0 = parseD(todayISO()); var R0 = range();
   if (t0 < R0.s || t0 >= R0.e) { var first = DATA.items.map(function (i) { return i.start; }).filter(validISO).sort()[0]; if (first) t0 = parseD(first); }
-  stage.scrollLeft = (t0 - geo.s) / DAY * geo.pxDay + 60 - stage.clientWidth / 2;
+  stage.scrollLeft = ((t0 - geo.s) / DAY * geo.pxDay + 60) * geo.k - stage.clientWidth / 2;
   syncNav();
   var rt; window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(render, 120); });
   setTimeout(render, 50);

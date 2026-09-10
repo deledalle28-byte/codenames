@@ -586,7 +586,7 @@
 
   // ---------- Enregistrer et générer ----------
   function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove('on'); }, 5000); }
-  function savedInfo() { $('saved-info').textContent = DATA.meta.savedAt ? 'Version enregistrée le ' + new Date(DATA.meta.savedAt).toLocaleString('fr-FR') : 'Version initiale (issue du PowerPoint)'; }
+  function savedInfo() { $('saved-info').textContent = DATA.meta.savedAt ? 'Enregistré le ' + new Date(DATA.meta.savedAt).toLocaleString('fr-FR') : ''; }
   $('btn-save').onclick = function () {
     DATA.meta.savedAt = new Date().toISOString();
     var json = JSON.stringify(DATA, null, 2).replace(/<\//g, '<\\/');

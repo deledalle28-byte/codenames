@@ -3,145 +3,155 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rétroplanning Expat 2026</title>
+<title>Rétroplanning Expat</title>
 <style>
   :root{
-    --bg:#f4f6fa; --panel:#ffffff; --ink:#1c2333; --muted:#5f6b7f; --line:#dfe4ec; --line-soft:#eef1f6;
-    --accent:#2f5bea; --accent-ink:#ffffff; --danger:#d23c3c; --ok:#1f9d55; --warn:#e0a400;
-    --label-w:280px; --row-h:36px; --group-h:30px;
-    --shadow:0 10px 30px rgba(20,30,60,.12);
+    --bg:#070b18; --ink:#eef2ff; --muted:#8d97b8; --line:rgba(255,255,255,.08); --glass:rgba(255,255,255,.055);
+    --accent:#6d8cff; --danger:#ff5d6c; --today:#ff6b6b;
+    --card-w:196px; --level-step:86px; --lane-step:42px;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  html,body{margin:0;height:100%}
+  body{background:var(--bg);color:var(--ink);font:14px/1.45 Inter,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;overflow:hidden;
+    background-image:radial-gradient(1200px 600px at 8% -10%,rgba(109,140,255,.22),transparent 60%),
+                     radial-gradient(900px 500px at 92% 110%,rgba(244,114,182,.16),transparent 60%),
+                     radial-gradient(700px 400px at 55% 50%,rgba(34,211,238,.06),transparent 60%)}
   button,input,select,textarea{font:inherit;color:inherit}
   button{cursor:pointer}
+  ::-webkit-scrollbar{height:10px;width:10px}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:10px;border:2px solid var(--bg)}
+  ::-webkit-scrollbar-track{background:transparent}
 
   /* ---------- Barre du haut ---------- */
-  .topbar{position:sticky;top:0;z-index:30;background:var(--panel);border-bottom:1px solid var(--line);
-    display:flex;align-items:center;gap:16px;padding:10px 20px;flex-wrap:wrap}
-  .brand{display:flex;flex-direction:column;min-width:220px}
-  .brand h1{margin:0;font-size:17px;font-weight:700;letter-spacing:.2px}
-  .brand small{color:var(--muted)}
-  .tabs{display:flex;gap:4px;background:var(--line-soft);padding:4px;border-radius:10px}
-  .tab{border:0;background:transparent;padding:7px 14px;border-radius:7px;color:var(--muted);font-weight:600}
-  .tab.active{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+  .top{position:fixed;inset:0 0 auto 0;z-index:30;display:flex;flex-direction:column;gap:8px;padding:12px 22px 10px;
+    background:linear-gradient(180deg,rgba(7,11,24,.95),rgba(7,11,24,.75) 80%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  .top .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .top{transition:padding-right .25s cubic-bezier(.2,.8,.2,1)}
+  body.drawer-open .top{padding-right:442px}
+  .brand h1{margin:0;font-size:20px;font-weight:800;letter-spacing:-.2px;
+    background:linear-gradient(90deg,#fff,#b7c6ff 60%,#8ee7ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .brand small{display:block;color:var(--muted);font-size:12px;margin-top:-2px}
+  .legend{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--glass);padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:600;color:#d5dcf5;transition:.15s}
+  .chip i{width:9px;height:9px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c)}
+  .chip:hover{background:rgba(255,255,255,.1)}
+  .chip.off{opacity:.38;text-decoration:line-through}
   .spacer{flex:1}
-  .btn{border:1px solid var(--line);background:var(--panel);padding:8px 14px;border-radius:8px;font-weight:600}
-  .btn:hover{background:var(--line-soft)}
-  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-  .btn.primary:hover{filter:brightness(1.08);background:var(--accent)}
-  .btn.danger{color:var(--danger);border-color:#f1c3c3}
-  .btn.danger:hover{background:#fdecec}
-  .dirty{display:none;align-items:center;gap:6px;color:var(--warn);font-weight:600;font-size:13px}
+  .ctl{display:flex;align-items:center;gap:6px}
+  .btn{border:1px solid var(--line);background:var(--glass);padding:8px 13px;border-radius:10px;font-weight:600;color:var(--ink);transition:.15s;white-space:nowrap}
+  .btn:hover{background:rgba(255,255,255,.12)}
+  .btn.icon{padding:8px 11px;min-width:36px;text-align:center}
+  .btn.primary{background:linear-gradient(135deg,#6d8cff,#8b5cf6);border-color:transparent;box-shadow:0 6px 24px rgba(109,140,255,.35)}
+  .btn.primary:hover{filter:brightness(1.1)}
+  .btn.danger{color:#ffb4bb;border-color:rgba(255,93,108,.35)}
+  .btn.danger:hover{background:rgba(255,93,108,.15)}
+  .years{display:flex;background:var(--glass);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .years button{border:0;background:transparent;padding:8px 12px;font-weight:700;color:var(--muted)}
+  .years button:hover{color:#fff;background:rgba(255,255,255,.08)}
+  .dirty{display:none;align-items:center;gap:6px;color:#ffd166;font-weight:600;font-size:12px}
   .dirty.on{display:inline-flex}
-  .dirty::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--warn)}
+  .dirty::before{content:"";width:7px;height:7px;border-radius:50%;background:#ffd166;box-shadow:0 0 8px #ffd166}
 
-  /* ---------- Frise ---------- */
-  main{padding:18px 20px 40px}
-  .hint{color:var(--muted);margin:0 0 12px;font-size:13px}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-  .tl-scroll{overflow-x:auto;overflow-y:hidden;position:relative}
-  .tl{min-width:100%;position:relative}
-  .tl-head{display:flex;position:sticky;top:0;z-index:5;background:var(--panel);border-bottom:1px solid var(--line)}
-  .tl-label-head{width:var(--label-w);flex:0 0 var(--label-w);position:sticky;left:0;z-index:6;background:var(--panel);
-    padding:10px 14px;font-weight:700;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.6px;border-right:1px solid var(--line)}
-  .tl-months{position:relative;height:44px;flex:0 0 auto}
-  .month{position:absolute;top:0;bottom:0;border-left:1px solid var(--line);padding:6px 8px;font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden}
-  .month .yr{display:block;font-size:11px;font-weight:500;color:#98a2b3}
-  .month.jan{color:var(--ink)}
-  .tl-body{position:relative}
-  .gridlines{position:absolute;top:0;bottom:0;left:var(--label-w);pointer-events:none;z-index:0}
-  .gl{position:absolute;top:0;bottom:0;border-left:1px solid var(--line-soft)}
-  .today{position:absolute;top:0;bottom:0;border-left:2px dashed #e0483c;z-index:2}
-  .today-tag{position:absolute;bottom:3px;transform:translateX(-50%);font-size:10px;color:#fff;font-weight:700;background:#e0483c;padding:1px 6px;border-radius:4px;white-space:nowrap;z-index:2}
-  .tl-row{display:flex;position:relative;z-index:1}
-  .tl-row.group{height:var(--group-h);background:rgba(240,243,248,.85);border-top:1px solid var(--line)}
-  .tl-row.item{height:var(--row-h);border-top:1px solid var(--line-soft)}
-  .tl-row.item:hover{background:rgba(47,91,234,.04)}
-  .tl-row.item.selected{background:rgba(47,91,234,.10)}
-  .tl-label{width:var(--label-w);flex:0 0 var(--label-w);position:sticky;left:0;z-index:3;background:var(--panel);border-right:1px solid var(--line);
-    padding:0 12px 0 14px;display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
-  .tl-row.group .tl-label{background:#f0f3f8;font-weight:700;font-size:12.5px;color:var(--ink);user-select:none}
-  .tl-row.item.selected .tl-label{background:#e6ecfd}
-  .tl-row.item:hover .tl-label{background:#f4f7ff}
-  .tl-label .name{overflow:hidden;text-overflow:ellipsis}
-  .tl-label .dot{width:9px;height:9px;border-radius:50%;flex:0 0 9px;border:2px solid transparent}
-  .st-planifie .dot{background:#c3cad6}
-  .st-en-cours .dot{background:#2f5bea}
-  .st-termine .dot{background:var(--ok)}
-  .st-en-retard .dot{background:var(--danger)}
-  .st-annule .dot{background:#fff;border-color:#9aa3b2}
-  .caret{display:inline-block;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #6b7588;transition:transform .15s}
-  .group.collapsed .caret{transform:rotate(-90deg)}
-  .count{color:var(--muted);font-weight:500;font-size:11.5px}
-  .tl-track{position:relative;flex:0 0 auto;height:100%}
-  .bar{position:absolute;top:7px;height:22px;border-radius:6px;display:flex;align-items:center;padding:0 8px;font-size:12px;font-weight:600;
-    white-space:nowrap;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.15);min-width:6px;overflow:visible}
-  .bar .in{overflow:hidden;text-overflow:ellipsis}
-  .bar .out{position:absolute;left:100%;margin-left:8px;color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis}
-  .bar .out.left{left:auto;right:100%;margin-left:0;margin-right:8px}
-  .bar.st-termine{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.22) 0 6px,transparent 6px 12px)}
-  .bar.st-annule{opacity:.45;text-decoration:line-through}
-  .bar:hover{filter:brightness(1.05);box-shadow:0 2px 6px rgba(0,0,0,.25)}
-  .selected .bar{outline:2px solid var(--ink);outline-offset:1px}
-  .ms{position:absolute;top:9px;width:18px;height:18px;transform:translateX(-50%) rotate(45deg);border-radius:3px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.25)}
-  .ms:hover{filter:brightness(1.05)}
-  .selected .ms{outline:2px solid var(--ink);outline-offset:1px}
-  .ms-label{position:absolute;top:0;height:100%;display:flex;align-items:center;font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer;padding-left:14px}
-  .ms-label.left{padding-left:0;padding-right:14px;transform:translateX(-100%)}
-  .ms-label .txt{overflow:hidden;text-overflow:ellipsis}
-  .ms-label small{color:var(--muted);font-weight:500;margin-left:6px}
-  .empty{padding:30px;color:var(--muted);text-align:center}
+  /* ---------- Scène ---------- */
+  .stage{position:absolute;inset:0;overflow:auto;cursor:grab;padding-top:110px}
+  .stage.drag{cursor:grabbing;user-select:none}
+  .canvas{position:relative;margin:0 60px}
+  .yr-mark{position:absolute;top:0;bottom:0;pointer-events:none}
+  .yr-mark .big{position:absolute;left:0;top:10px;font-size:150px;font-weight:900;letter-spacing:-6px;color:rgba(255,255,255,.035);line-height:1;user-select:none}
+  .yr-mark .sep{position:absolute;left:0;top:0;bottom:0;border-left:1px dashed rgba(255,255,255,.14)}
+  .mgrid{position:absolute;top:0;bottom:0;border-left:1px solid rgba(255,255,255,.045);pointer-events:none}
 
-  /* ---------- Légende ---------- */
-  .legend{display:flex;gap:18px;flex-wrap:wrap;margin:12px 0 0;color:var(--muted);font-size:12.5px;align-items:center}
-  .legend span{display:inline-flex;align-items:center;gap:6px}
-  .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;background:#6b7fd7}
-  .legend i.d{transform:rotate(45deg);width:10px;height:10px}
+  /* axe */
+  .axis{position:absolute;left:0;right:0;height:16px;border-radius:999px;
+    background:linear-gradient(90deg,#4f7cff,#22d3ee,#34d399,#facc15,#fb923c,#f472b6,#a78bfa,#4f7cff);
+    box-shadow:0 0 30px rgba(109,140,255,.45),0 0 2px rgba(255,255,255,.6) inset}
+  .axis::after{content:"";position:absolute;inset:0;border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.35),transparent 55%,rgba(0,0,0,.25))}
+  .tick{position:absolute;width:1px;height:26px;background:rgba(255,255,255,.35);transform:translateY(-5px)}
+  .mlabel{position:absolute;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#aab4d6;white-space:nowrap;transform:translateX(-50%)}
+  .mlabel b{display:block;color:#fff;font-size:12px;letter-spacing:.4px;text-transform:none}
+  .ypill{position:absolute;transform:translate(-50%,-50%);background:#0b1024;border:1px solid rgba(255,255,255,.25);color:#fff;font-weight:800;font-size:13px;padding:4px 12px;border-radius:999px;letter-spacing:1px;box-shadow:0 0 18px rgba(109,140,255,.6);z-index:4}
+  .today{position:absolute;top:0;bottom:0;width:0;border-left:2px solid var(--today);box-shadow:0 0 14px var(--today);z-index:3;pointer-events:none}
+  .today span{position:absolute;left:50%;transform:translate(-50%,-50%);background:var(--today);color:#fff;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;white-space:nowrap;letter-spacing:.3px;box-shadow:0 0 14px var(--today)}
 
-  /* ---------- Panneau latéral ---------- */
-  .topbar{transition:padding-right .22s ease}
-  body.drawer-open .topbar{padding-right:420px}
-  body.drawer-open main{margin-right:400px}
-  main{transition:margin-right .22s ease}
-  .drawer{position:fixed;top:0;right:0;bottom:0;width:400px;max-width:100vw;background:var(--panel);z-index:50;box-shadow:var(--shadow);
-    transform:translateX(105%);transition:transform .22s ease;display:flex;flex-direction:column}
-  .drawer.on{transform:translateX(0)}
-  .drawer header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}
-  .drawer header h2{margin:0;font-size:15px}
-  .drawer .body{padding:16px 18px;overflow-y:auto;flex:1}
-  .drawer footer{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:space-between}
-  .x{border:0;background:transparent;font-size:20px;line-height:1;color:var(--muted);padding:4px 8px;border-radius:6px}
-  .x:hover{background:var(--line-soft)}
-  .field{margin-bottom:12px}
-  .field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px}
-  .field input[type=text],.field input[type=date],.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff}
-  .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid rgba(47,91,234,.35);border-color:var(--accent)}
-  .field textarea{min-height:90px;resize:vertical}
+  /* jalons */
+  .stem{position:absolute;width:2px;transform:translateX(-1px);background:linear-gradient(180deg,var(--c),rgba(255,255,255,.08));opacity:.8;pointer-events:none}
+  .dot{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--c);border:3px solid #0b1024;box-shadow:0 0 0 2px var(--c),0 0 16px var(--c);transform:translate(-50%,-50%);z-index:5;cursor:pointer;transition:transform .15s}
+  .dot:hover{transform:translate(-50%,-50%) scale(1.3)}
+  .card{position:absolute;width:var(--card-w);background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.14);
+    border-radius:12px;padding:8px 10px 8px 13px;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    box-shadow:0 10px 30px rgba(0,0,0,.35);transition:transform .18s,box-shadow .18s,border-color .18s;z-index:2}
+  .card::before{content:"";position:absolute;left:-1px;top:14px;bottom:14px;width:3px;border-radius:3px;background:var(--c);box-shadow:0 0 10px var(--c)}
+  .card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.3);box-shadow:0 16px 40px rgba(0,0,0,.5),0 0 0 1px var(--c) inset;z-index:6}
+  .card .d{font-size:10.5px;font-weight:800;color:var(--c);letter-spacing:.5px;text-transform:uppercase;display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .card .d em{font-style:normal;color:var(--muted);font-weight:600;text-transform:none;letter-spacing:0;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .card .t{font-weight:700;font-size:12.5px;line-height:1.25;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .card .st{display:inline-block;font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:999px;background:rgba(255,255,255,.1);color:#cfd6f3;margin-left:auto;letter-spacing:.2px;text-transform:none;flex:0 0 auto}
+  .card .st.planifie{display:none}
+  .st.termine{background:rgba(52,211,153,.2);color:#8ff0c9}
+  .st.en-cours{background:rgba(109,140,255,.25);color:#c1cfff}
+  .st.en-retard{background:rgba(255,93,108,.25);color:#ffb4bb}
+  .st.annule{background:rgba(255,255,255,.08);color:#98a0bd;text-decoration:line-through}
+  .selected.card,.selected.bar{outline:2px solid #fff;outline-offset:2px}
+
+  /* périodes */
+  .bar{position:absolute;height:32px;border-radius:9px;display:flex;align-items:center;gap:8px;padding:0 12px;cursor:pointer;color:#fff;font-weight:700;font-size:12.5px;white-space:nowrap;
+    background:linear-gradient(180deg,color-mix(in srgb,var(--c) 92%,#fff),color-mix(in srgb,var(--c) 75%,#000));
+    box-shadow:0 8px 22px color-mix(in srgb,var(--c) 45%,transparent),0 0 0 1px rgba(255,255,255,.12) inset;transition:transform .15s,filter .15s;z-index:2;overflow:visible}
+  .bar:hover{transform:translateY(-2px);filter:brightness(1.12);z-index:6}
+  .bar .in{overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+  .bar .in small{opacity:.85;font-weight:600;margin-left:6px}
+  .bar .out{position:absolute;left:100%;margin-left:10px;color:#dfe5ff;font-weight:600;text-shadow:0 1px 3px #000;overflow:hidden;text-overflow:ellipsis}
+  .bar .out small{margin-left:6px;opacity:.75}
+  .bar.termine{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.18) 0 7px,transparent 7px 14px),linear-gradient(180deg,color-mix(in srgb,var(--c) 92%,#fff),color-mix(in srgb,var(--c) 75%,#000))}
+  .bar.annule{opacity:.4}
+  .bar .tip{position:absolute;left:8px;top:-15px;font-size:10px;color:#b9c3e8;font-weight:600;letter-spacing:.3px}
+  .empty{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:var(--muted)}
+
+  .intro .card{animation:rise .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*28ms)}
+  .intro .bar{animation:grow .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*28ms + 200ms);transform-origin:left center}
+  .intro .dot,.intro .stem{animation:fade .5s both;animation-delay:calc(var(--i)*28ms)}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @keyframes grow{from{opacity:0;transform:scaleX(.2)}to{opacity:1;transform:none}}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+
+  /* ---------- Panneau ---------- */
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:420px;max-width:100vw;z-index:50;background:rgba(12,17,36,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    border-left:1px solid rgba(255,255,255,.12);box-shadow:-20px 0 60px rgba(0,0,0,.5);transform:translateX(105%);transition:transform .25s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column}
+  .drawer.on{transform:none}
+  .drawer header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line)}
+  .drawer h2{margin:0;font-size:15px;font-weight:800}
+  .drawer .body{padding:18px 20px;overflow-y:auto;flex:1}
+  .drawer footer{padding:12px 20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px}
+  .x{border:0;background:transparent;font-size:22px;line-height:1;color:var(--muted);padding:2px 8px;border-radius:8px}
+  .x:hover{background:rgba(255,255,255,.1);color:#fff}
+  .field{margin-bottom:13px}
+  .field label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.6px;text-transform:uppercase}
+  .field input[type=text],.field input[type=date],.field select,.field textarea{width:100%;border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:9px 11px;background:rgba(255,255,255,.06);color:#fff;color-scheme:dark}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid rgba(109,140,255,.6);border-color:var(--accent)}
+  .field textarea{min-height:100px;resize:vertical}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
-  .seg button{flex:1;border:0;background:#fff;padding:8px;font-weight:600;color:var(--muted)}
-  .seg button.on{background:var(--accent);color:#fff}
-  .colors{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-  .sw{width:24px;height:24px;border-radius:6px;border:2px solid transparent;cursor:pointer}
-  .sw.on{border-color:var(--ink)}
-  .colors input[type=color]{width:34px;height:28px;border:1px solid var(--line);border-radius:6px;padding:2px;background:#fff}
-  .meta{font-size:12px;color:var(--muted);margin-top:6px}
-  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;
-    opacity:0;transition:all .25s;z-index:60;max-width:90vw;box-shadow:var(--shadow);font-size:13px}
+  .seg{display:flex;border:1px solid rgba(255,255,255,.14);border-radius:10px;overflow:hidden}
+  .seg button{flex:1;border:0;background:transparent;padding:9px;font-weight:700;color:var(--muted)}
+  .seg button.on{background:linear-gradient(135deg,#6d8cff,#8b5cf6);color:#fff}
+  .colors{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+  .sw{width:26px;height:26px;border-radius:8px;border:2px solid transparent;cursor:pointer;box-shadow:0 0 0 1px rgba(255,255,255,.15) inset}
+  .sw.on{border-color:#fff}
+  .colors input[type=color]{width:36px;height:30px;border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:2px;background:transparent}
+  .meta{font-size:12px;color:var(--muted);margin:-6px 0 12px}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#fff;color:#0b1024;padding:11px 18px;border-radius:12px;opacity:0;transition:all .25s;z-index:60;font-weight:600;font-size:13px;box-shadow:0 10px 40px rgba(0,0,0,.5);max-width:92vw}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  .help{color:var(--muted);font-size:11.5px;white-space:nowrap}
+  .help b{color:#cfd6f3}
 
-  @media (max-width:700px){
-    :root{--label-w:170px}
-    .topbar{padding:10px 14px}
-    main{padding:12px 14px 30px}
-    body.drawer-open .topbar{padding-right:14px}
-    body.drawer-open main{margin-right:0}
-  }
-  @media print{
-    .topbar .btn,.dirty,.hint,.drawer{display:none!important}
-    body{background:#fff}
-    .card{border:0}
+  @media (max-width:760px){
+    :root{--card-w:170px;--level-step:96px}
+    .top{padding:10px 14px;gap:8px}
+    .brand h1{font-size:17px}
+    .years,.help{display:none}
+    .brand small{display:none}
+    body.drawer-open .top{padding-right:14px}
+    .stage{padding-top:150px}
+    .canvas{margin:0 16px}
   }
 </style>
 </head>
@@ -149,269 +159,298 @@
 <script id="retro-data" type="application/json">
 {
   "meta": {
-    "title": "Rétroplanning Expat 2026",
-    "subtitle": "Expatriés · April International",
+    "title": "Rétroplanning Expat",
+    "subtitle": "Expatriés · April International · 2025 → 2027",
+    "rangeStart": "2025-01-01",
+    "rangeEnd": "2027-12-31",
     "source": "Retroplanning_2026_EXPAT.pptx",
     "savedAt": null
   },
   "statuses": ["Planifié", "En cours", "Terminé", "En retard", "Annulé"],
-  "views": [
-    {
-      "id": "retro2026",
-      "title": "Rétroplanning 2026",
-      "start": "2026-01-01",
-      "end": "2026-12-31",
-      "categories": ["Comité International", "Jalons offres & lancements", "Chantiers", "Surveillance (MSH) – étapes"],
-      "items": [
-        {"id":"v1-ci-1","title":"Comité International","type":"jalon","start":"2026-03-26","end":"2026-03-26","category":"Comité International","owner":"Direction Internationale","status":"Planifié","color":"#5b6fb5","description":"Comité International du 26 mars 2026."},
-        {"id":"v1-ci-2","title":"Comité International","type":"jalon","start":"2026-06-29","end":"2026-06-29","category":"Comité International","owner":"Direction Internationale","status":"Planifié","color":"#5b6fb5","description":"Comité International du 29 juin 2026."},
-        {"id":"v1-ci-3","title":"Comité International","type":"jalon","start":"2026-09-08","end":"2026-09-08","category":"Comité International","owner":"Direction Internationale","status":"Planifié","color":"#5b6fb5","description":"Comité International du 8 septembre 2026."},
-        {"id":"v1-ci-4","title":"Comité International","type":"jalon","start":"2026-11-16","end":"2026-11-16","category":"Comité International","owner":"Direction Internationale","status":"Planifié","color":"#5b6fb5","description":"Comité International du 16 novembre 2026."},
+  "categories": [
+    {"name": "Comité International", "color": "#7c9cff"},
+    {"name": "Offres & lancements", "color": "#22d3ee"},
+    {"name": "Chantiers", "color": "#34d399"},
+    {"name": "Surveillance MSH", "color": "#facc15"},
+    {"name": "Renouvellement 2027 · Réunions", "color": "#f472b6"},
+    {"name": "Renouvellement 2027 · Travaux", "color": "#fb923c"}
+  ],
+  "items": [
+    {"id":"ci-1","title":"Comité International","type":"jalon","start":"2026-03-26","end":"2026-03-26","category":"Comité International","owner":"Direction Internationale","status":"Planifié","description":"Comité International du 26 mars 2026."},
+    {"id":"ci-2","title":"Comité International","type":"jalon","start":"2026-06-29","end":"2026-06-29","category":"Comité International","owner":"Direction Internationale","status":"Planifié","description":"Comité International du 29 juin 2026."},
+    {"id":"ci-3","title":"Comité International","type":"jalon","start":"2026-09-08","end":"2026-09-08","category":"Comité International","owner":"Direction Internationale","status":"Planifié","description":"Comité International du 8 septembre 2026."},
+    {"id":"ci-4","title":"Comité International","type":"jalon","start":"2026-11-16","end":"2026-11-16","category":"Comité International","owner":"Direction Internationale","status":"Planifié","description":"Comité International du 16 novembre 2026."},
 
-        {"id":"v1-j-01","title":"Bilan Prod 2025","type":"jalon","start":"2026-01-16","end":"2026-01-16","category":"Jalons offres & lancements","owner":"","status":"Planifié","color":"#8a94b8","description":"Bilan de production 2025.\nDate indicative (mi-janvier sur le rétroplanning d'origine), à confirmer."},
-        {"id":"v1-j-02","title":"Nouvelle offre Ind","type":"jalon","start":"2026-01-16","end":"2026-01-16","category":"Jalons offres & lancements","owner":"","status":"Planifié","color":"#8a94b8","description":"Lancement des travaux nouvelle offre Individuelle :\n• Ateliers de travail offre Henner\n• MHI 2.0 CFE\n• Offre VERSPIREN\nDate indicative, à confirmer."},
-        {"id":"v1-j-03","title":"Lancement MHI 2.0 1er €","type":"jalon","start":"2026-03-16","end":"2026-03-16","category":"Jalons offres & lancements","owner":"","status":"Planifié","color":"#00b3bc","description":"Lancement MHI 2.0 au 1er euro."},
-        {"id":"v1-j-04","title":"Comités : Go/NoGo Offre VERSPIREN · MHI 2.0 CFE","type":"jalon","start":"2026-04-13","end":"2026-04-13","category":"Jalons offres & lancements","owner":"","status":"Planifié","color":"#00b3bc","description":"Comités du 13 avril :\n• Go / NoGo Offre VERSPIREN\n• MHI 2.0 CFE"},
-        {"id":"v1-j-05","title":"Séminaire International","type":"periode","start":"2026-05-05","end":"2026-05-07","category":"Jalons offres & lancements","owner":"","status":"Planifié","color":"#7cb518","description":"Séminaire International du 5 au 7 mai."},
-        {"id":"v1-j-06","title":"Lancement MHB","type":"jalon","start":"2026-06-15","end":"2026-06-15","category":"Jalons offres & lancements","owner":"","status":"Planifié","color":"#c4bd19","description":"Lancement MHB le 15 juin."},
-        {"id":"v1-j-07","title":"Lancement Offre tacite Henner","type":"jalon","start":"2026-07-01","end":"2026-07-01","category":"Jalons offres & lancements","owner":"Henner","status":"Planifié","color":"#e1b900","description":"Lancement de l'offre tacite Henner au 1er juillet."},
-        {"id":"v1-j-08","title":"Validation tarifs (GGVIE)","type":"jalon","start":"2026-08-07","end":"2026-08-07","category":"Jalons offres & lancements","owner":"GGVie","status":"Planifié","color":"#f0702f","description":"Validation des tarifs par GGVie le 7 août."},
-        {"id":"v1-j-09","title":"MEP grilles tarifaires (MSH)","type":"jalon","start":"2026-09-14","end":"2026-09-14","category":"Jalons offres & lancements","owner":"MSH","status":"Planifié","color":"#e8547c","description":"Mise en production des grilles tarifaires MSH.\nDate indicative (mi-septembre), à confirmer."},
-        {"id":"v1-j-10","title":"Lancement offre Prev Henner","type":"jalon","start":"2026-10-12","end":"2026-10-12","category":"Jalons offres & lancements","owner":"Henner","status":"Planifié","color":"#f0419f","description":"Lancement de l'offre Prévoyance Henner.\nDate indicative (mi-octobre), à confirmer."},
-        {"id":"v1-j-11","title":"Lancement offre tempo / Stay&Go Henner","type":"jalon","start":"2026-11-16","end":"2026-11-16","category":"Jalons offres & lancements","owner":"Henner","status":"Planifié","color":"#bc63df","description":"Lancement de l'offre temporaire / Stay&Go Henner.\nDate indicative (mi-novembre), à confirmer."},
-        {"id":"v1-j-12","title":"À définir (xxxx)","type":"jalon","start":"2026-12-11","end":"2026-12-11","category":"Jalons offres & lancements","owner":"","status":"Planifié","color":"#bc63df","description":"Jalon non renseigné dans le rétroplanning d'origine (« xxxx »). À compléter."},
+    {"id":"j-01","title":"Bilan Prod 2025","type":"jalon","start":"2026-01-16","end":"2026-01-16","category":"Offres & lancements","owner":"","status":"Planifié","description":"Bilan de production 2025.\nDate indicative (mi-janvier sur le rétroplanning d'origine), à confirmer."},
+    {"id":"j-02","title":"Nouvelle offre Ind","type":"jalon","start":"2026-01-16","end":"2026-01-16","category":"Offres & lancements","owner":"","status":"Planifié","description":"Lancement des travaux nouvelle offre Individuelle :\n• Ateliers de travail offre Henner\n• MHI 2.0 CFE\n• Offre VERSPIREN\nDate indicative, à confirmer."},
+    {"id":"j-03","title":"Lancement MHI 2.0 1er €","type":"jalon","start":"2026-03-16","end":"2026-03-16","category":"Offres & lancements","owner":"","status":"Planifié","description":"Lancement MHI 2.0 au 1er euro."},
+    {"id":"j-04","title":"Comités : Go/NoGo Offre VERSPIREN · MHI 2.0 CFE","type":"jalon","start":"2026-04-13","end":"2026-04-13","category":"Offres & lancements","owner":"","status":"Planifié","description":"Comités du 13 avril :\n• Go / NoGo Offre VERSPIREN\n• MHI 2.0 CFE"},
+    {"id":"j-05","title":"Séminaire International","type":"periode","start":"2026-05-05","end":"2026-05-07","category":"Offres & lancements","owner":"","status":"Planifié","description":"Séminaire International du 5 au 7 mai."},
+    {"id":"j-06","title":"Lancement MHB","type":"jalon","start":"2026-06-15","end":"2026-06-15","category":"Offres & lancements","owner":"","status":"Planifié","description":"Lancement MHB le 15 juin."},
+    {"id":"j-07","title":"Lancement Offre tacite Henner","type":"jalon","start":"2026-07-01","end":"2026-07-01","category":"Offres & lancements","owner":"Henner","status":"Planifié","description":"Lancement de l'offre tacite Henner au 1er juillet."},
+    {"id":"j-08","title":"Validation tarifs (GGVIE)","type":"jalon","start":"2026-08-07","end":"2026-08-07","category":"Offres & lancements","owner":"GGVie","status":"Planifié","description":"Validation des tarifs par GGVie le 7 août."},
+    {"id":"j-09","title":"MEP grilles tarifaires (MSH)","type":"jalon","start":"2026-09-14","end":"2026-09-14","category":"Offres & lancements","owner":"MSH","status":"Planifié","description":"Mise en production des grilles tarifaires MSH.\nDate indicative (mi-septembre), à confirmer."},
+    {"id":"j-10","title":"Lancement offre Prev Henner","type":"jalon","start":"2026-10-12","end":"2026-10-12","category":"Offres & lancements","owner":"Henner","status":"Planifié","description":"Lancement de l'offre Prévoyance Henner.\nDate indicative (mi-octobre), à confirmer."},
+    {"id":"j-11","title":"Lancement offre tempo / Stay&Go Henner","type":"jalon","start":"2026-11-16","end":"2026-11-16","category":"Offres & lancements","owner":"Henner","status":"Planifié","description":"Lancement de l'offre temporaire / Stay&Go Henner.\nDate indicative (mi-novembre), à confirmer."},
+    {"id":"j-12","title":"À définir (xxxx)","type":"jalon","start":"2026-12-11","end":"2026-12-11","category":"Offres & lancements","owner":"","status":"Planifié","description":"Jalon non renseigné dans le rétroplanning d'origine (« xxxx »). À compléter."},
 
-        {"id":"v1-c-01","title":"Ateliers de travail offre Henner","type":"periode","start":"2026-01-05","end":"2026-09-14","category":"Chantiers","owner":"Henner","status":"Planifié","color":"#5b8def","description":"Ateliers de travail sur l'offre Henner, de janvier à mi-septembre."},
-        {"id":"v1-c-02","title":"Offre VERSPIREN","type":"periode","start":"2026-04-13","end":"2026-09-14","category":"Chantiers","owner":"Verspieren","status":"Planifié","color":"#00b3bc","description":"Chantier Offre VERSPIREN, du Go/NoGo (13 avril) à mi-septembre."},
-        {"id":"v1-c-03","title":"Surveillance (MSH)","type":"periode","start":"2026-05-27","end":"2026-09-14","category":"Chantiers","owner":"MSH","status":"Planifié","color":"#e1b900","description":"Surveillance MSH : résultats, préconisations, validation, grilles tarifaires (voir étapes détaillées)."},
-        {"id":"v1-c-04","title":"AICF : Réassurance offre Mexique","type":"periode","start":"2026-09-15","end":"2026-12-31","category":"Chantiers","owner":"AICF","status":"Planifié","color":"#e8547c","description":"Réassurance de l'offre Mexique (AICF), de mi-septembre à fin d'année."},
-        {"id":"v1-c-05","title":"Chargements OCS","type":"periode","start":"2026-09-15","end":"2026-12-31","category":"Chantiers","owner":"OCS","status":"Planifié","color":"#bc63df","description":"Chargements OCS, de mi-septembre à fin d'année."},
+    {"id":"c-01","title":"Ateliers de travail offre Henner","type":"periode","start":"2026-01-05","end":"2026-09-14","category":"Chantiers","owner":"Henner","status":"Planifié","description":"Ateliers de travail sur l'offre Henner, de janvier à mi-septembre."},
+    {"id":"c-02","title":"Offre VERSPIREN","type":"periode","start":"2026-04-13","end":"2026-09-14","category":"Chantiers","owner":"Verspieren","status":"Planifié","description":"Chantier Offre VERSPIREN, du Go/NoGo (13 avril) à mi-septembre."},
+    {"id":"c-03","title":"Surveillance (MSH)","type":"periode","start":"2026-05-27","end":"2026-09-14","category":"Surveillance MSH","owner":"MSH","status":"Planifié","description":"Surveillance MSH : résultats, préconisations, validation, grilles tarifaires (voir les jalons Surveillance MSH)."},
+    {"id":"c-04","title":"AICF : Réassurance offre Mexique","type":"periode","start":"2026-09-15","end":"2026-12-31","category":"Chantiers","owner":"AICF","status":"Planifié","description":"Réassurance de l'offre Mexique (AICF), de mi-septembre à fin d'année."},
+    {"id":"c-05","title":"Chargements OCS","type":"periode","start":"2026-09-15","end":"2026-12-31","category":"Chantiers","owner":"OCS","status":"Planifié","description":"Chargements OCS, de mi-septembre à fin d'année."},
 
-        {"id":"v1-s-01","title":"Résultats (MSH)","type":"jalon","start":"2026-06-20","end":"2026-06-20","category":"Surveillance (MSH) – étapes","owner":"MSH","status":"Planifié","color":"#c4bd19","description":"Résultats de surveillance MSH le 20 juin."},
-        {"id":"v1-s-02","title":"Précos (GGVIE)","type":"jalon","start":"2026-07-10","end":"2026-07-10","category":"Surveillance (MSH) – étapes","owner":"GGVie","status":"Planifié","color":"#e1b900","description":"Préconisations GGVie le 10 juillet."},
-        {"id":"v1-s-03","title":"Validation précos","type":"jalon","start":"2026-07-17","end":"2026-07-17","category":"Surveillance (MSH) – étapes","owner":"","status":"Planifié","color":"#e1b900","description":"Validation des préconisations le 17 juillet."},
-        {"id":"v1-s-04","title":"Présentation précos ASFE (MSH)","type":"jalon","start":"2026-07-23","end":"2026-07-23","category":"Surveillance (MSH) – étapes","owner":"MSH","status":"Planifié","color":"#e1b900","description":"Présentation des préconisations ASFE le 23 juillet."},
-        {"id":"v1-s-05","title":"Grilles tarifaires (MSH)","type":"jalon","start":"2026-07-31","end":"2026-07-31","category":"Surveillance (MSH) – étapes","owner":"MSH","status":"Planifié","color":"#e1b900","description":"Grilles tarifaires MSH le 31 juillet."}
-      ]
-    },
-    {
-      "id": "renew2027",
-      "title": "Renouvellement 2027 – Gammes individuelles",
-      "start": "2026-03-01",
-      "end": "2027-02-28",
-      "categories": ["Réunions & comités", "Travaux techniques", "Rédaction"],
-      "items": [
-        {"id":"v2-r-01","title":"Kick-off renew Gammes individuelles","type":"jalon","start":"2026-05-19","end":"2026-05-19","category":"Réunions & comités","owner":"GGVie & AICF","status":"Planifié","color":"#2ac47b","description":"19 mai – 10h\nKick-off renouvellement gammes individuelles.\nPrésentation des résultats GGVie & AICF."},
-        {"id":"v2-r-02","title":"Présentation Comité","type":"jalon","start":"2026-06-08","end":"2026-06-08","category":"Réunions & comités","owner":"","status":"Planifié","color":"#2ac47b","description":"XX juin – heure à définir.\nDate à confirmer (début juin sur le rétroplanning d'origine)."},
-        {"id":"v2-r-03","title":"Validation des renouvellements 2027 GGVie & ICF","type":"jalon","start":"2026-06-25","end":"2026-06-25","category":"Réunions & comités","owner":"GGVie & ICF","status":"Planifié","color":"#2ac47b","description":"25 juin – 10h30\nValidation des renouvellements 2027 GGVie & ICF."},
-        {"id":"v2-r-04","title":"Établissement ToDo rédaction GGVie interne","type":"jalon","start":"2026-07-02","end":"2026-07-02","category":"Réunions & comités","owner":"GGVie","status":"Planifié","color":"#7fb51d","description":"2 juillet – 11h30\nÉtablissement de la ToDo rédaction, GGVie interne."},
-        {"id":"v2-r-05","title":"Ajustement éventuel","type":"jalon","start":"2026-07-16","end":"2026-07-16","category":"Réunions & comités","owner":"","status":"Planifié","color":"#7fb51d","description":"16 juillet – 15h\nPoint d'ajustement éventuel."},
-        {"id":"v2-r-06","title":"Revue d'affaires Internationale","type":"jalon","start":"2026-09-14","end":"2026-09-14","category":"Réunions & comités","owner":"","status":"Planifié","color":"#e0b400","description":"14 septembre – 9h30\nRevue d'affaires Internationale."},
+    {"id":"s-01","title":"Résultats (MSH)","type":"jalon","start":"2026-06-20","end":"2026-06-20","category":"Surveillance MSH","owner":"MSH","status":"Planifié","description":"Résultats de surveillance MSH le 20 juin."},
+    {"id":"s-02","title":"Précos (GGVIE)","type":"jalon","start":"2026-07-10","end":"2026-07-10","category":"Surveillance MSH","owner":"GGVie","status":"Planifié","description":"Préconisations GGVie le 10 juillet."},
+    {"id":"s-03","title":"Validation précos","type":"jalon","start":"2026-07-17","end":"2026-07-17","category":"Surveillance MSH","owner":"","status":"Planifié","description":"Validation des préconisations le 17 juillet."},
+    {"id":"s-04","title":"Présentation précos ASFE (MSH)","type":"jalon","start":"2026-07-23","end":"2026-07-23","category":"Surveillance MSH","owner":"MSH","status":"Planifié","description":"Présentation des préconisations ASFE le 23 juillet."},
+    {"id":"s-05","title":"Grilles tarifaires (MSH)","type":"jalon","start":"2026-07-31","end":"2026-07-31","category":"Surveillance MSH","owner":"MSH","status":"Planifié","description":"Grilles tarifaires MSH le 31 juillet."},
 
-        {"id":"v2-t-01","title":"Récupération des bordereaux Cotisations & Prestations","type":"periode","start":"2026-03-01","end":"2026-04-15","category":"Travaux techniques","owner":"","status":"Planifié","color":"#5787d5","description":"Récupération des bordereaux de cotisations et de prestations."},
-        {"id":"v2-t-02","title":"Analyse des bordereaux · Établissement des comptes techniques","type":"periode","start":"2026-04-01","end":"2026-04-30","category":"Travaux techniques","owner":"","status":"Planifié","color":"#5787d5","description":"Analyse des bordereaux et établissement des comptes techniques."},
-        {"id":"v2-t-03","title":"Préconisations renouvellement","type":"periode","start":"2026-05-01","end":"2026-06-01","category":"Travaux techniques","owner":"","status":"Planifié","color":"#32bbce","description":"Préconisations de renouvellement."},
-        {"id":"v2-t-04","title":"Projections","type":"periode","start":"2026-06-01","end":"2026-06-25","category":"Travaux techniques","owner":"","status":"Planifié","color":"#2ac47b","description":"Projections, jusqu'à la validation des renouvellements (25 juin)."},
-        {"id":"v2-t-05","title":"Établissement grilles tarifaires","type":"periode","start":"2026-07-16","end":"2026-08-04","category":"Travaux techniques","owner":"","status":"Planifié","color":"#ceeb1d","description":"Établissement des grilles tarifaires."},
-        {"id":"v2-t-06","title":"Détermination des majorations moyennes et projections nouvelles","type":"periode","start":"2026-08-04","end":"2026-09-10","category":"Travaux techniques","owner":"","status":"Planifié","color":"#e0b400","description":"Détermination des majorations moyennes et projections nouvelles, avant la Revue d'affaires (14 septembre)."},
+    {"id":"r-01","title":"Kick-off renew Gammes individuelles","type":"jalon","start":"2026-05-19","end":"2026-05-19","category":"Renouvellement 2027 · Réunions","owner":"GGVie & AICF","status":"Planifié","description":"19 mai – 10h\nKick-off renouvellement gammes individuelles.\nPrésentation des résultats GGVie & AICF."},
+    {"id":"r-02","title":"Présentation Comité","type":"jalon","start":"2026-06-08","end":"2026-06-08","category":"Renouvellement 2027 · Réunions","owner":"","status":"Planifié","description":"XX juin – heure à définir.\nDate à confirmer (début juin sur le rétroplanning d'origine)."},
+    {"id":"r-03","title":"Validation des renouvellements 2027 GGVie & ICF","type":"jalon","start":"2026-06-25","end":"2026-06-25","category":"Renouvellement 2027 · Réunions","owner":"GGVie & ICF","status":"Planifié","description":"25 juin – 10h30\nValidation des renouvellements 2027 GGVie & ICF."},
+    {"id":"r-04","title":"Établissement ToDo rédaction GGVie interne","type":"jalon","start":"2026-07-02","end":"2026-07-02","category":"Renouvellement 2027 · Réunions","owner":"GGVie","status":"Planifié","description":"2 juillet – 11h30\nÉtablissement de la ToDo rédaction, GGVie interne."},
+    {"id":"r-05","title":"Ajustement éventuel","type":"jalon","start":"2026-07-16","end":"2026-07-16","category":"Renouvellement 2027 · Réunions","owner":"","status":"Planifié","description":"16 juillet – 15h\nPoint d'ajustement éventuel."},
+    {"id":"r-06","title":"Revue d'affaires Internationale","type":"jalon","start":"2026-09-14","end":"2026-09-14","category":"Renouvellement 2027 · Réunions","owner":"","status":"Planifié","description":"14 septembre – 9h30\nRevue d'affaires Internationale."},
 
-        {"id":"v2-d-01","title":"Rédaction avenants cotisations CP – NI","type":"periode","start":"2026-10-15","end":"2026-11-27","category":"Rédaction","owner":"","status":"Planifié","color":"#fb852d","description":"Rédaction des avenants cotisations CP – NI."}
-      ]
-    }
+    {"id":"t-01","title":"Récupération des bordereaux Cotisations & Prestations","type":"periode","start":"2026-03-01","end":"2026-04-15","category":"Renouvellement 2027 · Travaux","owner":"","status":"Planifié","description":"Récupération des bordereaux de cotisations et de prestations."},
+    {"id":"t-02","title":"Analyse des bordereaux · Comptes techniques","type":"periode","start":"2026-04-01","end":"2026-04-30","category":"Renouvellement 2027 · Travaux","owner":"","status":"Planifié","description":"Analyse des bordereaux et établissement des comptes techniques."},
+    {"id":"t-03","title":"Préconisations renouvellement","type":"periode","start":"2026-05-01","end":"2026-06-01","category":"Renouvellement 2027 · Travaux","owner":"","status":"Planifié","description":"Préconisations de renouvellement."},
+    {"id":"t-04","title":"Projections","type":"periode","start":"2026-06-01","end":"2026-06-25","category":"Renouvellement 2027 · Travaux","owner":"","status":"Planifié","description":"Projections, jusqu'à la validation des renouvellements (25 juin)."},
+    {"id":"t-05","title":"Établissement grilles tarifaires","type":"periode","start":"2026-07-16","end":"2026-08-04","category":"Renouvellement 2027 · Travaux","owner":"","status":"Planifié","description":"Établissement des grilles tarifaires."},
+    {"id":"t-06","title":"Majorations moyennes & projections nouvelles","type":"periode","start":"2026-08-04","end":"2026-09-10","category":"Renouvellement 2027 · Travaux","owner":"","status":"Planifié","description":"Détermination des majorations moyennes et projections nouvelles, avant la Revue d'affaires (14 septembre)."},
+    {"id":"t-07","title":"Rédaction avenants cotisations CP – NI","type":"periode","start":"2026-10-15","end":"2026-11-27","category":"Renouvellement 2027 · Travaux","owner":"","status":"Planifié","description":"Rédaction des avenants cotisations CP – NI."}
   ]
 }
 </script>
 
-<div class="topbar">
-  <div class="brand">
-    <h1 id="app-title">Rétroplanning Expat 2026</h1>
-    <small id="app-subtitle"></small>
+<div class="top">
+  <div class="row">
+    <div class="brand"><h1 id="app-title">Rétroplanning Expat</h1><small id="app-subtitle"></small></div>
+    <div class="spacer"></div>
+    <span class="dirty" id="dirty">Non enregistré</span>
+    <div class="years" id="years"></div>
+    <div class="ctl">
+      <button class="btn icon" id="z-out" title="Zoom arrière">−</button>
+      <button class="btn icon" id="z-in" title="Zoom avant">+</button>
+      <button class="btn" id="go-today">Aujourd'hui</button>
+    </div>
+    <button class="btn" id="btn-add">+ Ajouter</button>
+    <button class="btn primary" id="btn-save">Enregistrer et générer</button>
   </div>
-  <div class="tabs" id="tabs"></div>
-  <div class="spacer"></div>
-  <span class="dirty" id="dirty">Modifications non enregistrées</span>
-  <button class="btn" id="btn-add">+ Ajouter un projet</button>
-  <button class="btn primary" id="btn-save">Enregistrer et générer</button>
+  <div class="row"><div class="legend" id="legend"></div><div class="spacer"></div><div class="help"><b>Glisser</b> pour naviguer · <b>Ctrl + molette</b> pour zoomer · <b>Cliquer</b> un élément pour le modifier · <span id="saved-info"></span></div></div>
 </div>
 
-<main>
-  <p class="hint">Cliquez sur un projet pour voir et modifier ses informations et ses dates. Cliquez sur une catégorie pour la replier. « Enregistrer et générer » télécharge un nouveau fichier HTML contenant vos modifications.</p>
-  <div class="card">
-    <div class="tl-scroll" id="tl-scroll"></div>
-  </div>
-  <div class="legend">
-    <span><i class="d"></i> Jalon (date unique)</span>
-    <span><i></i> Période (début → fin)</span>
-    <span><i style="background:repeating-linear-gradient(135deg,#6b7fd7 0 4px,#b9c3ee 4px 8px)"></i> Terminé</span>
-    <span><i style="border-left:2px dashed #e0483c;background:none;width:0;border-radius:0"></i> Aujourd'hui</span>
-    <span id="saved-info"></span>
-  </div>
-</main>
+<div class="stage" id="stage"><div class="canvas intro" id="canvas"></div></div>
 
 <aside class="drawer" id="drawer" aria-label="Détail du projet">
-  <header>
-    <h2 id="d-title">Projet</h2>
-    <button class="x" id="d-close" title="Fermer">×</button>
-  </header>
+  <header><h2 id="d-title">Projet</h2><button class="x" id="d-close" title="Fermer">×</button></header>
   <div class="body">
-    <div class="field"><label for="f-title">Nom du projet</label><input type="text" id="f-title"></div>
-    <div class="field"><label>Type</label>
-      <div class="seg"><button type="button" id="t-jalon">Jalon</button><button type="button" id="t-periode">Période</button></div>
-    </div>
+    <div class="field"><label for="f-title">Nom</label><input type="text" id="f-title"></div>
+    <div class="field"><label>Type</label><div class="seg"><button type="button" id="t-jalon">Jalon</button><button type="button" id="t-periode">Période</button></div></div>
     <div class="row2">
-      <div class="field"><label for="f-start" id="l-start">Date de début</label><input type="date" id="f-start"></div>
-      <div class="field" id="w-end"><label for="f-end">Date de fin</label><input type="date" id="f-end"></div>
+      <div class="field"><label for="f-start" id="l-start">Début</label><input type="date" id="f-start"></div>
+      <div class="field" id="w-end"><label for="f-end">Fin</label><input type="date" id="f-end"></div>
     </div>
     <div class="meta" id="f-duration"></div>
     <div class="field"><label for="f-category">Catégorie</label><input type="text" id="f-category" list="cat-list"><datalist id="cat-list"></datalist></div>
     <div class="row2">
-      <div class="field"><label for="f-owner">Responsable / Entité</label><input type="text" id="f-owner" placeholder="ex. Henner, MSH, GGVie"></div>
+      <div class="field"><label for="f-owner">Responsable / entité</label><input type="text" id="f-owner" placeholder="Henner, MSH, GGVie…"></div>
       <div class="field"><label for="f-status">Statut</label><select id="f-status"></select></div>
     </div>
-    <div class="field"><label>Couleur</label><div class="colors" id="f-colors"></div></div>
+    <div class="field"><label>Couleur (par défaut : celle de la catégorie)</label><div class="colors" id="f-colors"></div></div>
     <div class="field"><label for="f-desc">Description / informations</label><textarea id="f-desc"></textarea></div>
   </div>
-  <footer>
-    <button class="btn danger" id="d-delete">Supprimer</button>
-    <button class="btn" id="d-ok">Fermer</button>
-  </footer>
+  <footer><button class="btn danger" id="d-delete">Supprimer</button><button class="btn" id="d-ok">Fermer</button></footer>
 </aside>
 <div class="toast" id="toast"></div>
 
 <script>
 (function () {
-  // Copie du document d'origine, capturée avant tout rendu : sert de gabarit pour générer le nouveau fichier.
+  // Copie du document d'origine, capturée avant tout rendu : gabarit pour « Enregistrer et générer ».
   var TEMPLATE = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-
   var DATA = JSON.parse(document.getElementById('retro-data').textContent);
-  var state = { view: DATA.views[0].id, selected: null, dirty: false, collapsed: {} };
-  var MIN_MONTH_W = 88;
-  var DAY = 86400000;
-  var MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-  var PALETTE = ['#5b8def','#5b6fb5','#00b3bc','#32bbce','#2ac47b','#7cb518','#c4bd19','#e1b900','#f0702f','#fb852d','#e8547c','#f0419f','#bc63df','#7857d5','#8a94b8'];
-
+  var state = { selected: null, dirty: false, hidden: {}, zoom: 190, intro: true };
+  var DAY = 86400000, MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  var MSHORT = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+  var PALETTE = ['#7c9cff','#22d3ee','#34d399','#facc15','#fb923c','#f472b6','#a78bfa','#f87171','#4ade80','#38bdf8','#e879f9','#fbbf24'];
   var $ = function (id) { return document.getElementById(id); };
 
   // ---------- Dates ----------
   function parseD(s) { var p = String(s).split('-').map(Number); return Date.UTC(p[0], p[1] - 1, p[2]); }
   function iso(t) { return new Date(t).toISOString().slice(0, 10); }
-  function fmtFR(s) { if (!s) return ''; var p = s.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  function validISO(s) { return /^\d{4}-\d{2}-\d{2}$/.test(s || '') && !isNaN(parseD(s)); }
+  function fmtFR(s) { if (!validISO(s)) return ''; var p = s.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  function fmtLong(s) { if (!validISO(s)) return ''; var d = new Date(parseD(s)); return d.getUTCDate() + ' ' + MSHORT[d.getUTCMonth()] + ' ' + d.getUTCFullYear(); }
   function monthStart(t) { var d = new Date(t); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1); }
   function addMonths(t, n) { var d = new Date(t); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + n, 1); }
   function todayISO() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
-  function validISO(s) { return /^\d{4}-\d{2}-\d{2}$/.test(s || '') && !isNaN(parseD(s)); }
 
   // ---------- Modèle ----------
-  function currentView() { for (var i = 0; i < DATA.views.length; i++) if (DATA.views[i].id === state.view) return DATA.views[i]; return DATA.views[0]; }
-  function findItem(id) { var v = currentView(); for (var i = 0; i < v.items.length; i++) if (v.items[i].id === id) return v.items[i]; return null; }
-  function statusClass(s) { return 'st-' + String(s || 'Planifié').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z]+/g, '-'); }
-  function textColor(hex) {
-    var h = (hex || '#888').replace('#', ''); if (h.length === 3) h = h.replace(/(.)/g, '$1$1');
-    var r = parseInt(h.substr(0, 2), 16), g = parseInt(h.substr(2, 2), 16), b = parseInt(h.substr(4, 2), 16);
-    return (0.299 * r + 0.587 * g + 0.114 * b) > 165 ? '#1c2333' : '#ffffff';
+  function findItem(id) { for (var i = 0; i < DATA.items.length; i++) if (DATA.items[i].id === id) return DATA.items[i]; return null; }
+  function catColor(name) {
+    for (var i = 0; i < DATA.categories.length; i++) if (DATA.categories[i].name === name) return DATA.categories[i].color;
+    return '#9aa3c7';
   }
-  function viewRange(view) {
-    var s = parseD(view.start), e = parseD(view.end);
-    view.items.forEach(function (it) {
+  function ensureCategory(name) {
+    if (!name) return;
+    for (var i = 0; i < DATA.categories.length; i++) if (DATA.categories[i].name === name) return;
+    DATA.categories.push({ name: name, color: PALETTE[DATA.categories.length % PALETTE.length] });
+    renderLegend();
+  }
+  function itemColor(it) { return it.color || catColor(it.category); }
+  function statusKey(s) { return String(s || 'Planifié').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z]+/g, '-'); }
+  function range() {
+    var s = parseD(DATA.meta.rangeStart), e = parseD(DATA.meta.rangeEnd);
+    DATA.items.forEach(function (it) {
       if (validISO(it.start)) { var a = parseD(it.start); if (a < s) s = a; if (a > e) e = a; }
-      if (validISO(it.end)) { var b = parseD(it.end); if (b > e) e = b; if (b < s) s = b; }
+      if (validISO(it.end)) { var b = parseD(it.end); if (b > e) e = b; }
     });
     return { s: monthStart(s), e: addMonths(monthStart(e), 1) };
   }
-  function categoriesOf(view) {
-    var cats = (view.categories || []).slice();
-    view.items.forEach(function (it) { var c = it.category || 'Sans catégorie'; if (cats.indexOf(c) < 0) cats.push(c); });
-    return cats;
-  }
   function markDirty() { state.dirty = true; $('dirty').classList.add('on'); }
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
 
-  // ---------- Rendu de la frise ----------
+  // ---------- Rendu ----------
+  var geo = { s: 0, pxDay: 1, axisY: 0 };
+  function topPad() { var t = document.querySelector('.top').offsetHeight + 10; $('stage').style.paddingTop = t + 'px'; return t; }
   function render() {
-    var view = currentView();
-    var range = viewRange(view);
-    var months = []; for (var t = range.s; t < range.e; t = addMonths(t, 1)) months.push(t);
-    var totalDays = (range.e - range.s) / DAY;
-    var wrap = $('tl-scroll');
-    var labelW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--label-w')) || 280;
-    var avail = Math.max(0, wrap.clientWidth - labelW - 2);
-    var width = Math.max(avail, months.length * MIN_MONTH_W);
-    var pxDay = width / totalDays;
-    var X = function (t) { return (t - range.s) / DAY * pxDay; };
-    var estW = function (t) { return String(t).length * 6.6 + 12; };
-    // Choisit le côté (droite par défaut) où le libellé a la place ; sinon le côté le plus large, avec troncature.
-    var pickSide = function (rightStart, leftEnd, need) {
-      var roomR = Math.max(0, width - rightStart), roomL = Math.max(0, leftEnd);
-      if (roomR >= need) return { left: false, room: roomR };
-      if (roomL >= need) return { left: true, room: roomL };
-      return roomR >= roomL ? { left: false, room: roomR } : { left: true, room: roomL };
-    };
-    var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+    var PAD = topPad();
+    var R = range(); var pxDay = state.zoom / 30.4375;
+    var W = (R.e - R.s) / DAY * pxDay;
+    var X = function (t) { return (t - R.s) / DAY * pxDay; };
+    var cw = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--card-w')) || 210;
+    var LSTEP = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--level-step')) || 104;
+    var LANE = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--lane-step')) || 42;
+    var CARD_H = 70, GAP = 12;
 
-    var h = '<div class="tl"><div class="tl-head"><div class="tl-label-head">' + esc(view.title) + '</div><div class="tl-months" style="width:' + width + 'px">';
-    months.forEach(function (m, i) {
-      var d = new Date(m); var isJan = d.getUTCMonth() === 0;
-      var w = (addMonths(m, 1) - m) / DAY * pxDay;
-      h += '<div class="month' + (isJan ? ' jan' : '') + '" style="left:' + X(m) + 'px;width:' + w + 'px">' + MONTHS[d.getUTCMonth()] +
-        ((i === 0 || isJan) ? '<span class="yr">' + d.getUTCFullYear() + '</span>' : '') + '</div>';
+    var visible = DATA.items.filter(function (it) { return !state.hidden[it.category] && validISO(it.start); });
+    // Jalons : cartes réparties de part et d'autre de l'axe, sur des « étagères », avec décalage horizontal pour compacter.
+    var ms = visible.filter(function (it) { return it.type === 'jalon'; }).map(function (it) { return { it: it, x: X(parseD(it.start)) }; })
+      .sort(function (a, b) { return a.x - b.x; });
+    var shelvesUp = [], shelvesDown = [];
+    function tryPlace(shelves, m) {
+      var minL = Math.max(0, m.x - cw + 18), maxL = Math.max(minL, Math.min(W - cw, m.x - 18));
+      var want = Math.min(Math.max(minL, m.x - cw / 2), maxL);
+      for (var lv = 0; ; lv++) {
+        var left = shelves[lv] == null ? want : Math.max(want, shelves[lv] + GAP);
+        if (left <= maxL) return { lv: lv, left: left };
+      }
+    }
+    ms.forEach(function (m) {
+      var up = tryPlace(shelvesUp, m), down = tryPlace(shelvesDown, m);
+      var below = down.lv < up.lv; var p = below ? down : up;
+      m.below = below; m.level = p.lv; m.left = p.left; (below ? shelvesDown : shelvesUp)[p.lv] = p.left + cw;
     });
+    // Périodes : barres en couloirs, sous les jalons du bas.
+    var bars = visible.filter(function (it) { return it.type !== 'jalon'; }).map(function (it) {
+      var a = parseD(it.start), b = validISO(it.end) ? parseD(it.end) : a; if (b < a) b = a;
+      var x1 = X(a), x2 = X(b + DAY); var w = Math.max(10, x2 - x1);
+      var lab = it.title.length * 7.2 + 150;
+      return { it: it, x1: x1, w: w, ext: w > lab ? x1 + w : x1 + w + lab };
+    }).sort(function (a, b) { return a.x1 - b.x1; });
+    var lanes = [];
+    bars.forEach(function (b) { var ln = 0; while (ln < lanes.length && lanes[ln] + GAP > b.x1) ln++; lanes[ln] = b.ext; b.lane = ln; });
+
+    var aboveH = 30 + (shelvesUp.length ? (shelvesUp.length - 1) * LSTEP + CARD_H + 34 : 50);
+    var axisY = aboveH;
+    var downTop = axisY + 64;
+    var barsTop = downTop + (shelvesDown.length ? (shelvesDown.length - 1) * LSTEP + CARD_H + 26 : 0);
+    var H = barsTop + Math.max(1, lanes.length) * LANE + 30;
+    geo = { s: R.s, pxDay: pxDay, axisY: axisY };
+
+    var h = '';
+    // Années et mois
+    for (var t = R.s; t < R.e; t = addMonths(t, 1)) {
+      var d = new Date(t), m = d.getUTCMonth(), y = d.getUTCFullYear(), x = X(t);
+      if (m === 0 || t === R.s) {
+        var yEnd = Math.min(R.e, Date.UTC(y + 1, 0, 1));
+        h += '<div class="yr-mark" style="left:' + x + 'px;width:' + (X(yEnd) - x) + 'px">' + (m === 0 && t !== R.s ? '<div class="sep"></div>' : '') + '<div class="big" style="left:' + Math.max(0, (X(yEnd) - x) / 2 - 170) + 'px;top:' + Math.max(0, axisY - 190) + 'px">' + y + '</div></div>';
+        h += '<div class="ypill" style="left:' + x + 'px;top:' + (axisY + 8) + 'px">' + y + '</div>';
+      }
+      h += '<div class="mgrid" style="left:' + x + 'px"></div>';
+      h += '<div class="tick" style="left:' + x + 'px;top:' + axisY + 'px"></div>';
+      h += '<div class="mlabel" style="left:' + (x + (X(addMonths(t, 1)) - x) / 2) + 'px;top:' + (axisY + 30) + 'px">' + MONTHS[m] + '</div>';
+    }
+    h += '<div class="axis" style="top:' + axisY + 'px;width:' + W + 'px"></div>';
+    // Aujourd'hui
     var today = parseD(todayISO());
-    var hasToday = today >= range.s && today < range.e;
-    if (hasToday) h += '<div class="today-tag" style="left:' + X(today) + 'px">Aujourd\'hui ' + fmtFR(iso(today)).slice(0, 5) + '</div>';
-    h += '</div></div><div class="tl-body"><div class="gridlines" style="width:' + width + 'px">';
-    months.forEach(function (m) { h += '<div class="gl" style="left:' + X(m) + 'px"></div>'; });
-    if (hasToday) h += '<div class="today" style="left:' + X(today) + 'px"></div>';
-    h += '</div>';
-
-    var cats = categoriesOf(view);
-    var any = false;
-    cats.forEach(function (cat) {
-      var items = view.items.filter(function (it) { return (it.category || 'Sans catégorie') === cat; })
-        .sort(function (a, b) { return (a.start || '').localeCompare(b.start || '') || (a.title || '').localeCompare(b.title || ''); });
-      if (!items.length) return;
-      any = true;
-      var collapsed = !!state.collapsed[view.id + '|' + cat];
-      h += '<div class="tl-row group' + (collapsed ? ' collapsed' : '') + '" data-cat="' + esc(cat) + '"><div class="tl-label"><span class="caret"></span><span class="name">' + esc(cat) + '</span><span class="count">(' + items.length + ')</span></div><div class="tl-track" style="width:' + width + 'px"></div></div>';
-      if (collapsed) return;
-      items.forEach(function (it) {
-        var sc = statusClass(it.status);
-        var color = it.color || PALETTE[cats.indexOf(cat) % PALETTE.length];
-        var sel = state.selected === it.id ? ' selected' : '';
-        h += '<div class="tl-row item ' + sc + sel + '" data-id="' + esc(it.id) + '"><div class="tl-label" title="' + esc(it.title) + '"><span class="dot"></span><span class="name">' + esc(it.title) + '</span></div><div class="tl-track" style="width:' + width + 'px">';
-        if (!validISO(it.start)) { h += '</div></div>'; return; }
-        var a = parseD(it.start);
-        if (it.type === 'jalon') {
-          var x = X(a);
-          var side = pickSide(x + 9, x - 9, estW(it.title + ' ' + fmtFR(it.start)) + 14);
-          h += '<div class="ms" style="left:' + x + 'px;background:' + esc(color) + '" title="' + esc(it.title) + ' – ' + fmtFR(it.start) + '"></div>' +
-            '<div class="ms-label' + (side.left ? ' left' : '') + '" style="left:' + (side.left ? x - 9 : x + 9) + 'px;max-width:' + side.room + 'px"><span class="txt">' + esc(it.title) + '<small>' + fmtFR(it.start) + '</small></span></div>';
-        } else {
-          var b = validISO(it.end) ? parseD(it.end) : a; if (b < a) b = a;
-          var x1 = X(a), x2 = X(b + DAY);
-          var w = Math.max(6, x2 - x1);
-          var label = esc(it.title) + ' <small>' + fmtFR(it.start) + ' → ' + fmtFR(it.end || it.start) + '</small>';
-          var lw = estW(it.title + ' ' + fmtFR(it.start) + ' → ' + fmtFR(it.end || it.start));
-          var inside = w > 150;
-          var side = pickSide(x2 + 8, x1 - 8, lw);
-          h += '<div class="bar ' + sc + '" style="left:' + x1 + 'px;width:' + w + 'px;background:' + esc(color) + ';color:' + textColor(color) + '" title="' + esc(it.title) + ' : ' + fmtFR(it.start) + ' → ' + fmtFR(it.end) + '">' +
-            (inside ? '<span class="in">' + label + '</span>' : '<span class="out' + (side.left ? ' left' : '') + '" style="max-width:' + side.room + 'px">' + label + '</span>') + '</div>';
-        }
-        h += '</div></div>';
-      });
+    if (today >= R.s && today < R.e) h += '<div class="today" style="left:' + X(today) + 'px"><span style="top:' + (axisY - 16) + 'px">Aujourd\'hui · ' + fmtFR(iso(today)) + '</span></div>';
+    // Jalons
+    var idx = 0;
+    ms.forEach(function (m) {
+      var it = m.it, c = itemColor(it), sel = state.selected === it.id ? ' selected' : '';
+      var top = m.below ? downTop + m.level * LSTEP : axisY - 32 - m.level * LSTEP - CARD_H;
+      var stemTop = m.below ? axisY + 8 : top + CARD_H, stemBottom = m.below ? top : axisY + 8;
+      h += '<div class="stem" style="left:' + m.x + 'px;top:' + stemTop + 'px;height:' + (stemBottom - stemTop) + 'px;--c:' + c + ';--i:' + idx + '"></div>';
+      h += '<div class="dot" data-id="' + esc(it.id) + '" style="left:' + m.x + 'px;top:' + (axisY + 8) + 'px;--c:' + c + ';--i:' + idx + '"></div>';
+      h += '<div class="card' + sel + '" data-id="' + esc(it.id) + '" style="left:' + m.left + 'px;top:' + top + 'px;height:' + CARD_H + 'px;--c:' + c + ';--i:' + idx + '">' +
+        '<div class="d">' + fmtLong(it.start) + (it.owner ? '<em>· ' + esc(it.owner) + '</em>' : '') + '<span class="st ' + statusKey(it.status) + '">' + esc(it.status || '') + '</span></div>' +
+        '<div class="t">' + esc(it.title) + '</div></div>';
+      idx++;
     });
-    if (!any) h += '<div class="empty">Aucun projet dans cette vue. Utilisez « Ajouter un projet ».</div>';
-    h += '</div></div>';
-    wrap.innerHTML = h;
+    // Périodes
+    bars.forEach(function (b) {
+      var it = b.it, c = itemColor(it), sel = state.selected === it.id ? ' selected' : '';
+      var top = barsTop + b.lane * LANE;
+      var label = esc(it.title) + '<small>' + fmtLong(it.start) + ' → ' + fmtLong(it.end || it.start) + '</small>';
+      var inside = b.w > it.title.length * 7.2 + 150;
+      h += '<div class="bar ' + statusKey(it.status) + sel + '" data-id="' + esc(it.id) + '" style="left:' + b.x1 + 'px;width:' + b.w + 'px;top:' + top + 'px;--c:' + c + ';--i:' + idx + '" title="' + esc(it.title) + ' : ' + fmtFR(it.start) + ' → ' + fmtFR(it.end) + '">' +
+        (inside ? '<span class="in">' + label + '</span>' : '<span class="out">' + label + '</span>') + '</div>';
+      idx++;
+    });
+    if (!visible.length) h += '<div class="empty">Aucun projet à afficher. Utilisez « + Ajouter » ou réactivez une catégorie.</div>';
+    var cv = $('canvas'); cv.style.width = W + 'px'; cv.style.height = H + 'px'; cv.innerHTML = h;
+    if (!state.intro) cv.classList.remove('intro');
+    state.intro = false;
   }
 
-  // ---------- Onglets ----------
-  function renderTabs() {
-    var t = $('tabs'); t.innerHTML = '';
-    DATA.views.forEach(function (v) {
-      var b = document.createElement('button'); b.className = 'tab' + (v.id === state.view ? ' active' : ''); b.textContent = v.title;
-      b.onclick = function () { state.view = v.id; state.selected = null; closeDrawer(); renderTabs(); render(); };
-      t.appendChild(b);
+  function renderLegend() {
+    var l = $('legend'); l.innerHTML = '';
+    DATA.categories.forEach(function (c) {
+      var b = document.createElement('button'); b.className = 'chip' + (state.hidden[c.name] ? ' off' : ''); b.style.setProperty('--c', c.color);
+      b.innerHTML = '<i></i>' + esc(c.name); b.title = 'Afficher / masquer';
+      b.onclick = function () { state.hidden[c.name] = !state.hidden[c.name]; renderLegend(); render(); };
+      l.appendChild(b);
     });
   }
+  function renderYears() {
+    var R = range(), y = $('years'); y.innerHTML = '';
+    for (var yr = new Date(R.s).getUTCFullYear(); yr <= new Date(R.e - DAY).getUTCFullYear(); yr++) {
+      (function (yr) { var b = document.createElement('button'); b.textContent = yr; b.onclick = function () { scrollTo(Date.UTC(yr, 0, 1), true); }; y.appendChild(b); })(yr);
+    }
+  }
+  function scrollTo(t, leftAlign) {
+    var st = $('stage'); var x = (t - geo.s) / DAY * geo.pxDay + 60;
+    st.scrollTo({ left: leftAlign ? x - 40 : x - st.clientWidth / 2, behavior: 'smooth' });
+  }
+
+  // ---------- Navigation : glisser, zoom ----------
+  var stage = $('stage'), drag = null;
+  stage.addEventListener('pointerdown', function (e) { if (e.button !== 0) return; drag = { x: e.clientX, y: e.clientY, sl: stage.scrollLeft, st: stage.scrollTop, moved: false }; });
+  stage.addEventListener('pointermove', function (e) {
+    if (!drag) return; var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (!drag.moved && Math.abs(dx) + Math.abs(dy) > 6) { drag.moved = true; stage.classList.add('drag'); }
+    if (drag.moved) { stage.scrollLeft = drag.sl - dx; stage.scrollTop = drag.st - dy; }
+  });
+  function endDrag() { if (drag && drag.moved) { setTimeout(function () { stage.classList.remove('drag'); }, 0); } var moved = drag && drag.moved; drag = null; return moved; }
+  stage.addEventListener('pointerup', endDrag); stage.addEventListener('pointercancel', endDrag); stage.addEventListener('pointerleave', function () { drag = null; stage.classList.remove('drag'); });
+  stage.addEventListener('click', function (e) {
+    if (stage.classList.contains('drag')) return;
+    var el = e.target.closest('[data-id]'); if (el) openDrawer(el.getAttribute('data-id'));
+  });
+  function zoom(f, cx) {
+    var old = state.zoom; state.zoom = Math.max(60, Math.min(420, Math.round(old * f)));
+    if (state.zoom === old) return;
+    var st = $('stage'); var px = cx == null ? st.clientWidth / 2 : cx; var world = (st.scrollLeft + px - 60) / old;
+    render(); st.scrollLeft = world * state.zoom + 60 - px;
+  }
+  $('z-in').onclick = function () { zoom(1.25); }; $('z-out').onclick = function () { zoom(0.8); };
+  stage.addEventListener('wheel', function (e) {
+    if (e.ctrlKey || e.metaKey) { e.preventDefault(); zoom(e.deltaY < 0 ? 1.15 : 0.87, e.clientX - stage.getBoundingClientRect().left); }
+    else if (!e.shiftKey && Math.abs(e.deltaX) < Math.abs(e.deltaY) && stage.scrollHeight <= stage.clientHeight + 2) { e.preventDefault(); stage.scrollLeft += e.deltaY; }
+  }, { passive: false });
+  $('go-today').onclick = function () { scrollTo(parseD(todayISO())); };
 
   // ---------- Panneau d'édition ----------
   var editing = null;
@@ -419,44 +458,36 @@
     var it = findItem(id); if (!it) return;
     editing = it; state.selected = id;
     $('d-title').textContent = it.title || 'Projet';
-    $('f-title').value = it.title || '';
-    $('f-start').value = it.start || '';
-    $('f-end').value = it.end || it.start || '';
-    $('f-category').value = it.category || '';
-    $('f-owner').value = it.owner || '';
-    $('f-desc').value = it.description || '';
+    $('f-title').value = it.title || ''; $('f-start').value = it.start || ''; $('f-end').value = it.end || it.start || '';
+    $('f-category').value = it.category || ''; $('f-owner').value = it.owner || ''; $('f-desc').value = it.description || '';
     var st = $('f-status'); st.innerHTML = '';
     DATA.statuses.forEach(function (s) { var o = document.createElement('option'); o.value = s; o.textContent = s; st.appendChild(o); });
-    if (DATA.statuses.indexOf(it.status) < 0 && it.status) { var o = document.createElement('option'); o.value = it.status; o.textContent = it.status; st.appendChild(o); }
+    if (it.status && DATA.statuses.indexOf(it.status) < 0) { var o = document.createElement('option'); o.value = it.status; o.textContent = it.status; st.appendChild(o); }
     st.value = it.status || DATA.statuses[0];
-    var dl = $('cat-list'); dl.innerHTML = ''; categoriesOf(currentView()).forEach(function (c) { var o = document.createElement('option'); o.value = c; dl.appendChild(o); });
+    var dl = $('cat-list'); dl.innerHTML = ''; DATA.categories.forEach(function (c) { var o = document.createElement('option'); o.value = c.name; dl.appendChild(o); });
     syncType(); renderColors(); updateDuration();
-    $('drawer').classList.add('on'); document.body.classList.add('drawer-open');
-    render(); setTimeout(render, 240);
+    $('drawer').classList.add('on'); document.body.classList.add('drawer-open'); render();
   }
-  function closeDrawer() { editing = null; state.selected = null; $('drawer').classList.remove('on'); document.body.classList.remove('drawer-open'); render(); setTimeout(render, 240); }
+  function closeDrawer() { editing = null; state.selected = null; $('drawer').classList.remove('on'); document.body.classList.remove('drawer-open'); render(); }
   function syncType() {
-    if (!editing) return;
-    var j = editing.type === 'jalon';
+    if (!editing) return; var j = editing.type === 'jalon';
     $('t-jalon').classList.toggle('on', j); $('t-periode').classList.toggle('on', !j);
-    $('w-end').style.display = j ? 'none' : '';
-    $('l-start').textContent = j ? 'Date' : 'Date de début';
+    $('w-end').style.display = j ? 'none' : ''; $('l-start').textContent = j ? 'Date' : 'Début';
   }
   function renderColors() {
-    var box = $('f-colors'); box.innerHTML = '';
-    var cur = (editing.color || '').toLowerCase();
+    var box = $('f-colors'); box.innerHTML = ''; var cur = (editing.color || '').toLowerCase();
+    var auto = document.createElement('span'); auto.className = 'sw' + (cur ? '' : ' on'); auto.title = 'Couleur de la catégorie';
+    auto.style.background = catColor(editing.category); auto.style.borderStyle = 'dashed'; auto.style.borderColor = cur ? 'rgba(255,255,255,.4)' : '#fff';
+    auto.onclick = function () { delete editing.color; markDirty(); renderColors(); render(); }; box.appendChild(auto);
     PALETTE.forEach(function (c) {
       var s = document.createElement('span'); s.className = 'sw' + (cur === c ? ' on' : ''); s.style.background = c; s.title = c;
-      s.onclick = function () { editing.color = c; markDirty(); renderColors(); render(); };
-      box.appendChild(s);
+      s.onclick = function () { editing.color = c; markDirty(); renderColors(); render(); }; box.appendChild(s);
     });
-    var inp = document.createElement('input'); inp.type = 'color'; inp.value = cur || '#5b8def'; inp.title = 'Couleur personnalisée';
-    inp.oninput = function () { editing.color = inp.value; markDirty(); render(); };
-    box.appendChild(inp);
+    var inp = document.createElement('input'); inp.type = 'color'; inp.value = cur || catColor(editing.category); inp.title = 'Couleur personnalisée';
+    inp.oninput = function () { editing.color = inp.value; markDirty(); render(); }; box.appendChild(inp);
   }
   function updateDuration() {
-    if (!editing) return;
-    var el = $('f-duration');
+    if (!editing) return; var el = $('f-duration');
     if (editing.type === 'jalon' || !validISO(editing.start) || !validISO(editing.end)) { el.textContent = ''; return; }
     var n = Math.round((parseD(editing.end) - parseD(editing.start)) / DAY) + 1;
     el.textContent = n < 1 ? 'La date de fin est antérieure à la date de début.' : 'Durée : ' + n + ' jour' + (n > 1 ? 's' : '') + ' (' + Math.round(n / 7 * 10) / 10 + ' semaines)';
@@ -464,28 +495,20 @@
   }
   function bind(id, prop, after) {
     $(id).addEventListener('input', function () {
-      if (!editing) return;
-      editing[prop] = this.value; markDirty();
-      if (after) after();
+      if (!editing) return; editing[prop] = this.value; markDirty(); if (after) after();
       if (prop === 'title') $('d-title').textContent = editing.title || 'Projet';
       render();
     });
   }
-  bind('f-title', 'title');
-  bind('f-category', 'category');
-  bind('f-owner', 'owner');
-  bind('f-desc', 'description');
+  bind('f-title', 'title'); bind('f-owner', 'owner'); bind('f-desc', 'description');
+  bind('f-category', 'category', function () { ensureCategory(editing.category); renderColors(); });
   $('f-status').addEventListener('change', function () { if (!editing) return; editing.status = this.value; markDirty(); render(); });
   $('f-start').addEventListener('input', function () {
-    if (!editing || !validISO(this.value)) return;
-    editing.start = this.value;
+    if (!editing || !validISO(this.value)) return; editing.start = this.value;
     if (editing.type === 'jalon' || !validISO(editing.end) || parseD(editing.end) < parseD(editing.start)) { editing.end = editing.start; $('f-end').value = editing.end; }
-    markDirty(); updateDuration(); render();
+    markDirty(); updateDuration(); renderYears(); render();
   });
-  $('f-end').addEventListener('input', function () {
-    if (!editing || !validISO(this.value)) return;
-    editing.end = this.value; markDirty(); updateDuration(); render();
-  });
+  $('f-end').addEventListener('input', function () { if (!editing || !validISO(this.value)) return; editing.end = this.value; markDirty(); updateDuration(); renderYears(); render(); });
   $('t-jalon').onclick = function () { if (!editing) return; editing.type = 'jalon'; editing.end = editing.start; $('f-end').value = editing.end; markDirty(); syncType(); updateDuration(); render(); };
   $('t-periode').onclick = function () {
     if (!editing) return; editing.type = 'periode';
@@ -494,51 +517,34 @@
   };
   $('d-close').onclick = closeDrawer; $('d-ok').onclick = closeDrawer;
   $('d-delete').onclick = function () {
-    if (!editing) return;
-    if (!confirm('Supprimer le projet « ' + editing.title + ' » ?')) return;
-    var v = currentView(); v.items = v.items.filter(function (it) { return it.id !== editing.id; });
-    markDirty(); closeDrawer();
+    if (!editing) return; if (!confirm('Supprimer « ' + editing.title + ' » ?')) return;
+    DATA.items = DATA.items.filter(function (it) { return it.id !== editing.id; }); markDirty(); closeDrawer();
   };
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && editing) closeDrawer(); });
 
-  // ---------- Clics sur la frise ----------
-  $('tl-scroll').addEventListener('click', function (e) {
-    var g = e.target.closest('.tl-row.group');
-    if (g) { var k = state.view + '|' + g.getAttribute('data-cat'); state.collapsed[k] = !state.collapsed[k]; render(); return; }
-    var r = e.target.closest('.tl-row.item');
-    if (r) openDrawer(r.getAttribute('data-id'));
-  });
-
   // ---------- Ajout ----------
   $('btn-add').onclick = function () {
-    var v = currentView();
-    var start = todayISO(); var rs = viewRange(v);
-    if (parseD(start) < rs.s || parseD(start) >= rs.e) start = iso(rs.s);
-    var cats = categoriesOf(v);
-    var it = { id: 'p-' + Date.now().toString(36), title: 'Nouveau projet', type: 'periode', start: start, end: iso(parseD(start) + 14 * DAY),
-      category: cats[0] || 'Sans catégorie', owner: '', status: DATA.statuses[0], color: PALETTE[v.items.length % PALETTE.length], description: '' };
-    v.items.push(it); state.collapsed[v.id + '|' + it.category] = false; markDirty(); openDrawer(it.id);
-    setTimeout(function () { $('f-title').focus(); $('f-title').select(); }, 250);
+    var start = todayISO(); var R = range(); if (parseD(start) < R.s || parseD(start) >= R.e) start = iso(R.s);
+    var cat = DATA.categories[0] ? DATA.categories[0].name : 'Général'; ensureCategory(cat);
+    var it = { id: 'p-' + Date.now().toString(36), title: 'Nouveau projet', type: 'jalon', start: start, end: start, category: cat, owner: '', status: DATA.statuses[0], description: '' };
+    DATA.items.push(it); state.hidden[cat] = false; renderLegend(); markDirty(); openDrawer(it.id); scrollTo(parseD(start));
+    setTimeout(function () { $('f-title').focus(); $('f-title').select(); }, 260);
   };
 
   // ---------- Enregistrer et générer ----------
-  function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove('on'); }, 4500); }
-  function savedInfo() {
-    $('saved-info').textContent = DATA.meta.savedAt ? 'Version enregistrée le ' + new Date(DATA.meta.savedAt).toLocaleString('fr-FR') : 'Version initiale (issue du PowerPoint)';
-  }
+  function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove('on'); }, 5000); }
+  function savedInfo() { $('saved-info').textContent = DATA.meta.savedAt ? 'Version enregistrée le ' + new Date(DATA.meta.savedAt).toLocaleString('fr-FR') : 'Version initiale (issue du PowerPoint)'; }
   $('btn-save').onclick = function () {
     DATA.meta.savedAt = new Date().toISOString();
     var json = JSON.stringify(DATA, null, 2).replace(/<\//g, '<\\/');
-    var open = '<script id="retro-data" type="application/json">';
     var re = new RegExp('<script id="retro-data"[^>]*>[\\s\\S]*?<\\/script>');
-    var block = open + '\n' + json + '\n</scr' + 'ipt>';
+    var block = '<script id="retro-data" type="application/json">\n' + json + '\n</scr' + 'ipt>';
     if (!re.test(TEMPLATE)) { alert('Impossible de retrouver le bloc de données dans le fichier.'); return; }
     var html = TEMPLATE.replace(re, function () { return block; });
     var d = new Date(); var pad = function (n) { return String(n).padStart(2, '0'); };
     var name = 'retroplanning_expat_' + d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + '_' + pad(d.getHours()) + 'h' + pad(d.getMinutes()) + '.html';
     var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
-    document.body.appendChild(a); a.click();
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
     state.dirty = false; $('dirty').classList.remove('on'); savedInfo();
     toast('Fichier généré : ' + name + ' (dossier Téléchargements)');
@@ -547,9 +553,13 @@
 
   // ---------- Init ----------
   document.title = DATA.meta.title || document.title;
-  $('app-title').textContent = DATA.meta.title || 'Rétroplanning';
-  $('app-subtitle').textContent = DATA.meta.subtitle || '';
-  savedInfo(); renderTabs(); render();
+  $('app-title').textContent = DATA.meta.title || 'Rétroplanning'; $('app-subtitle').textContent = DATA.meta.subtitle || '';
+  savedInfo(); renderLegend(); renderYears(); render();
+  // Centre la vue sur aujourd'hui (ou sur le premier projet).
+  var t0 = parseD(todayISO()); var R0 = range();
+  if (t0 < R0.s || t0 >= R0.e) { var first = DATA.items.map(function (i) { return i.start; }).filter(validISO).sort()[0]; if (first) t0 = parseD(first); }
+  stage.scrollLeft = (t0 - geo.s) / DAY * geo.pxDay + 60 - stage.clientWidth / 2;
+  stage.scrollTop = Math.max(0, geo.axisY + topPad() - stage.clientHeight / 2);
   var rt; window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(render, 120); });
 })();
 </script>

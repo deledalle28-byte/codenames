@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rétroplanning Expat 2026</title>
+<style>
+  :root{
+    --bg:#f4f6fa; --panel:#ffffff; --ink:#1c2333; --muted:#5f6b7f; --line:#dfe4ec; --line-soft:#eef1f6;
+    --accent:#2f5bea; --accent-ink:#ffffff; --danger:#d23c3c; --ok:#1f9d55; --warn:#e0a400;
+    --label-w:280px; --row-h:36px; --group-h:30px;
+    --shadow:0 10px 30px rgba(20,30,60,.12);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  button,input,select,textarea{font:inherit;color:inherit}
+  button{cursor:pointer}
+
+  /* ---------- Barre du haut ---------- */
+  .topbar{position:sticky;top:0;z-index:30;background:var(--panel);border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:16px;padding:10px 20px;flex-wrap:wrap}
+  .brand{display:flex;flex-direction:column;min-width:220px}
+  .brand h1{margin:0;font-size:17px;font-weight:700;letter-spacing:.2px}
+  .brand small{color:var(--muted)}
+  .tabs{display:flex;gap:4px;background:var(--line-soft);padding:4px;border-radius:10px}
+  .tab{border:0;background:transparent;padding:7px 14px;border-radius:7px;color:var(--muted);font-weight:600}
+  .tab.active{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+  .spacer{flex:1}
+  .btn{border:1px solid var(--line);background:var(--panel);padding:8px 14px;border-radius:8px;font-weight:600}
+  .btn:hover{background:var(--line-soft)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .btn.primary:hover{filter:brightness(1.08);background:var(--accent)}
+  .btn.danger{color:var(--danger);border-color:#f1c3c3}
+  .btn.danger:hover{background:#fdecec}
+  .dirty{display:none;align-items:center;gap:6px;color:var(--warn);font-weight:600;font-size:13px}
+  .dirty.on{display:inline-flex}
+  .dirty::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--warn)}
+
+  /* ---------- Frise ---------- */
+  main{padding:18px 20px 40px}
+  .hint{color:var(--muted);margin:0 0 12px;font-size:13px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .tl-scroll{overflow-x:auto;overflow-y:hidden;position:relative}
+  .tl{min-width:100%;position:relative}
+  .tl-head{display:flex;position:sticky;top:0;z-index:5;background:var(--panel);border-bottom:1px solid var(--line)}
+  .tl-label-head{width:var(--label-w);flex:0 0 var(--label-w);position:sticky;left:0;z-index:6;background:var(--panel);
+    padding:10px 14px;font-weight:700;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.6px;border-right:1px solid var(--line)}
+  .tl-months{position:relative;height:44px;flex:0 0 auto}
+  .month{position:absolute;top:0;bottom:0;border-left:1px solid var(--line);padding:6px 8px;font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden}
+  .month .yr{display:block;font-size:11px;font-weight:500;color:#98a2b3}
+  .month.jan{color:var(--ink)}
+  .tl-body{position:relative}
+  .gridlines{position:absolute;top:0;bottom:0;left:var(--label-w);pointer-events:none;z-index:0}
+  .gl{position:absolute;top:0;bottom:0;border-left:1px solid var(--line-soft)}
+  .today{position:absolute;top:0;bottom:0;border-left:2px dashed #e0483c;z-index:2}
+  .today-tag{position:absolute;bottom:3px;transform:translateX(-50%);font-size:10px;color:#fff;font-weight:700;background:#e0483c;padding:1px 6px;border-radius:4px;white-space:nowrap;z-index:2}
+  .tl-row{display:flex;position:relative;z-index:1}
+  .tl-row.group{height:var(--group-h);background:rgba(240,243,248,.85);border-top:1px solid var(--line)}
+  .tl-row.item{height:var(--row-h);border-top:1px solid var(--line-soft)}
+  .tl-row.item:hover{background:rgba(47,91,234,.04)}
+  .tl-row.item.selected{background:rgba(47,91,234,.10)}
+  .tl-label{width:var(--label-w);flex:0 0 var(--label-w);position:sticky;left:0;z-index:3;background:var(--panel);border-right:1px solid var(--line);
+    padding:0 12px 0 14px;display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+  .tl-row.group .tl-label{background:#f0f3f8;font-weight:700;font-size:12.5px;color:var(--ink);user-select:none}
+  .tl-row.item.selected .tl-label{background:#e6ecfd}
+  .tl-row.item:hover .tl-label{background:#f4f7ff}
+  .tl-label .name{overflow:hidden;text-overflow:ellipsis}
+  .tl-label .dot{width:9px;height:9px;border-radius:50%;flex:0 0 9px;border:2px solid transparent}
+  .st-planifie .dot{background:#c3cad6}
+  .st-en-cours .dot{background:#2f5bea}
+  .st-termine .dot{background:var(--ok)}
+  .st-en-retard .dot{background:var(--danger)}
+  .st-annule .dot{background:#fff;border-color:#9aa3b2}
+  .caret{display:inline-block;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #6b7588;transition:transform .15s}
+  .group.collapsed .caret{transform:rotate(-90deg)}
+  .count{color:var(--muted);font-weight:500;font-size:11.5px}
+  .tl-track{position:relative;flex:0 0 auto;height:100%}
+  .bar{position:absolute;top:7px;height:22px;border-radius:6px;display:flex;align-items:center;padding:0 8px;font-size:12px;font-weight:600;
+    white-space:nowrap;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.15);min-width:6px;overflow:visible}
+  .bar .in{overflow:hidden;text-overflow:ellipsis}
+  .bar .out{position:absolute;left:100%;margin-left:8px;color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis}
+  .bar .out.left{left:auto;right:100%;margin-left:0;margin-right:8px}
+  .bar.st-termine{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.22) 0 6px,transparent 6px 12px)}
+  .bar.st-annule{opacity:.45;text-decoration:line-through}
+  .bar:hover{filter:brightness(1.05);box-shadow:0 2px 6px rgba(0,0,0,.25)}
+  .selected .bar{outline:2px solid var(--ink);outline-offset:1px}
+  .ms{position:absolute;top:9px;width:18px;height:18px;transform:translateX(-50%) rotate(45deg);border-radius:3px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+  .ms:hover{filter:brightness(1.05)}
+  .selected .ms{outline:2px solid var(--ink);outline-offset:1px}
+  .ms-label{position:absolute;top:0;height:100%;display:flex;align-items:center;font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer;padding-left:14px}
+  .ms-label.left{padding-left:0;padding-right:14px;transform:translateX(-100%)}
+  .ms-label .txt{overflow:hidden;text-overflow:ellipsis}
+  .ms-label small{color:var(--muted);font-weight:500;margin-left:6px}
+  .empty{padding:30px;color:var(--muted);text-align:center}
+
+  /* ---------- Légende ---------- */
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin:12px 0 0;color:var(--muted);font-size:12.5px;align-items:center}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;background:#6b7fd7}
+  .legend i.d{transform:rotate(45deg);width:10px;height:10px}
+
+  /* ---------- Panneau latéral ---------- */
+  .topbar{transition:padding-right .22s ease}
+  body.drawer-open .topbar{padding-right:420px}
+  body.drawer-open main{margin-right:400px}
+  main{transition:margin-right .22s ease}
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:400px;max-width:100vw;background:var(--panel);z-index:50;box-shadow:var(--shadow);
+    transform:translateX(105%);transition:transform .22s ease;display:flex;flex-direction:column}
+  .drawer.on{transform:translateX(0)}
+  .drawer header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}
+  .drawer header h2{margin:0;font-size:15px}
+  .drawer .body{padding:16px 18px;overflow-y:auto;flex:1}
+  .drawer footer{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:space-between}
+  .x{border:0;background:transparent;font-size:20px;line-height:1;color:var(--muted);padding:4px 8px;border-radius:6px}
+  .x:hover{background:var(--line-soft)}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px}
+  .field input[type=text],.field input[type=date],.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid rgba(47,91,234,.35);border-color:var(--accent)}
+  .field textarea{min-height:90px;resize:vertical}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .seg button{flex:1;border:0;background:#fff;padding:8px;font-weight:600;color:var(--muted)}
+  .seg button.on{background:var(--accent);color:#fff}
+  .colors{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .sw{width:24px;height:24px;border-radius:6px;border:2px solid transparent;cursor:pointer}
+  .sw.on{border-color:var(--ink)}
+  .colors input[type=color]{width:34px;height:28px;border:1px solid var(--line);border-radius:6px;padding:2px;background:#fff}
+  .meta{font-size:12px;color:var(--muted);margin-top:6px}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;
+    opacity:0;transition:all .25s;z-index:60;max-width:90vw;box-shadow:var(--shadow);font-size:13px}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media (max-width:700px){
+    :root{--label-w:170px}
+    .topbar{padding:10px 14px}
+    main{padding:12px 14px 30px}
+    body.drawer-open .topbar{padding-right:14px}
+    body.drawer-open main{margin-right:0}
+  }
+  @media print{
+    .topbar .btn,.dirty,.hint,.drawer{display:none!important}
+    body{background:#fff}
+    .card{border:0}
+  }
+</style>
+</head>
+<body>
+<script id="retro-data" type="application/json">
+{
+  "meta": {
+    "title": "Rétroplanning Expat 2026",
+    "subtitle": "Expatriés · April International",
+    "source": "Retroplanning_2026_EXPAT.pptx",
+    "savedAt": null
+  },
+  "statuses": ["Planifié", "En cours", "Terminé", "En retard", "Annulé"],
+  "views": [
+    {
+      "id": "retro2026",
+      "title": "Rétroplanning 2026",
+      "start": "2026-01-01",
+      "end": "2026-12-31",
+      "categories": ["Comité International", "Jalons offres & lancements", "Chantiers", "Surveillance (MSH) – étapes"],
+      "items": [
+        {"id":"v1-ci-1","title":"Comité International","type":"jalon","start":"2026-03-26","end":"2026-03-26","category":"Comité International","owner":"Direction Internationale","status":"Planifié","color":"#5b6fb5","description":"Comité International du 26 mars 2026."},
+        {"id":"v1-ci-2","title":"Comité International","type":"jalon","start":"2026-06-29","end":"2026-06-29","category":"Comité International","owner":"Direction Internationale","status":"Planifié","color":"#5b6fb5","description":"Comité International du 29 juin 2026."},
+        {"id":"v1-ci-3","title":"Comité International","type":"jalon","start":"2026-09-08","end":"2026-09-08","category":"Comité International","owner":"Direction Internationale","status":"Planifié","color":"#5b6fb5","description":"Comité International du 8 septembre 2026."},
+        {"id":"v1-ci-4","title":"Comité International","type":"jalon","start":"2026-11-16","end":"2026-11-16","category":"Comité International","owner":"Direction Internationale","status":"Planifié","color":"#5b6fb5","description":"Comité International du 16 novembre 2026."},
+
+        {"id":"v1-j-01","title":"Bilan Prod 2025","type":"jalon","start":"2026-01-16","end":"2026-01-16","category":"Jalons offres & lancements","owner":"","status":"Planifié","color":"#8a94b8","description":"Bilan de production 2025.\nDate indicative (mi-janvier sur le rétroplanning d'origine), à confirmer."},
+        {"id":"v1-j-02","title":"Nouvelle offre Ind","type":"jalon","start":"2026-01-16","end":"2026-01-16","category":"Jalons offres & lancements","owner":"","status":"Planifié","color":"#8a94b8","description":"Lancement des travaux nouvelle offre Individuelle :\n• Ateliers de travail offre Henner\n• MHI 2.0 CFE\n• Offre VERSPIREN\nDate indicative, à confirmer."},
+        {"id":"v1-j-03","title":"Lancement MHI 2.0 1er €","type":"jalon","start":"2026-03-16","end":"2026-03-16","category":"Jalons offres & lancements","owner":"","status":"Planifié","color":"#00b3bc","description":"Lancement MHI 2.0 au 1er euro."},
+        {"id":"v1-j-04","title":"Comités : Go/NoGo Offre VERSPIREN · MHI 2.0 CFE","type":"jalon","start":"2026-04-13","end":"2026-04-13","category":"Jalons offres & lancements","owner":"","status":"Planifié","color":"#00b3bc","description":"Comités du 13 avril :\n• Go / NoGo Offre VERSPIREN\n• MHI 2.0 CFE"},
+        {"id":"v1-j-05","title":"Séminaire International","type":"periode","start":"2026-05-05","end":"2026-05-07","category":"Jalons offres & lancements","owner":"","status":"Planifié","color":"#7cb518","description":"Séminaire International du 5 au 7 mai."},
+        {"id":"v1-j-06","title":"Lancement MHB","type":"jalon","start":"2026-06-15","end":"2026-06-15","category":"Jalons offres & lancements","owner":"","status":"Planifié","color":"#c4bd19","description":"Lancement MHB le 15 juin."},
+        {"id":"v1-j-07","title":"Lancement Offre tacite Henner","type":"jalon","start":"2026-07-01","end":"2026-07-01","category":"Jalons offres & lancements","owner":"Henner","status":"Planifié","color":"#e1b900","description":"Lancement de l'offre tacite Henner au 1er juillet."},
+        {"id":"v1-j-08","title":"Validation tarifs (GGVIE)","type":"jalon","start":"2026-08-07","end":"2026-08-07","category":"Jalons offres & lancements","owner":"GGVie","status":"Planifié","color":"#f0702f","description":"Validation des tarifs par GGVie le 7 août."},
+        {"id":"v1-j-09","title":"MEP grilles tarifaires (MSH)","type":"jalon","start":"2026-09-14","end":"2026-09-14","category":"Jalons offres & lancements","owner":"MSH","status":"Planifié","color":"#e8547c","description":"Mise en production des grilles tarifaires MSH.\nDate indicative (mi-septembre), à confirmer."},
+        {"id":"v1-j-10","title":"Lancement offre Prev Henner","type":"jalon","start":"2026-10-12","end":"2026-10-12","category":"Jalons offres & lancements","owner":"Henner","status":"Planifié","color":"#f0419f","description":"Lancement de l'offre Prévoyance Henner.\nDate indicative (mi-octobre), à confirmer."},
+        {"id":"v1-j-11","title":"Lancement offre tempo / Stay&Go Henner","type":"jalon","start":"2026-11-16","end":"2026-11-16","category":"Jalons offres & lancements","owner":"Henner","status":"Planifié","color":"#bc63df","description":"Lancement de l'offre temporaire / Stay&Go Henner.\nDate indicative (mi-novembre), à confirmer."},
+        {"id":"v1-j-12","title":"À définir (xxxx)","type":"jalon","start":"2026-12-11","end":"2026-12-11","category":"Jalons offres & lancements","owner":"","status":"Planifié","color":"#bc63df","description":"Jalon non renseigné dans le rétroplanning d'origine (« xxxx »). À compléter."},
+
+        {"id":"v1-c-01","title":"Ateliers de travail offre Henner","type":"periode","start":"2026-01-05","end":"2026-09-14","category":"Chantiers","owner":"Henner","status":"Planifié","color":"#5b8def","description":"Ateliers de travail sur l'offre Henner, de janvier à mi-septembre."},
+        {"id":"v1-c-02","title":"Offre VERSPIREN","type":"periode","start":"2026-04-13","end":"2026-09-14","category":"Chantiers","owner":"Verspieren","status":"Planifié","color":"#00b3bc","description":"Chantier Offre VERSPIREN, du Go/NoGo (13 avril) à mi-septembre."},
+        {"id":"v1-c-03","title":"Surveillance (MSH)","type":"periode","start":"2026-05-27","end":"2026-09-14","category":"Chantiers","owner":"MSH","status":"Planifié","color":"#e1b900","description":"Surveillance MSH : résultats, préconisations, validation, grilles tarifaires (voir étapes détaillées)."},
+        {"id":"v1-c-04","title":"AICF : Réassurance offre Mexique","type":"periode","start":"2026-09-15","end":"2026-12-31","category":"Chantiers","owner":"AICF","status":"Planifié","color":"#e8547c","description":"Réassurance de l'offre Mexique (AICF), de mi-septembre à fin d'année."},
+        {"id":"v1-c-05","title":"Chargements OCS","type":"periode","start":"2026-09-15","end":"2026-12-31","category":"Chantiers","owner":"OCS","status":"Planifié","color":"#bc63df","description":"Chargements OCS, de mi-septembre à fin d'année."},
+
+        {"id":"v1-s-01","title":"Résultats (MSH)","type":"jalon","start":"2026-06-20","end":"2026-06-20","category":"Surveillance (MSH) – étapes","owner":"MSH","status":"Planifié","color":"#c4bd19","description":"Résultats de surveillance MSH le 20 juin."},
+        {"id":"v1-s-02","title":"Précos (GGVIE)","type":"jalon","start":"2026-07-10","end":"2026-07-10","category":"Surveillance (MSH) – étapes","owner":"GGVie","status":"Planifié","color":"#e1b900","description":"Préconisations GGVie le 10 juillet."},
+        {"id":"v1-s-03","title":"Validation précos","type":"jalon","start":"2026-07-17","end":"2026-07-17","category":"Surveillance (MSH) – étapes","owner":"","status":"Planifié","color":"#e1b900","description":"Validation des préconisations le 17 juillet."},
+        {"id":"v1-s-04","title":"Présentation précos ASFE (MSH)","type":"jalon","start":"2026-07-23","end":"2026-07-23","category":"Surveillance (MSH) – étapes","owner":"MSH","status":"Planifié","color":"#e1b900","description":"Présentation des préconisations ASFE le 23 juillet."},
+        {"id":"v1-s-05","title":"Grilles tarifaires (MSH)","type":"jalon","start":"2026-07-31","end":"2026-07-31","category":"Surveillance (MSH) – étapes","owner":"MSH","status":"Planifié","color":"#e1b900","description":"Grilles tarifaires MSH le 31 juillet."}
+      ]
+    },
+    {
+      "id": "renew2027",
+      "title": "Renouvellement 2027 – Gammes individuelles",
+      "start": "2026-03-01",
+      "end": "2027-02-28",
+      "categories": ["Réunions & comités", "Travaux techniques", "Rédaction"],
+      "items": [
+        {"id":"v2-r-01","title":"Kick-off renew Gammes individuelles","type":"jalon","start":"2026-05-19","end":"2026-05-19","category":"Réunions & comités","owner":"GGVie & AICF","status":"Planifié","color":"#2ac47b","description":"19 mai – 10h\nKick-off renouvellement gammes individuelles.\nPrésentation des résultats GGVie & AICF."},
+        {"id":"v2-r-02","title":"Présentation Comité","type":"jalon","start":"2026-06-08","end":"2026-06-08","category":"Réunions & comités","owner":"","status":"Planifié","color":"#2ac47b","description":"XX juin – heure à définir.\nDate à confirmer (début juin sur le rétroplanning d'origine)."},
+        {"id":"v2-r-03","title":"Validation des renouvellements 2027 GGVie & ICF","type":"jalon","start":"2026-06-25","end":"2026-06-25","category":"Réunions & comités","owner":"GGVie & ICF","status":"Planifié","color":"#2ac47b","description":"25 juin – 10h30\nValidation des renouvellements 2027 GGVie & ICF."},
+        {"id":"v2-r-04","title":"Établissement ToDo rédaction GGVie interne","type":"jalon","start":"2026-07-02","end":"2026-07-02","category":"Réunions & comités","owner":"GGVie","status":"Planifié","color":"#7fb51d","description":"2 juillet – 11h30\nÉtablissement de la ToDo rédaction, GGVie interne."},
+        {"id":"v2-r-05","title":"Ajustement éventuel","type":"jalon","start":"2026-07-16","end":"2026-07-16","category":"Réunions & comités","owner":"","status":"Planifié","color":"#7fb51d","description":"16 juillet – 15h\nPoint d'ajustement éventuel."},
+        {"id":"v2-r-06","title":"Revue d'affaires Internationale","type":"jalon","start":"2026-09-14","end":"2026-09-14","category":"Réunions & comités","owner":"","status":"Planifié","color":"#e0b400","description":"14 septembre – 9h30\nRevue d'affaires Internationale."},
+
+        {"id":"v2-t-01","title":"Récupération des bordereaux Cotisations & Prestations","type":"periode","start":"2026-03-01","end":"2026-04-15","category":"Travaux techniques","owner":"","status":"Planifié","color":"#5787d5","description":"Récupération des bordereaux de cotisations et de prestations."},
+        {"id":"v2-t-02","title":"Analyse des bordereaux · Établissement des comptes techniques","type":"periode","start":"2026-04-01","end":"2026-04-30","category":"Travaux techniques","owner":"","status":"Planifié","color":"#5787d5","description":"Analyse des bordereaux et établissement des comptes techniques."},
+        {"id":"v2-t-03","title":"Préconisations renouvellement","type":"periode","start":"2026-05-01","end":"2026-06-01","category":"Travaux techniques","owner":"","status":"Planifié","color":"#32bbce","description":"Préconisations de renouvellement."},
+        {"id":"v2-t-04","title":"Projections","type":"periode","start":"2026-06-01","end":"2026-06-25","category":"Travaux techniques","owner":"","status":"Planifié","color":"#2ac47b","description":"Projections, jusqu'à la validation des renouvellements (25 juin)."},
+        {"id":"v2-t-05","title":"Établissement grilles tarifaires","type":"periode","start":"2026-07-16","end":"2026-08-04","category":"Travaux techniques","owner":"","status":"Planifié","color":"#ceeb1d","description":"Établissement des grilles tarifaires."},
+        {"id":"v2-t-06","title":"Détermination des majorations moyennes et projections nouvelles","type":"periode","start":"2026-08-04","end":"2026-09-10","category":"Travaux techniques","owner":"","status":"Planifié","color":"#e0b400","description":"Détermination des majorations moyennes et projections nouvelles, avant la Revue d'affaires (14 septembre)."},
+
+        {"id":"v2-d-01","title":"Rédaction avenants cotisations CP – NI","type":"periode","start":"2026-10-15","end":"2026-11-27","category":"Rédaction","owner":"","status":"Planifié","color":"#fb852d","description":"Rédaction des avenants cotisations CP – NI."}
+      ]
+    }
+  ]
+}
+</script>
+
+<div class="topbar">
+  <div class="brand">
+    <h1 id="app-title">Rétroplanning Expat 2026</h1>
+    <small id="app-subtitle"></small>
+  </div>
+  <div class="tabs" id="tabs"></div>
+  <div class="spacer"></div>
+  <span class="dirty" id="dirty">Modifications non enregistrées</span>
+  <button class="btn" id="btn-add">+ Ajouter un projet</button>
+  <button class="btn primary" id="btn-save">Enregistrer et générer</button>
+</div>
+
+<main>
+  <p class="hint">Cliquez sur un projet pour voir et modifier ses informations et ses dates. Cliquez sur une catégorie pour la replier. « Enregistrer et générer » télécharge un nouveau fichier HTML contenant vos modifications.</p>
+  <div class="card">
+    <div class="tl-scroll" id="tl-scroll"></div>
+  </div>
+  <div class="legend">
+    <span><i class="d"></i> Jalon (date unique)</span>
+    <span><i></i> Période (début → fin)</span>
+    <span><i style="background:repeating-linear-gradient(135deg,#6b7fd7 0 4px,#b9c3ee 4px 8px)"></i> Terminé</span>
+    <span><i style="border-left:2px dashed #e0483c;background:none;width:0;border-radius:0"></i> Aujourd'hui</span>
+    <span id="saved-info"></span>
+  </div>
+</main>
+
+<aside class="drawer" id="drawer" aria-label="Détail du projet">
+  <header>
+    <h2 id="d-title">Projet</h2>
+    <button class="x" id="d-close" title="Fermer">×</button>
+  </header>
+  <div class="body">
+    <div class="field"><label for="f-title">Nom du projet</label><input type="text" id="f-title"></div>
+    <div class="field"><label>Type</label>
+      <div class="seg"><button type="button" id="t-jalon">Jalon</button><button type="button" id="t-periode">Période</button></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label for="f-start" id="l-start">Date de début</label><input type="date" id="f-start"></div>
+      <div class="field" id="w-end"><label for="f-end">Date de fin</label><input type="date" id="f-end"></div>
+    </div>
+    <div class="meta" id="f-duration"></div>
+    <div class="field"><label for="f-category">Catégorie</label><input type="text" id="f-category" list="cat-list"><datalist id="cat-list"></datalist></div>
+    <div class="row2">
+      <div class="field"><label for="f-owner">Responsable / Entité</label><input type="text" id="f-owner" placeholder="ex. Henner, MSH, GGVie"></div>
+      <div class="field"><label for="f-status">Statut</label><select id="f-status"></select></div>
+    </div>
+    <div class="field"><label>Couleur</label><div class="colors" id="f-colors"></div></div>
+    <div class="field"><label for="f-desc">Description / informations</label><textarea id="f-desc"></textarea></div>
+  </div>
+  <footer>
+    <button class="btn danger" id="d-delete">Supprimer</button>
+    <button class="btn" id="d-ok">Fermer</button>
+  </footer>
+</aside>
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  // Copie du document d'origine, capturée avant tout rendu : sert de gabarit pour générer le nouveau fichier.
+  var TEMPLATE = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+
+  var DATA = JSON.parse(document.getElementById('retro-data').textContent);
+  var state = { view: DATA.views[0].id, selected: null, dirty: false, collapsed: {} };
+  var MIN_MONTH_W = 88;
+  var DAY = 86400000;
+  var MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  var PALETTE = ['#5b8def','#5b6fb5','#00b3bc','#32bbce','#2ac47b','#7cb518','#c4bd19','#e1b900','#f0702f','#fb852d','#e8547c','#f0419f','#bc63df','#7857d5','#8a94b8'];
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ---------- Dates ----------
+  function parseD(s) { var p = String(s).split('-').map(Number); return Date.UTC(p[0], p[1] - 1, p[2]); }
+  function iso(t) { return new Date(t).toISOString().slice(0, 10); }
+  function fmtFR(s) { if (!s) return ''; var p = s.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  function monthStart(t) { var d = new Date(t); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1); }
+  function addMonths(t, n) { var d = new Date(t); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + n, 1); }
+  function todayISO() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function validISO(s) { return /^\d{4}-\d{2}-\d{2}$/.test(s || '') && !isNaN(parseD(s)); }
+
+  // ---------- Modèle ----------
+  function currentView() { for (var i = 0; i < DATA.views.length; i++) if (DATA.views[i].id === state.view) return DATA.views[i]; return DATA.views[0]; }
+  function findItem(id) { var v = currentView(); for (var i = 0; i < v.items.length; i++) if (v.items[i].id === id) return v.items[i]; return null; }
+  function statusClass(s) { return 'st-' + String(s || 'Planifié').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z]+/g, '-'); }
+  function textColor(hex) {
+    var h = (hex || '#888').replace('#', ''); if (h.length === 3) h = h.replace(/(.)/g, '$1$1');
+    var r = parseInt(h.substr(0, 2), 16), g = parseInt(h.substr(2, 2), 16), b = parseInt(h.substr(4, 2), 16);
+    return (0.299 * r + 0.587 * g + 0.114 * b) > 165 ? '#1c2333' : '#ffffff';
+  }
+  function viewRange(view) {
+    var s = parseD(view.start), e = parseD(view.end);
+    view.items.forEach(function (it) {
+      if (validISO(it.start)) { var a = parseD(it.start); if (a < s) s = a; if (a > e) e = a; }
+      if (validISO(it.end)) { var b = parseD(it.end); if (b > e) e = b; if (b < s) s = b; }
+    });
+    return { s: monthStart(s), e: addMonths(monthStart(e), 1) };
+  }
+  function categoriesOf(view) {
+    var cats = (view.categories || []).slice();
+    view.items.forEach(function (it) { var c = it.category || 'Sans catégorie'; if (cats.indexOf(c) < 0) cats.push(c); });
+    return cats;
+  }
+  function markDirty() { state.dirty = true; $('dirty').classList.add('on'); }
+
+  // ---------- Rendu de la frise ----------
+  function render() {
+    var view = currentView();
+    var range = viewRange(view);
+    var months = []; for (var t = range.s; t < range.e; t = addMonths(t, 1)) months.push(t);
+    var totalDays = (range.e - range.s) / DAY;
+    var wrap = $('tl-scroll');
+    var labelW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--label-w')) || 280;
+    var avail = Math.max(0, wrap.clientWidth - labelW - 2);
+    var width = Math.max(avail, months.length * MIN_MONTH_W);
+    var pxDay = width / totalDays;
+    var X = function (t) { return (t - range.s) / DAY * pxDay; };
+    var estW = function (t) { return String(t).length * 6.6 + 12; };
+    // Choisit le côté (droite par défaut) où le libellé a la place ; sinon le côté le plus large, avec troncature.
+    var pickSide = function (rightStart, leftEnd, need) {
+      var roomR = Math.max(0, width - rightStart), roomL = Math.max(0, leftEnd);
+      if (roomR >= need) return { left: false, room: roomR };
+      if (roomL >= need) return { left: true, room: roomL };
+      return roomR >= roomL ? { left: false, room: roomR } : { left: true, room: roomL };
+    };
+    var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+
+    var h = '<div class="tl"><div class="tl-head"><div class="tl-label-head">' + esc(view.title) + '</div><div class="tl-months" style="width:' + width + 'px">';
+    months.forEach(function (m, i) {
+      var d = new Date(m); var isJan = d.getUTCMonth() === 0;
+      var w = (addMonths(m, 1) - m) / DAY * pxDay;
+      h += '<div class="month' + (isJan ? ' jan' : '') + '" style="left:' + X(m) + 'px;width:' + w + 'px">' + MONTHS[d.getUTCMonth()] +
+        ((i === 0 || isJan) ? '<span class="yr">' + d.getUTCFullYear() + '</span>' : '') + '</div>';
+    });
+    var today = parseD(todayISO());
+    var hasToday = today >= range.s && today < range.e;
+    if (hasToday) h += '<div class="today-tag" style="left:' + X(today) + 'px">Aujourd\'hui ' + fmtFR(iso(today)).slice(0, 5) + '</div>';
+    h += '</div></div><div class="tl-body"><div class="gridlines" style="width:' + width + 'px">';
+    months.forEach(function (m) { h += '<div class="gl" style="left:' + X(m) + 'px"></div>'; });
+    if (hasToday) h += '<div class="today" style="left:' + X(today) + 'px"></div>';
+    h += '</div>';
+
+    var cats = categoriesOf(view);
+    var any = false;
+    cats.forEach(function (cat) {
+      var items = view.items.filter(function (it) { return (it.category || 'Sans catégorie') === cat; })
+        .sort(function (a, b) { return (a.start || '').localeCompare(b.start || '') || (a.title || '').localeCompare(b.title || ''); });
+      if (!items.length) return;
+      any = true;
+      var collapsed = !!state.collapsed[view.id + '|' + cat];
+      h += '<div class="tl-row group' + (collapsed ? ' collapsed' : '') + '" data-cat="' + esc(cat) + '"><div class="tl-label"><span class="caret"></span><span class="name">' + esc(cat) + '</span><span class="count">(' + items.length + ')</span></div><div class="tl-track" style="width:' + width + 'px"></div></div>';
+      if (collapsed) return;
+      items.forEach(function (it) {
+        var sc = statusClass(it.status);
+        var color = it.color || PALETTE[cats.indexOf(cat) % PALETTE.length];
+        var sel = state.selected === it.id ? ' selected' : '';
+        h += '<div class="tl-row item ' + sc + sel + '" data-id="' + esc(it.id) + '"><div class="tl-label" title="' + esc(it.title) + '"><span class="dot"></span><span class="name">' + esc(it.title) + '</span></div><div class="tl-track" style="width:' + width + 'px">';
+        if (!validISO(it.start)) { h += '</div></div>'; return; }
+        var a = parseD(it.start);
+        if (it.type === 'jalon') {
+          var x = X(a);
+          var side = pickSide(x + 9, x - 9, estW(it.title + ' ' + fmtFR(it.start)) + 14);
+          h += '<div class="ms" style="left:' + x + 'px;background:' + esc(color) + '" title="' + esc(it.title) + ' – ' + fmtFR(it.start) + '"></div>' +
+            '<div class="ms-label' + (side.left ? ' left' : '') + '" style="left:' + (side.left ? x - 9 : x + 9) + 'px;max-width:' + side.room + 'px"><span class="txt">' + esc(it.title) + '<small>' + fmtFR(it.start) + '</small></span></div>';
+        } else {
+          var b = validISO(it.end) ? parseD(it.end) : a; if (b < a) b = a;
+          var x1 = X(a), x2 = X(b + DAY);
+          var w = Math.max(6, x2 - x1);
+          var label = esc(it.title) + ' <small>' + fmtFR(it.start) + ' → ' + fmtFR(it.end || it.start) + '</small>';
+          var lw = estW(it.title + ' ' + fmtFR(it.start) + ' → ' + fmtFR(it.end || it.start));
+          var inside = w > 150;
+          var side = pickSide(x2 + 8, x1 - 8, lw);
+          h += '<div class="bar ' + sc + '" style="left:' + x1 + 'px;width:' + w + 'px;background:' + esc(color) + ';color:' + textColor(color) + '" title="' + esc(it.title) + ' : ' + fmtFR(it.start) + ' → ' + fmtFR(it.end) + '">' +
+            (inside ? '<span class="in">' + label + '</span>' : '<span class="out' + (side.left ? ' left' : '') + '" style="max-width:' + side.room + 'px">' + label + '</span>') + '</div>';
+        }
+        h += '</div></div>';
+      });
+    });
+    if (!any) h += '<div class="empty">Aucun projet dans cette vue. Utilisez « Ajouter un projet ».</div>';
+    h += '</div></div>';
+    wrap.innerHTML = h;
+  }
+
+  // ---------- Onglets ----------
+  function renderTabs() {
+    var t = $('tabs'); t.innerHTML = '';
+    DATA.views.forEach(function (v) {
+      var b = document.createElement('button'); b.className = 'tab' + (v.id === state.view ? ' active' : ''); b.textContent = v.title;
+      b.onclick = function () { state.view = v.id; state.selected = null; closeDrawer(); renderTabs(); render(); };
+      t.appendChild(b);
+    });
+  }
+
+  // ---------- Panneau d'édition ----------
+  var editing = null;
+  function openDrawer(id) {
+    var it = findItem(id); if (!it) return;
+    editing = it; state.selected = id;
+    $('d-title').textContent = it.title || 'Projet';
+    $('f-title').value = it.title || '';
+    $('f-start').value = it.start || '';
+    $('f-end').value = it.end || it.start || '';
+    $('f-category').value = it.category || '';
+    $('f-owner').value = it.owner || '';
+    $('f-desc').value = it.description || '';
+    var st = $('f-status'); st.innerHTML = '';
+    DATA.statuses.forEach(function (s) { var o = document.createElement('option'); o.value = s; o.textContent = s; st.appendChild(o); });
+    if (DATA.statuses.indexOf(it.status) < 0 && it.status) { var o = document.createElement('option'); o.value = it.status; o.textContent = it.status; st.appendChild(o); }
+    st.value = it.status || DATA.statuses[0];
+    var dl = $('cat-list'); dl.innerHTML = ''; categoriesOf(currentView()).forEach(function (c) { var o = document.createElement('option'); o.value = c; dl.appendChild(o); });
+    syncType(); renderColors(); updateDuration();
+    $('drawer').classList.add('on'); document.body.classList.add('drawer-open');
+    render(); setTimeout(render, 240);
+  }
+  function closeDrawer() { editing = null; state.selected = null; $('drawer').classList.remove('on'); document.body.classList.remove('drawer-open'); render(); setTimeout(render, 240); }
+  function syncType() {
+    if (!editing) return;
+    var j = editing.type === 'jalon';
+    $('t-jalon').classList.toggle('on', j); $('t-periode').classList.toggle('on', !j);
+    $('w-end').style.display = j ? 'none' : '';
+    $('l-start').textContent = j ? 'Date' : 'Date de début';
+  }
+  function renderColors() {
+    var box = $('f-colors'); box.innerHTML = '';
+    var cur = (editing.color || '').toLowerCase();
+    PALETTE.forEach(function (c) {
+      var s = document.createElement('span'); s.className = 'sw' + (cur === c ? ' on' : ''); s.style.background = c; s.title = c;
+      s.onclick = function () { editing.color = c; markDirty(); renderColors(); render(); };
+      box.appendChild(s);
+    });
+    var inp = document.createElement('input'); inp.type = 'color'; inp.value = cur || '#5b8def'; inp.title = 'Couleur personnalisée';
+    inp.oninput = function () { editing.color = inp.value; markDirty(); render(); };
+    box.appendChild(inp);
+  }
+  function updateDuration() {
+    if (!editing) return;
+    var el = $('f-duration');
+    if (editing.type === 'jalon' || !validISO(editing.start) || !validISO(editing.end)) { el.textContent = ''; return; }
+    var n = Math.round((parseD(editing.end) - parseD(editing.start)) / DAY) + 1;
+    el.textContent = n < 1 ? 'La date de fin est antérieure à la date de début.' : 'Durée : ' + n + ' jour' + (n > 1 ? 's' : '') + ' (' + Math.round(n / 7 * 10) / 10 + ' semaines)';
+    el.style.color = n < 1 ? 'var(--danger)' : '';
+  }
+  function bind(id, prop, after) {
+    $(id).addEventListener('input', function () {
+      if (!editing) return;
+      editing[prop] = this.value; markDirty();
+      if (after) after();
+      if (prop === 'title') $('d-title').textContent = editing.title || 'Projet';
+      render();
+    });
+  }
+  bind('f-title', 'title');
+  bind('f-category', 'category');
+  bind('f-owner', 'owner');
+  bind('f-desc', 'description');
+  $('f-status').addEventListener('change', function () { if (!editing) return; editing.status = this.value; markDirty(); render(); });
+  $('f-start').addEventListener('input', function () {
+    if (!editing || !validISO(this.value)) return;
+    editing.start = this.value;
+    if (editing.type === 'jalon' || !validISO(editing.end) || parseD(editing.end) < parseD(editing.start)) { editing.end = editing.start; $('f-end').value = editing.end; }
+    markDirty(); updateDuration(); render();
+  });
+  $('f-end').addEventListener('input', function () {
+    if (!editing || !validISO(this.value)) return;
+    editing.end = this.value; markDirty(); updateDuration(); render();
+  });
+  $('t-jalon').onclick = function () { if (!editing) return; editing.type = 'jalon'; editing.end = editing.start; $('f-end').value = editing.end; markDirty(); syncType(); updateDuration(); render(); };
+  $('t-periode').onclick = function () {
+    if (!editing) return; editing.type = 'periode';
+    if (!validISO(editing.end) || parseD(editing.end) <= parseD(editing.start)) { editing.end = iso(parseD(editing.start) + 14 * DAY); $('f-end').value = editing.end; }
+    markDirty(); syncType(); updateDuration(); render();
+  };
+  $('d-close').onclick = closeDrawer; $('d-ok').onclick = closeDrawer;
+  $('d-delete').onclick = function () {
+    if (!editing) return;
+    if (!confirm('Supprimer le projet « ' + editing.title + ' » ?')) return;
+    var v = currentView(); v.items = v.items.filter(function (it) { return it.id !== editing.id; });
+    markDirty(); closeDrawer();
+  };
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && editing) closeDrawer(); });
+
+  // ---------- Clics sur la frise ----------
+  $('tl-scroll').addEventListener('click', function (e) {
+    var g = e.target.closest('.tl-row.group');
+    if (g) { var k = state.view + '|' + g.getAttribute('data-cat'); state.collapsed[k] = !state.collapsed[k]; render(); return; }
+    var r = e.target.closest('.tl-row.item');
+    if (r) openDrawer(r.getAttribute('data-id'));
+  });
+
+  // ---------- Ajout ----------
+  $('btn-add').onclick = function () {
+    var v = currentView();
+    var start = todayISO(); var rs = viewRange(v);
+    if (parseD(start) < rs.s || parseD(start) >= rs.e) start = iso(rs.s);
+    var cats = categoriesOf(v);
+    var it = { id: 'p-' + Date.now().toString(36), title: 'Nouveau projet', type: 'periode', start: start, end: iso(parseD(start) + 14 * DAY),
+      category: cats[0] || 'Sans catégorie', owner: '', status: DATA.statuses[0], color: PALETTE[v.items.length % PALETTE.length], description: '' };
+    v.items.push(it); state.collapsed[v.id + '|' + it.category] = false; markDirty(); openDrawer(it.id);
+    setTimeout(function () { $('f-title').focus(); $('f-title').select(); }, 250);
+  };
+
+  // ---------- Enregistrer et générer ----------
+  function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove('on'); }, 4500); }
+  function savedInfo() {
+    $('saved-info').textContent = DATA.meta.savedAt ? 'Version enregistrée le ' + new Date(DATA.meta.savedAt).toLocaleString('fr-FR') : 'Version initiale (issue du PowerPoint)';
+  }
+  $('btn-save').onclick = function () {
+    DATA.meta.savedAt = new Date().toISOString();
+    var json = JSON.stringify(DATA, null, 2).replace(/<\//g, '<\\/');
+    var open = '<script id="retro-data" type="application/json">';
+    var re = new RegExp('<script id="retro-data"[^>]*>[\\s\\S]*?<\\/script>');
+    var block = open + '\n' + json + '\n</scr' + 'ipt>';
+    if (!re.test(TEMPLATE)) { alert('Impossible de retrouver le bloc de données dans le fichier.'); return; }
+    var html = TEMPLATE.replace(re, function () { return block; });
+    var d = new Date(); var pad = function (n) { return String(n).padStart(2, '0'); };
+    var name = 'retroplanning_expat_' + d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + '_' + pad(d.getHours()) + 'h' + pad(d.getMinutes()) + '.html';
+    var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+    state.dirty = false; $('dirty').classList.remove('on'); savedInfo();
+    toast('Fichier généré : ' + name + ' (dossier Téléchargements)');
+  };
+  window.addEventListener('beforeunload', function (e) { if (state.dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+  // ---------- Init ----------
+  document.title = DATA.meta.title || document.title;
+  $('app-title').textContent = DATA.meta.title || 'Rétroplanning';
+  $('app-subtitle').textContent = DATA.meta.subtitle || '';
+  savedInfo(); renderTabs(); render();
+  var rt; window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(render, 120); });
+})();
+</script>
+</body>
+</html>

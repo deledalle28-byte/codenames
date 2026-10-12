@@ -267,8 +267,7 @@
     </div>
     <button class="btn" id="btn-cats">Catégories</button>
     <button class="btn" id="btn-add">+ Ajouter</button>
-    <button class="btn primary" id="btn-save">Enregistrer</button>
-    <button class="btn" id="btn-saveas" title="Enregistrer dans un autre fichier">Enregistrer sous…</button>
+    <button class="btn primary" id="btn-save" title="Télécharge un nouveau fichier daté contenant vos modifications (Ctrl + S)">Télécharger</button>
   </div>
   <div class="row"><div class="legend" id="legend"></div><div class="spacer"></div><span class="saved" id="saved-info"></span></div>
 </div>
@@ -806,10 +805,6 @@
     if (!re.test(TEMPLATE)) { alert('Impossible de retrouver le bloc de données dans le fichier.'); return null; }
     return TEMPLATE.replace(re, function () { return block; });
   }
-  function currentFileName() {
-    try { var n = decodeURIComponent(location.pathname.split('/').pop() || ''); if (/\.html?$/i.test(n)) return n; } catch (e) { }
-    return 'retroplanning_expat.html';
-  }
   function stampedName() { var d = new Date(); var pad = function (n) { return String(n).padStart(2, '0'); }; return 'retroplanning_expat_' + d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + '_' + pad(d.getHours()) + 'h' + pad(d.getMinutes()) + '.html'; }
   function download(html, name) {
     var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
@@ -817,24 +812,13 @@
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
   }
   function markSaved() { state.dirty = false; $('dirty').classList.remove('on'); savedInfo(); }
-  var fileHandle = null; // fichier désigné par l'utilisateur (Chrome / Edge), réutilisé pour les enregistrements suivants
-  var canPick = typeof window.showSaveFilePicker === 'function';
-  function pickHandle(suggested) {
-    return window.showSaveFilePicker({ suggestedName: suggested, types: [{ description: 'Page HTML', accept: { 'text/html': ['.html'] } }] });
-  }
-  function writeHandle(h, html) {
-    return h.createWritable().then(function (w) { return w.write(html).then(function () { return w.close(); }); });
-  }
-  function save(forceAsk) {
+  function save() {
     var html = buildHtml(); if (html == null) return;
-    if (!canPick) { var n = stampedName(); download(html, n); markSaved(); toast('Nouveau fichier généré : ' + n + ' (dossier Téléchargements). Ce navigateur ne permet pas d\'écrire directement dans le fichier ouvert.'); return; }
-    var p = (fileHandle && !forceAsk) ? Promise.resolve(fileHandle) : pickHandle(currentFileName());
-    p.then(function (h) { fileHandle = h; return writeHandle(h, html).then(function () { markSaved(); toast('Enregistré dans ' + h.name); }); })
-      .catch(function (err) { if (err && err.name === 'AbortError') return; console.error(err); if (confirm('Enregistrement direct impossible (' + (err && err.message || err) + ').\nTélécharger un nouveau fichier à la place ?')) { var n = stampedName(); download(html, n); markSaved(); toast('Nouveau fichier généré : ' + n); } });
+    var n = stampedName(); download(html, n); markSaved();
+    toast('Fichier téléchargé : ' + n + ' (dossier Téléchargements)');
   }
-  $('btn-save').onclick = function () { save(false); };
-  $('btn-saveas').onclick = function () { if (!canPick) { var html = buildHtml(); if (html == null) return; var n = stampedName(); download(html, n); markSaved(); toast('Nouveau fichier généré : ' + n); return; } save(true); };
-  document.addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); save(false); } });
+  $('btn-save').onclick = save;
+  document.addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); save(); } });
   window.addEventListener('beforeunload', function (e) { if (state.dirty) { e.preventDefault(); e.returnValue = ''; } });
 
   // ---------- Init ----------
